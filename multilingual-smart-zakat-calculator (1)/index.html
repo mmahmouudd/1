@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ZakatPro — Smart Zakat Calculator</title>
+<meta name="description" content="Comprehensive Smart Zakat Calculator for all currencies and assets. Calculate your Zakat accurately with live gold, silver and currency rates." />
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Noto+Sans+Bengali:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg1:#050912; --bg2:#0a1326; --bg3:#0d1b34;
+    --panel:rgba(255,255,255,0.045);
+    --panel-solid:#0e1a30;
+    --border:rgba(212,175,55,0.16);
+    --border-soft:rgba(255,255,255,0.07);
+    --text:#eaf0fb; --muted:#93a4c0;
+    --gold:#e7c66b; --gold-2:#f3d999;
+    --green:#34d399; --green-deep:#059669;
+    --shadow:0 20px 60px -20px rgba(0,0,0,0.7);
+    --ring:rgba(52,211,153,0.35);
+  }
+  body.light{
+    --bg1:#eef3fb; --bg2:#e3ebf7; --bg3:#d7e2f3;
+    --panel:rgba(15,23,42,0.025);
+    --panel-solid:#ffffff;
+    --border:rgba(180,140,20,0.25);
+    --border-soft:rgba(15,23,42,0.08);
+    --text:#0f1d36; --muted:#54657f;
+    --gold:#b8860b; --gold-2:#cf9b1c;
+    --green:#059669; --green-deep:#047857;
+    --shadow:0 20px 50px -25px rgba(15,23,42,0.35);
+    --ring:rgba(5,150,105,0.3);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Poppins',system-ui,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 12% -10%, rgba(231,198,107,0.10), transparent 55%),
+      radial-gradient(1100px 700px at 95% 0%, rgba(52,211,153,0.12), transparent 55%),
+      linear-gradient(160deg,var(--bg1),var(--bg2) 55%,var(--bg3));
+    background-attachment:fixed;
+    min-height:100vh;
+    transition:background .6s ease,color .4s ease;
+    overflow-x:hidden;
+  }
+  body[dir="rtl"]{font-family:'Noto Naskh Arabic','Poppins',system-ui,sans-serif;}
+  body.lang-bn{font-family:'Noto Sans Bengali','Poppins',sans-serif;}
+  body.lang-hi{font-family:'Noto Sans Devanagari','Poppins',sans-serif;}
+  body.lang-zh{font-family:'Noto Sans SC','Poppins',sans-serif;}
+  body.lang-ar,body.lang-ur,body.lang-fa{font-family:'Noto Naskh Arabic','Amiri',serif;}
+
+  .glass{
+    background:var(--panel);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--border-soft);
+    border-radius:1.25rem;
+    box-shadow:var(--shadow);
+  }
+  .gold-text{background:linear-gradient(90deg,var(--gold),var(--gold-2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .accent-border{border:1px solid var(--border);}
+  .panel-solid{background:var(--panel-solid);}
+
+  /* Islamic geometric animated background */
+  .bg-geo{
+    position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(231,198,107,.07) 0 2px, transparent 3px),
+      radial-gradient(circle at 70% 60%, rgba(52,211,153,.06) 0 2px, transparent 3px);
+    background-size:60px 60px,90px 90px;
+    animation:drift 40s linear infinite;
+  }
+  @keyframes drift{from{background-position:0 0,0 0;}to{background-position:600px 600px,900px -900px;}}
+
+  .float{animation:float 6s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+
+  .input,select.input{
+    width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border-soft);
+    color:var(--text);border-radius:.85rem;padding:.7rem .9rem;outline:none;
+    transition:border-color .25s, box-shadow .25s, background .25s;font-size:.95rem;
+  }
+  body.light .input{background:rgba(15,23,42,.03);}
+  .input:focus{border-color:var(--green);box-shadow:0 0 0 4px var(--ring);}
+  .input::placeholder{color:var(--muted);opacity:.7;}
+
+  .label{font-size:.82rem;color:var(--muted);font-weight:500;letter-spacing:.02em;margin-bottom:.35rem;display:block;}
+  .field{transition:transform .3s ease, opacity .3s ease;}
+
+  .btn{
+    border-radius:.85rem;padding:.7rem 1.1rem;font-weight:600;cursor:pointer;
+    transition:transform .2s ease, box-shadow .25s ease, background .25s;display:inline-flex;align-items:center;gap:.5rem;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#1a1304;box-shadow:0 10px 30px -10px rgba(231,198,107,.6);}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+
+  .seg{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:.85rem;padding:.25rem;gap:.25rem;}
+  body.light .seg{background:rgba(15,23,42,.04);}
+  .seg button{flex:1;padding:.5rem;border-radius:.6rem;border:none;background:transparent;color:var(--muted);font-weight:600;cursor:pointer;transition:.25s;font-size:.85rem;}
+  .seg button.active{background:linear-gradient(135deg,var(--green),var(--green-deep));color:#04150d;}
+
+  .pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;padding:.3rem .7rem;border-radius:999px;background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.25);}
+  .pill.gold{background:rgba(231,198,107,.12);color:var(--gold);border-color:rgba(231,198,107,.3);}
+
+  /* fade-up animation */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:none;}
+
+  /* progress ring */
+  .ring-wrap{position:relative;width:200px;height:200px;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 1rem;}
+  .ring-bg{stroke:var(--border-soft);}
+  .ring-fg{stroke:url(#ringGrad);transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1);filter:drop-shadow(0 0 6px var(--ring));}
+
+  /* accordion */
+  details.faq{border:1px solid var(--border-soft);border-radius:.9rem;margin-bottom:.7rem;overflow:hidden;background:var(--panel);}
+  details.faq summary{cursor:pointer;padding:.9rem 1.1rem;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:1rem;}
+  details.faq summary::-webkit-details-marker{display:none;}
+  details.faq .ans{padding:0 1.1rem 1rem;color:var(--muted);line-height:1.7;font-size:.92rem;}
+  .chev{transition:transform .3s;}
+  details[open] .chev{transform:rotate(180deg);}
+
+  /* custom scrollbar */
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px;}
+
+  .nav-link{position:relative;color:var(--muted);font-weight:500;font-size:.92rem;transition:color .25s;}
+  .nav-link:hover{color:var(--text);}
+  .nav-link::after{content:'';position:absolute;left:0;bottom:-4px;height:2px;width:0;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .3s;}
+  .nav-link:hover::after{width:100%;}
+
+  .lang-opt{display:flex;align-items:center;gap:.55rem;padding:.5rem .8rem;cursor:pointer;border-radius:.6rem;transition:background .2s;}
+  .lang-opt:hover{background:rgba(255,255,255,.06);}
+  .lang-opt.active{background:rgba(52,211,153,.14);color:var(--green);}
+  .dropdown{position:absolute;right:0;top:calc(100% + .6rem);width:230px;max-height:340px;overflow:auto;z-index:50;padding:.5rem;}
+
+  .ticker{white-space:nowrap;animation:scroll 28s linear infinite;}
+  @keyframes scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  body[dir="rtl"] .ticker{animation:scrollRTL 28s linear infinite;}
+  @keyframes scrollRTL{from{transform:translateX(0);}to{transform:translateX(50%);}}
+
+  .stat-num{font-variant-numeric:tabular-nums;}
+  .glow{box-shadow:0 0 40px -10px rgba(231,198,107,.25);}
+  @media (max-width:640px){.ring-wrap{width:170px;height:170px;}}
+</style>
+</head>
+<body class="dark">
+<div class="bg-geo"></div>
+
+<!-- ============ NAV ============ -->
+<header class="sticky top-0 z-40 backdrop-blur-xl" style="background:linear-gradient(180deg,rgba(5,9,18,.85),rgba(5,9,18,.35));border-bottom:1px solid var(--border-soft);">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-3 group">
+      <span class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl accent-border glow" style="background:linear-gradient(135deg,rgba(231,198,107,.18),rgba(52,211,153,.18));">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6">
+          <path d="M12 2l2.2 5.6L20 8.4l-4 4 1 6-5-3-5 3 1-6-4-4 5.8-.8z" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="leading-tight">
+        <span class="block font-extrabold text-lg tracking-tight">Zakat<span class="gold-text">Pro</span></span>
+        <span class="block text-[11px] text-[var(--muted)]" data-i18n="tagline">Smart Zakat Calculator</span>
+      </span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-7">
+      <a href="#calculator" class="nav-link" data-i18n="navCalculator">Calculator</a>
+      <a href="#about" class="nav-link" data-i18n="navAbout">About Zakat</a>
+      <a href="#faq" class="nav-link" data-i18n="navFaq">FAQ</a>
+    </nav>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button id="themeBtn" class="btn btn-ghost !p-2.5" title="Theme" aria-label="Toggle theme">
+        <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+      <!-- Language dropdown -->
+      <div class="relative">
+        <button id="langBtn" class="btn btn-ghost !py-2 !px-3 text-sm">
+          <span id="langFlag">🌐</span>
+          <span id="langName">English</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="langMenu" class="dropdown glass hidden"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="top" class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-8 text-center">
+  <span class="pill gold float" data-i18n="badge">✨ Accurate · Live Rates · All Currencies</span>
+  <h1 class="mt-5 text-4xl sm:text-6xl font-extrabold leading-tight tracking-tight reveal" id="heroTitle">
+    Comprehensive <span class="gold-text">Smart Zakat</span> Calculator
+  </h1>
+  <p class="mt-4 max-w-2xl mx-auto text-[var(--muted)] text-base sm:text-lg reveal" id="heroSub">
+    Calculate your Zakat with precision across every currency and asset class — gold, silver, cash, stocks, crypto, business & more. Built for the global Muslim community.
+  </p>
+  <div class="mt-7 flex flex-wrap items-center justify-center gap-3 reveal">
+    <a href="#calculator" class="btn btn-gold text-sm sm:text-base" data-i18n="heroBtn">Start Calculating →</a>
+    <a href="#about" class="btn btn-ghost text-sm sm:text-base" data-i18n="navAbout">Learn About Zakat</a>
+  </div>
+
+  <!-- Live ticker -->
+  <div class="mt-9 reveal">
+    <div class="glass overflow-hidden rounded-2xl py-3 px-2">
+      <div class="flex items-center gap-4">
+        <span class="pill ml-2 shrink-0" id="rateStatus">● Live</span>
+        <div class="overflow-hidden flex-1">
+          <div class="ticker flex gap-8 text-sm" id="ticker"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CALCULATOR ============ -->
+<section id="calculator" class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-10">
+  <div class="grid lg:grid-cols-5 gap-6">
+
+    <!-- INPUT COLUMN -->
+    <div class="lg:col-span-3 space-y-5 reveal">
+      <!-- Settings bar -->
+      <div class="glass p-5">
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label class="label" data-i18n="currency">Currency</label>
+            <select id="currency" class="input"></select>
+          </div>
+          <div>
+            <label class="label" data-i18n="nisabBasedOn">Nisab based on</label>
+            <select id="nisabType" class="input">
+              <option value="silver" data-i18n="nisabSilver">Silver (612.36g)</option>
+              <option value="gold" data-i18n="nisabGold">Gold (87.48g)</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" data-i18n="hawl">Hawl (1 lunar year)?</label>
+            <div class="seg h-[42px]">
+              <button data-hawl="yes" class="active" data-i18n="yes">Yes</button>
+              <button data-hawl="no" data-i18n="no">No</button>
+            </div>
+          </div>
+        </div>
+        <p class="mt-3 text-xs text-[var(--muted)] flex items-start gap-2">
+          <span>⚠️</span><span data-i18n="hawlNote">Zakat is due only when your zakatable wealth has been held for a full lunar year (Hawl) and exceeds the Nisab threshold.</span>
+        </p>
+      </div>
+
+      <!-- ASSETS -->
+      <div class="glass p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-lg flex items-center gap-2">
+            <span class="w-2 h-6 rounded-full" style="background:linear-gradient(var(--gold),var(--green));"></span>
+            <span data-i18n="assetsTitle">Zakatable Assets</span>
+          </h3>
+          <span class="pill gold" id="assetsTotal">0</span>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4" id="assetsGrid"><!-- injected --></div>
+      </div>
+
+      <!-- LIABILITIES -->
+      <div class="glass p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-lg flex items-center gap-2">
+            <span class="w-2 h-6 rounded-full" style="background:linear-gradient(#ef4444,#f59e0b);"></span>
+            <span data-i18n="liabilitiesTitle">Deductible Liabilities</span>
+          </h3>
+          <span class="pill" id="liabTotal" style="color:#fca5a5;background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3)">0</span>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="field">
+            <label class="label" data-i18n="debt">Short-term debts you owe</label>
+            <input type="number" min="0" class="input num" data-key="debt" placeholder="0" />
+          </div>
+          <div class="field flex items-end">
+            <p class="text-xs text-[var(--muted)] leading-relaxed" data-i18n="debtNote">Include bills, loans & obligations due within the year. Personal residence, car & daily-use items are not Zakatable.</p>
+          </div>
+        </div>
+      </div>
+
+      <button id="resetBtn" class="btn btn-ghost w-full justify-center" data-i18n="reset">↺ Reset all values</button>
+    </div>
+
+    <!-- RESULTS COLUMN -->
+    <div class="lg:col-span-2 reveal">
+      <div class="glass p-6 lg:sticky lg:top-24 glow">
+        <h3 class="font-bold text-lg mb-1 text-center" data-i18n="resultsTitle">Your Zakat Summary</h3>
+        <p class="text-center text-xs text-[var(--muted)] mb-4" id="curLabel">USD</p>
+
+        <div class="flex justify-center mb-5">
+          <div class="ring-wrap">
+            <svg width="200" height="200" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="var(--gold)"/>
+                  <stop offset="100%" stop-color="var(--green)"/>
+                </linearGradient>
+              </defs>
+              <circle class="ring-bg" cx="100" cy="100" r="84" fill="none" stroke-width="14"/>
+              <circle id="ringFg" class="ring-fg" cx="100" cy="100" r="84" fill="none" stroke-width="14" stroke-linecap="round" stroke-dasharray="527.79" stroke-dashoffset="527.79"/>
+            </svg>
+            <div class="ring-center">
+              <span class="text-[11px] uppercase tracking-wider text-[var(--muted)]" data-i18n="vsNisab">vs Nisab</span>
+              <span id="ringPct" class="text-3xl font-extrabold stat-num gold-text">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2.5 text-sm">
+          <div class="flex justify-between"><span class="text-[var(--muted)]" data-i18n="totalAssets">Total Assets</span><span id="rAssets" class="font-semibold stat-num">0</span></div>
+          <div class="flex justify-between"><span class="text-[var(--muted)]" data-i18n="totalLiabilities">Liabilities</span><span id="rLiab" class="font-semibold stat-num">0</span></div>
+          <div class="flex justify-between border-t border-[var(--border-soft)] pt-2.5"><span class="text-[var(--muted)]" data-i18n="netWealth">Net Zakatable</span><span id="rNet" class="font-bold stat-num">0</span></div>
+          <div class="flex justify-between"><span class="text-[var(--muted)]" data-i18n="nisab">Nisab Threshold</span><span id="rNisab" class="font-semibold stat-num">0</span></div>
+        </div>
+
+        <div class="mt-5 rounded-2xl p-4 text-center" style="background:linear-gradient(135deg,rgba(231,198,107,.14),rgba(52,211,153,.14));border:1px solid var(--border);">
+          <div class="text-xs uppercase tracking-widest text-[var(--muted)]" data-i18n="zakatDue">Zakat Due (2.5%)</div>
+          <div id="rZakat" class="text-4xl font-extrabold mt-1 stat-num gold-text">0</div>
+        </div>
+
+        <div id="statusBox" class="mt-4 text-center text-sm rounded-xl p-3"></div>
+
+        <p class="mt-4 text-[11px] text-[var(--muted)] leading-relaxed text-center" data-i18n="disclaimer">This tool is for educational guidance. Please consult a knowledgeable scholar for your specific situation. Rates are indicative and update automatically when online.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-12">
+  <div class="text-center mb-10 reveal">
+    <span class="pill" data-i18n="navAbout">About Zakat</span>
+    <h2 class="mt-3 text-3xl sm:text-4xl font-extrabold" data-i18n="aboutTitle">What is Zakat?</h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-5 reveal">
+    <div class="glass p-6">
+      <div class="text-3xl mb-3">🕌</div>
+      <h4 class="font-bold mb-2" data-i18n="ab1t">One of the 5 Pillars</h4>
+      <p class="text-sm text-[var(--muted)] leading-relaxed" data-i18n="ab1d">Zakat is the obligatory charity paid on wealth — a divine purification that fuels social justice and spiritual growth.</p>
+    </div>
+    <div class="glass p-6">
+      <div class="text-3xl mb-3">⚖️</div>
+      <h4 class="font-bold mb-2" data-i18n="ab2t">The Nisab</h4>
+      <p class="text-sm text-[var(--muted)] leading-relaxed" data-i18n="ab2d">Zakat applies once net wealth exceeds Nisab: 87.48g of gold or 612.36g of silver, held for a full lunar year.</p>
+    </div>
+    <div class="glass p-6">
+      <div class="text-3xl mb-3">💠</div>
+      <h4 class="font-bold mb-2" data-i18n="ab3t">2.5% Rate</h4>
+      <p class="text-sm text-[var(--muted)] leading-relaxed" data-i18n="ab3d">The standard rate is 2.5% of eligible wealth. Agricultural & business assets may differ — consult a scholar.</p>
+    </div>
+  </div>
+  <p class="mt-8 text-center text-[var(--muted)] max-w-3xl mx-auto leading-relaxed reveal" data-i18n="aboutText">Our calculator consolidates every common asset — cash, bank balances, gold, silver, stocks, crypto, business inventory, receivables and trade property — then deducts your short-term liabilities to reveal your true Zakatable net, all in your chosen currency with live market rates.</p>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" class="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 py-12">
+  <div class="text-center mb-8 reveal">
+    <span class="pill gold" data-i18n="navFaq">FAQ</span>
+    <h2 class="mt-3 text-3xl sm:text-4xl font-extrabold" data-i18n="faqTitle">Frequently Asked Questions</h2>
+  </div>
+  <div id="faqList" class="reveal"><!-- injected --></div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="relative z-10 border-t border-[var(--border-soft)] mt-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid md:grid-cols-3 gap-8">
+    <div>
+      <div class="flex items-center gap-3 mb-3">
+        <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg accent-border" style="background:linear-gradient(135deg,rgba(231,198,107,.18),rgba(52,211,153,.18));">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 2l2.2 5.6L20 8.4l-4 4 1 6-5-3-5 3 1-6-4-4 5.8-.8z" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="font-extrabold text-lg">Zakat<span class="gold-text">Pro</span></span>
+      </div>
+      <p class="text-sm text-[var(--muted)] leading-relaxed" data-i18n="footerNote">A free, privacy-first Zakat calculator for the entire Ummah. Your data never leaves your device.</p>
+    </div>
+    <div>
+      <h5 class="font-semibold mb-3" data-i18n="quickLinks">Quick Links</h5>
+      <ul class="space-y-2 text-sm text-[var(--muted)]">
+        <li><a href="#calculator" class="nav-link" data-i18n="navCalculator">Calculator</a></li>
+        <li><a href="#about" class="nav-link" data-i18n="navAbout">About Zakat</a></li>
+        <li><a href="#faq" class="nav-link" data-i18n="navFaq">FAQ</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5 class="font-semibold mb-3" data-i18n="supported">Supported</h5>
+      <p class="text-sm text-[var(--muted)] leading-relaxed" data-i18n="supportedNote">20+ languages · All world currencies · Gold, silver & crypto live rates · Fully offline-capable.</p>
+    </div>
+  </div>
+  <div class="text-center text-xs text-[var(--muted)] py-5 border-t border-[var(--border-soft)]">
+    © <span id="year"></span> ZakatPro · <span data-i18n="madeWith">Made with care for the global Muslim community</span>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   i18n — Multilingual engine (20+ languages)
+   ========================================================= */
+const LANGS = {
+  en:{name:"English",flag:"🇬🇧",dir:"ltr",font:""},
+  ar:{name:"العربية",flag:"🇸🇦",dir:"rtl",font:"lang-ar"},
+  ur:{name:"اردو",flag:"🇵🇰",dir:"rtl",font:"lang-ur"},
+  fa:{name:"فارسی",flag:"🇮🇷",dir:"rtl",font:"lang-fa"},
+  fr:{name:"Français",flag:"🇫🇷",dir:"ltr",font:""},
+  es:{name:"Español",flag:"🇪🇸",dir:"ltr",font:""},
+  de:{name:"Deutsch",flag:"🇩🇪",dir:"ltr",font:""},
+  it:{name:"Italiano",flag:"🇮🇹",dir:"ltr",font:""},
+  tr:{name:"Türkçe",flag:"🇹🇷",dir:"ltr",font:""},
+  id:{name:"Indonesia",flag:"🇮🇩",dir:"ltr",font:""},
+  ms:{name:"Melayu",flag:"🇲🇾",dir:"ltr",font:""},
+  bn:{name:"বাংলা",flag:"🇧🇩",dir:"ltr",font:"lang-bn"},
+  hi:{name:"हिन्दी",flag:"🇮🇳",dir:"ltr",font:"lang-hi"},
+  zh:{name:"中文",flag:"🇨🇳",dir:"ltr",font:"lang-zh"},
+  ru:{name:"Русский",flag:"🇷🇺",dir:"ltr",font:""},
+  pt:{name:"Português",flag:"🇧🇷",dir:"ltr",font:""},
+  nl:{name:"Nederlands",flag:"🇳🇱",dir:"ltr",font:""},
+  sw:{name:"Kiswahili",flag:"🇹🇿",dir:"ltr",font:""},
+  ja:{name:"日本語",flag:"🇯🇵",dir:"ltr",font:""},
+  ko:{name:"한국어",flag:"🇰🇷",dir:"ltr",font:""}
+};
+
+const T = {
+  en:{
+    tagline:"Smart Zakat Calculator", badge:"✨ Accurate · Live Rates · All Currencies",
+    navCalculator:"Calculator", navAbout:"About Zakat", navFaq:"FAQ",
+    heroTitle:"Comprehensive Smart Zakat Calculator",
+    heroSub:"Calculate your Zakat with precision across every currency and asset class — gold, silver, cash, stocks, crypto, business & more. Built for the global Muslim community.",
+    heroBtn:"Start Calculating →",
+    currency:"Currency", nisabBasedOn:"Nisab based on", nisabSilver:"Silver (612.36g)", nisabGold:"Gold (87.48g)",
+    hawl:"Hawl (1 lunar year)?", yes:"Yes", no:"No",
+    hawlNote:"Zakat is due only when your zakatable wealth has been held for a full lunar year (Hawl) and exceeds the Nisab threshold.",
+    assetsTitle:"Zakatable Assets", liabilitiesTitle:"Deductible Liabilities",
+    debt:"Short-term debts you owe", debtNote:"Include bills, loans & obligations due within the year. Personal residence, car & daily-use items are not Zakatable.",
+    reset:"↺ Reset all values",
+    resultsTitle:"Your Zakat Summary", vsNisab:"vs Nisab",
+    totalAssets:"Total Assets", totalLiabilities:"Liabilities", netWealth:"Net Zakatable", nisab:"Nisab Threshold", zakatDue:"Zakat Due (2.5%)",
+    disclaimer:"This tool is for educational guidance. Please consult a knowledgeable scholar for your specific situation. Rates are indicative and update automatically when online.",
+    eligible:"✅ You are eligible for Zakat", notEligible:"ℹ️ Below Nisab — no Zakat due",
+    belowMsg:"Your net wealth is below the Nisab threshold. Continue purifying your wealth; may Allah accept your intentions.",
+    aboutTitle:"What is Zakat?", faqTitle:"Frequently Asked Questions",
+    ab1t:"One of the 5 Pillars", ab1d:"Zakat is the obligatory charity paid on wealth — a divine purification that fuels social justice and spiritual growth.",
+    ab2t:"The Nisab", ab2d:"Zakat applies once net wealth exceeds Nisab: 87.48g of gold or 612.36g of silver, held for a full lunar year.",
+    ab3t:"2.5% Rate", ab3d:"The standard rate is 2.5% of eligible wealth. Agricultural & business assets may differ — consult a scholar.",
+    aboutText:"Our calculator consolidates every common asset — cash, bank balances, gold, silver, stocks, crypto, business inventory, receivables and trade property — then deducts your short-term liabilities to reveal your true Zakatable net, all in your chosen currency with live market rates.",
+    footerNote:"A free, privacy-first Zakat calculator for the entire Ummah. Your data never leaves your device.",
+    quickLinks:"Quick Links", supported:"Supported", supportedNote:"20+ languages · All world currencies · Gold, silver & crypto live rates · Fully offline-capable.",
+    madeWith:"Made with care for the global Muslim community",
+    gramLabel:"grams", live:"● Live", offline:"● Cached",
+    faq:[
+      {q:"Which Nisab should I use — gold or silver?", a:"Scholars differ. Using the silver Nisab is more inclusive (lower threshold), so more people qualify to give. We let you choose; silver is recommended for caution."},
+      {q:"Is my personal home or car Zakatable?", a:"No. Your primary residence, personal vehicle and daily-use items are exempt. Only wealth held for growth or trade is counted."},
+      {q:"Do I pay Zakat on crypto?", a:"Yes, if held as an investment and above Nisab for a full lunar year. Enter its current market value in the crypto field."},
+      {q:"What if I receive income throughout the year?", a:"Zakat is calculated on wealth present at your personal Hawl date. Many add a yearly snapshot; consult a scholar for fluctuating income."},
+      {q:"Are business debts deducted?", a:"Short-term obligations due within the year are deducted. Long-term debt is treated differently — seek scholarly advice."}
+    ]
+  },
+  ar:{
+    tagline:"حاسبة الزكاة الذكية", badge:"✨ دقة · أسعار حية · كل العملات",
+    navCalculator:"الحاسبة", navAbout:"عن الزكاة", navFaq:"الأسئلة الشائعة",
+    heroTitle:"حاسبة الزكاة الذكية الشاملة",
+    heroSub:"احسب زكاتك بدقة عبر كل العملات وأنواع الأصول — الذهب والفضة والنقد والأسهم والعملات الرقمية والأعمال وغيرها. صُممت للمجتمع الإسلامي العالمي.",
+    heroBtn:"ابدأ الحساب ←",
+    currency:"العملة", nisabBasedOn:"النصاب بناءً على", nisabSilver:"الفضة (612.36غ)", nisabGold:"الذهب (87.48غ)",
+    hawl:"حال (سنة قمرية)؟", yes:"نعم", no:"لا",
+    hawlNote:"الزكاة واجبة فقط عند بلوغ المال النصاب وحيازته سنة قمرية كاملة (حول).",
+    assetsTitle:"الأصول الخاضعة للزكاة", liabilitiesTitle:"الالتزامات القابلة للخصم",
+    debt:"الديون قصيرة الأجل المستحقة", debtNote:"أدخل الفواتير والقروض والالتزامات المستحقة خلال السنة. المسكن والسيارة والأدوات الشخصية غير خاضعة للزكاة.",
+    reset:"↺ إعادة تعيين الكل",
+    resultsTitle:"ملخص الزكاة", vsNisab:"مقابل النصاب",
+    totalAssets:"إجمالي الأصول", totalLiabilities:"الالتزامات", netWealth:"الصافي الخاضع", nisab:"حد النصاب", zakatDue:"الزكاة المستحقة (2.5%)",
+    disclaimer:"هذه الأداة إرشادية. يُرجى استشارة عالم مطلع. الأسعار تقريبية وتتحدث تلقائيًا عند الاتصال.",
+    eligible:"✅ أنت مؤهل لدفع الزكاة", notEligible:"ℹ️ أقل من النصاب — لا زكاة مستحقة",
+    belowMsg:"صافي ثروتك أقل من النصاب. استمر في تنمية مالك، تقبل الله نيتك.",
+    aboutTitle:"ما هي الزكاة؟", faqTitle:"الأسئلة الشائعة",
+    ab1t:"أحد الأركان الخمسة", ab1d:"الزكاة صدقة واجبة على المال — تطهير إلهي يعزز العدالة الاجتماعية والنمو الروحي.",
+    ab2t:"النصاب", ab2d:"تجب الزكاة ببلوغ المال النصاب: 87.48غ ذهب أو 612.36غ فضة، محتفظًا بها سنة قمرية.",
+    ab3t:"نسبة 2.5%", ab3d:"النسبة المعتادة 2.5% من الثروة الخاضعة. الزراعة والأعمال تختلف — استشر عالمًا.",
+    aboutText:"تجمع حاسبتنا كل الأصول الشائعة — النقد والحسابات والذهب والفضة والأسهم والعملات الرقمية ومخزون الأعمال والديون لك — ثم تخصم الالتزامات القصيرة لإظهار صافي الزكاة الحقيقي بعملتك وأسعار حية.",
+    footerNote:"حاسبة زكاة مجانية تحترم خصوصيتك للمسلمين في كل مكان. بياناتك لا تغادر جهازك.",
+    quickLinks:"روابط سريعة", supported:"المدعوم", supportedNote:"أكثر من 20 لغة · كل عملات العالم · أسعار الذهب والفضة والعملات حية · تعمل دون اتصال.",
+    madeWith:"صُنع بعناية للمجتمع الإسلامي العالمي",
+    gramLabel:"غرام", live:"● مباشر", offline:"● مخزّن",
+    faq:[
+      {q:"أي نصاب أستخدم — الذهب أم الفضة؟", a:"العلماء مختلفون. الفضة أكثر شمولاً (عتبة أقل)، فنوصي بها للاحتياط."},
+      {q:"هل بيتي أو سيارتي عليها زكاة؟", a:"لا. المسكن والسيارة والأدوات الشخصية معفاة. فقط المال المعدّ للنمو أو التجارة."},
+      {q:"هل الزكاة على العملات الرقمية؟", a:"نعم، إن احتُفظ بها كاستثمار بلغت النصاب سنة. أدخل قيمتها السوقية."},
+      {q:"ماذا إن تغير دخلي خلال السنة؟", a:"تُحسب الزكاة على المال يوم حولك. راجع عالمًا للدخل المتذبذب."},
+      {q:"هل تُخصم ديون العمل؟", a:"الالتزامات القصيرة تُخصم. الديون طويلة الأجل تختلف — استشر عالمًا."}
+    ]
+  },
+  ur:{
+    tagline:"اسمارٹ زکاۃ کیلکولیٹر", badge:"✨ درست · لائیو ریٹس · تمام کرنسیاں",
+    navCalculator:"کیلکولیٹر", navAbout:"زکاۃ کے بارے میں", navFaq:"عام سوالات",
+    heroTitle:"جامع اسمارٹ زکاۃ کیلکولیٹر",
+    heroSub:"اپنی زکاۃ کا حساب ہر کرنسی اور اثاثے میں درست طریقے سے لگائیں — سونا، چاندی، نقد، اسٹاک، کریپٹو، کاروبار وغیرہ۔ عالمی مسلم امہ کے لیے۔",
+    heroBtn:"حساب شروع کریں ←",
+    currency:"کرنسی", nisabBasedOn:"نصاب کی بنیاد", nisabSilver:"چاندی (612.36گرام)", nisabGold:"سونا (87.48گرام)",
+    hawl:"حول (ایک قمری سال)؟", yes:"ہاں", no:"نہیں",
+    hawlNote:"زکاۃ اس وقت واجب ہے جب آپ کا زکاۃ والا مال پورا قمری سال گزر جائے اور نصاب سے زیادہ ہو۔",
+    assetsTitle:"زکاۃ والے اثاثے", liabilitiesTitle:"قابل کٹوتی واجبات",
+    debt:"آپ کے کم مدتی قرضے", debtNote:"بل، قرضے اور سال میں واجب الادا واجبات شامل کریں۔ ذاتی مکان، گاڑی اور استعمال کی چیزیں زکاۃ سے مستثنیٰ ہیں۔",
+    reset:"↺ سب ری سیٹ کریں",
+    resultsTitle:"آپ کا زکاۃ خلاصہ", vsNisab:"نصاب کے مقابلے",
+    totalAssets:"کل اثاثے", totalLiabilities:"واجبات", netWealth:"خالص زکاۃ والا", nisab:"نصاب کی حد", zakatDue:"واجب زکاۃ (2.5%)",
+    disclaimer:"یہ ٹول صرف رہنمائی کے لیے ہے۔ براہ کرم کسی عالم سے مشورہ لیں۔ ریٹس اشاریہ ہیں۔",
+    eligible:"✅ آپ زکاۃ کے اہل ہیں", notEligible:"ℹ️ نصاب سے کم — زکاۃ نہیں",
+    belowMsg:"آپ کا خالص مال نصاب سے کم ہے۔ اللہ آپ کی نیت قبول کرے۔",
+    aboutTitle:"زکاۃ کیا ہے؟", faqTitle:"عام سوالات",
+    ab1t:"پانچ ارکان میں سے ایک", ab1d:"زکاۃ مال پر واجب صدقہ ہے — ایک الہٰی پاکیزگی جو معاشرتی انصاف لاتی ہے۔",
+    ab2t:"نصاب", ab2d:"جب خالص مال نصاب سے بڑھ جائے: 87.48گرام سونا یا 612.36گرام چاندی، پورا سال رکھا ہو۔",
+    ab3t:"2.5% ریٹ", ab3d:"معیاری ریٹ 2.5% ہے۔ زراعت و کاروبار مختلف ہو سکتے ہیں — عالم سے پوچھیں۔",
+    aboutText:"ہمارا کیلکولیٹر تمام عام اثاثے یکجا کرتا ہے اور واجبات کاٹ کر حقیقی زکاۃ والا خلاصہ دیتا ہے۔",
+    footerNote:"پوری امت کے لیے مفت، رازدارانہ زکاۃ کیلکولیٹر۔ آپ کا ڈیٹا ڈیوائس سے باہر نہیں جاتا۔",
+    quickLinks:"فوری روابط", supported:"مدد یافتہ", supportedNote:"20+ زبانیں · تمام کرنسیاں · لائیو ریٹس · بغیر انٹرنیٹ بھی۔",
+    madeWith:"عالمی مسلم امہ کے لیے محبت سے بنایا گیا",
+    gramLabel:"گرام", live:"● لائیو", offline:"● محفوظ",
+    faq:[
+      {q:"کون سا نصاب استعمال کروں — سونا یا چاندی؟", a:"علماء میں اختلاف ہے۔ چاندی زیادہ شامل کرنے والی ہے، اس لیے احتیاطاً بہتر ہے。"},
+      {q:"کیا ذاتی مکان یا گاڑی پر زکاۃ ہے؟", a:"نہیں۔ ذاتی مکان، گاڑی اور استعمال کی چیزیں مستثنیٰ ہیں。"},
+      {q:"کیا کریپٹو پر زکاۃ ہے؟", a:"ہاں، اگر سرمایہ کاری میں ہو اور نصاب سے زیادہ ہو سال بھر۔ مارکیٹ ویلیو ڈالیں۔"},
+      {q:"اگر سال بھر آمدن بدلے؟", a:"زکاۃ آپ کے حول کی تاریخ کے مال پر ہے۔ عالم سے رجوع کریں۔"},
+      {q:"کیا کاروبار کے قرضے کٹیں گے؟", a:"کم مدتی واجبات کٹیں گے۔ طویل مدتی مختلف ہے — عالم سے پوچھیں۔"}
+    ]
+  },
+  fa:{
+    tagline:"ماشین‌حساب هوشمند زکات", badge:"✨ دقیق · نرخ زنده · همه ارزها",
+    navCalculator:"ماشین‌حساب", navAbout:"درباره زکات", navFaq:"پرسش‌های متداول",
+    heroTitle:"ماشین‌حساب جامع و هوشمند زکات",
+    heroSub:"زکات خود را با دقت در هر ارز و دارایی محاسبه کنید — طلا، نقره، نقد، سهام، رمزارز، کسب‌وکار و بیشتر. برای امت اسلامی جهان.",
+    heroBtn:"شروع محاسبه ←",
+    currency:"ارز", nisabBasedOn:"مبنای نصاب", nisabSilver:"نقره (۶۱۲.۳۶گ)", nisabGold:"طلا (۸۷.۴۸گ)",
+    hawl:"حول (یک سال قمری)؟", yes:"بله", no:"خیر",
+    hawlNote:"زکات تنها وقتی واجب است که ثروت زکاتی یک سال قمری نگه داشته شود و از نصاب بگذرد.",
+    assetsTitle:"دارایی‌های زکاتی", liabilitiesTitle:"بدهی‌های قابل کسر",
+    debt:"بدهی‌های کوتاه‌مدت شما", debtNote:"قبوض، وام‌ها و تعهدات سال جاری را وارد کنید. خانه و خودروی شخصی مشمول نیست.",
+    reset:"↺ بازنشانی همه",
+    resultsTitle:"خلاصه زکات شما", vsNisab:"نسبت به نصاب",
+    totalAssets:"مجموع دارایی", totalLiabilities:"بدهی‌ها", netWealth:"خالص زکاتی", nisab:"حد نصاب", zakatDue:"زکات واجب (۲.۵٪)",
+    disclaimer:"این ابزار راهنمایی است. با عالم مشورت کنید. نرخ‌ها تقریبی و خودکار به‌روز می‌شوند.",
+    eligible:"✅ شما مستحق زکات هستید", notEligible:"ℹ️ زیر نصاب — زکاتی نیست",
+    belowMsg:"ثروت خالص شما زیر نصاب است. خداوند نیت شما را بپذیرد.",
+    aboutTitle:"زکات چیست؟", faqTitle:"پرسش‌های متداول",
+    ab1t:"یکی از پنج ارکان", ab1d:"زکات صدقه واجب بر مال است — پاک‌سازی الهی که عدالت اجتماعی می‌آورد.",
+    ab2t:"نصاب", ab2d:"زکات با گذرن از نصاب واجب می‌شود: ۸۷.۴۸گ طلا یا ۶۱۲.۳۶گ نقره به‌مدت یک سال.",
+    ab3t:"نرخ ۲.۵٪", ab3d:"نرخ استاندارد ۲.۵٪ است. کشاورزی و کسب‌وکار متفاوت است — با عالم مشورت کنید.",
+    aboutText:"ماشین‌حساب ما همه دارایی‌ها را گردآوری و بدهی‌ها را کسر می‌کند تا خالص زکاتی واقعی را نمایش دهد.",
+    footerNote:"ماشین‌حساب رایگان و محرمانه زکات برای تمام امت. داده‌های شما دستگاه را ترک نمی‌کنند.",
+    quickLinks:"پیوندهای سریع", supported:"پشتیبانی‌شده", supportedNote:"۲۰+ زبان · همه ارزها · نرخ زنده طلا و نقره · بدون اینترنت.",
+    madeWith:"با دلسوزی برای امت اسلامی جهان ساخته شد",
+    gramLabel:"گرم", live:"● زنده", offline:"● ذخیره",
+    faq:[
+      {q:"کدام نصاب — طلا یا نقره؟", a:"عالمان اختلاف دارند. نقره فراگیرتر است، پس احتیاطاً بهتر است."},
+      {q:"آیا خانه یا ماشین من زکات دارد؟", a:"خیر. مسکن، خودرو و وسایل شخصی معافند."},
+      {q:"آیا رمزارز زکات دارد؟", a:"بله، اگر به‌عنوان سرمایه یک سال نگه داشته شود. ارزش بازار را وارد کنید."},
+      {q:"اگر درآمد در طول سال تغییر کند؟", a:"زکات بر مال در تاریخ حول شماست. با عالم مشورت کنید."},
+      {q:"آیا بدهی کسب‌وکار کسر می‌شود؟", a:"بدهی‌های کوتاه‌مدت کسر می‌شوند. بلندمدت متفاوت است."}
+    ]
+  },
+  fr:{
+    tagline:"Calculatrice de Zakat intelligente", badge:"✨ Précis · Taux en direct · Toutes devises",
+    navCalculator:"Calculateur", navAbout:"À propos", navFaq:"FAQ",
+    heroTitle:"Calculateur de Zakat Intelligent Complet",
+    heroSub:"Calculez votre Zakat avec précision dans chaque devise et classe d'actifs — or, argent, espèces, actions, crypto, entreprise et plus. Conçu pour la communauté musulmane mondiale.",
+    heroBtn:"Commencer →",
+    currency:"Devise", nisabBasedOn:"Nisab basé sur", nisabSilver:"Argent (612,36g)", nisabGold:"Or (87,48g)",
+    hawl:"Hawl (1 an lunaire) ?", yes:"Oui", no:"Non",
+    hawlNote:"La Zakat est due uniquement si votre patrimoine a été détenu une année lunaire complète et dépasse le Nisab.",
+    assetsTitle:"Actifs imposables", liabilitiesTitle:"Passifs déductibles",
+    debt:"Dettes à court terme dues", debtNote:"Incluez factures, prêts et obligations de l'année. Résidence, voiture et objets personnels ne sont pas imposables.",
+    reset:"↺ Réinitialiser",
+    resultsTitle:"Votre résumé Zakat", vsNisab:"vs Nisab",
+    totalAssets:"Total actifs", totalLiabilities:"Passifs", netWealth:"Net imposable", nisab:"Seuil Nisab", zakatDue:"Zakat due (2,5%)",
+    disclaimer:"Outil éducatif. Consultez un savant. Taux indicatifs, mis à jour automatiquement.",
+    eligible:"✅ Vous êtes éligible", notEligible:"ℹ️ Sous le Nisab — aucune Zakat",
+    belowMsg:"Votre patrimoine net est sous le Nisab. Que Dieu accepte vos intentions.",
+    aboutTitle:"Qu'est-ce que la Zakat ?", faqTitle:"Questions fréquentes",
+    ab1t:"Un des 5 piliers", ab1d:"La Zakat est l'aumône obligatoire sur la richesse — une purification divine.",
+    ab2t:"Le Nisab", ab2d:"La Zakat s'applique au-delà du Nisab : 87,48g d'or ou 612,36g d'argent, détenus un an lunaire.",
+    ab3t:"Taux 2,5%", ab3d:"Le taux standard est 2,5%. Agriculture et entreprise diffèrent — consultez un savant.",
+    aboutText:"Notre calculateur consolide tous les actifs courants puis déduit vos passifs à court terme pour révéler votre net imposable réel.",
+    footerNote:"Calculateur de Zakat gratuit et privé pour toute la Oumma. Vos données ne quittent jamais votre appareil.",
+    quickLinks:"Liens rapides", supported:"Pris en charge", supportedNote:"20+ langues · Toutes devises · Taux or/argent/crypto en direct · Hors ligne.",
+    madeWith:"Fait avec soin pour la communauté musulmane mondiale",
+    gramLabel:"grammes", live:"● En direct", offline:"● En cache",
+    faq:[
+      {q:"Quel Nisab utiliser — or ou argent ?", a:"Les savants diffèrent. L'argent est plus inclusif (seuil plus bas), recommandé par prudence."},
+      {q:"Ma maison ou ma voiture sont-elles imposables ?", a:"Non. Résidence, véhicule et objets personnels sont exemptés."},
+      {q:"Dois-je la Zakat sur la crypto ?", a:"Oui, si détenue comme investissement au-delà du Nisab pendant un an lunaire."},
+      {q:"Si mes revenus varient dans l'année ?", a:"La Zakat porte sur le patrimoine à votre date de Hawl. Consultez un savant."},
+      {q:"Les dettes d'entreprise sont-elles déduites ?", a:"Les obligations à court terme oui. Long terme diffère — demandez conseil."}
+    ]
+  },
+  es:{
+    tagline:"Calculadora inteligente de Zakat", badge:"✨ Precisa · Tasas en vivo · Todas las monedas",
+    navCalculator:"Calculadora", navAbout:"Sobre el Zakat", navFaq:"Preguntas",
+    heroTitle:"Calculadora Inteligente Completa de Zakat",
+    heroSub:"Calcula tu Zakat con precisión en cada moneda y clase de activo — oro, plata, efectivo, acciones, cripto, negocios y más. Hecha para la comunidad musulmana global.",
+    heroBtn:"Empezar →",
+    currency:"Moneda", nisabBasedOn:"Nisab basado en", nisabSilver:"Plata (612,36g)", nisabGold:"Oro (87,48g)",
+    hawl:"¿Hawl (1 año lunar)?", yes:"Sí", no:"No",
+    hawlNote:"El Zakat solo es obligatorio si tu riqueza se mantuvo un año lunar completo y supera el Nisab.",
+    assetsTitle:"Activos sujetos", liabilitiesTitle:"Pasivos deducibles",
+    debt:"Deudas a corto plazo", debtNote:"Incluye facturas, préstamos y obligaciones del año. Vivienda, coche y objetos personales no cuentan.",
+    reset:"↺ Reiniciar",
+    resultsTitle:"Tu resumen de Zakat", vsNisab:"vs Nisab",
+    totalAssets:"Total activos", totalLiabilities:"Pasivos", netWealth:"Neto sujeto", nisab:"Umbral Nisab", zakatDue:"Zakat debido (2,5%)",
+    disclaimer:"Herramienta educativa. Consulta a un sabio. Tasas indicativas, se actualizan solas.",
+    eligible:"✅ Eres elegible para Zakat", notEligible:"ℹ️ Bajo el Nisab — no hay Zakat",
+    belowMsg:"Tu riqueza neta está bajo el Nisab. Que Alá acepte tus intenciones.",
+    aboutTitle:"¿Qué es el Zakat?", faqTitle:"Preguntas frecuentes",
+    ab1t:"Uno de los 5 pilares", ab1d:"El Zakat es la caridad obligatoria sobre la riqueza — una purificación divina.",
+    ab2t:"El Nisab", ab2d:"El Zakat aplica al superar el Nisab: 87,48g de oro o 612,36g de plata, durante un año lunar.",
+    ab3t:"Tasa 2,5%", ab3d:"La tasa estándar es 2,5%. Agricultura y negocios difieren — consulta a un sabio.",
+    aboutText:"Nuestra calculadora consolida todos los activos comunes y resta tus pasivos a corto plazo para mostrar tu neto real sujeto.",
+    footerNote:"Calculadora de Zakat gratuita y privada para toda la Umma. Tus datos nunca salen de tu dispositivo.",
+    quickLinks:"Enlaces rápidos", supported:"Soportado", supportedNote:"20+ idiomas · Todas las monedas · Tasas oro/plata/cripto en vivo · Sin conexión.",
+    madeWith:"Hecho con cariño para la comunidad musulmana global",
+    gramLabel:"gramos", live:"● En vivo", offline:"● Guardado",
+    faq:[
+      {q:"¿Qué Nisab usar — oro o plata?", a:"Los sabios difieren. La plata es más inclusiva (umbral menor), recomendada por precaución."},
+      {q:"¿Mi casa o coche tienen Zakat?", a:"No. Vivienda, vehículo y objetos personales están exentos."},
+      {q:"¿Se paga Zakat por cripto?", a:"Sí, si se mantiene como inversión sobre el Nisab durante un año lunar."},
+      {q:"Si mis ingresos cambian todo el año?", a:"El Zakat recae sobre la riqueza en tu fecha de Hawl. Consulta a un sabio."},
+      {q:"¿Las deudas de negocio se descuentan?", a:"Las obligaciones a corto plazo, sí. Largo plazo difiere — pide consejo."}
+    ]
+  },
+  de:{
+    tagline:"Smarter Zakat-Rechner", badge:"✨ Genau · Live-Kurse · Alle Währungen",
+    navCalculator:"Rechner", navAbout:"Über Zakat", navFaq:"FAQ",
+    heroTitle:"Umfassender smarter Zakat-Rechner",
+    heroSub:"Berechne deinen Zakat präzise in jeder Währung und Anlageklasse — Gold, Silber, Bargeld, Aktien, Krypto, Geschäft und mehr. Für die globale muslimische Gemeinschaft.",
+    heroBtn:"Jetzt berechnen →",
+    currency:"Währung", nisabBasedOn:"Nisab basiert auf", nisabSilver:"Silber (612,36g)", nisabGold:"Gold (87,48g)",
+    hawl:"Hawl (1 Mondjahr)?", yes:"Ja", no:"Nein",
+    hawlNote:"Zakat ist nur fällig, wenn dein Vermögen ein volles Mondjahr gehalten wurde und den Nisab übersteigt.",
+    assetsTitle:"Zakatable Vermögenswerte", liabilitiesTitle:"Abzugsfähige Schulden",
+    debt:"Kurzfristige Schulden", debtNote:"Rechnungen, Kredite und fällige Verbindlichkeiten. Wohnsitz, Auto und Privatbesitz sind befreit.",
+    reset:"↺ Zurücksetzen",
+    resultsTitle:"Deine Zakat-Übersicht", vsNisab:"vs Nisab",
+    totalAssets:"Gesamtvermögen", totalLiabilities:"Schulden", netWealth:"Zakatable Netto", nisab:"Nisab-Schwelle", zakatDue:"Zakat fällig (2,5%)",
+    disclaimer:"Bildungshilfe. Bitte einen Gelehrten konsultieren. Kurse indikativ, automatisch aktualisiert.",
+    eligible:"✅ Du bist zakatpflichtig", notEligible:"ℹ️ Unter Nisab — keine Zakat",
+    belowMsg:"Dein Nettovermögen liegt unter dem Nisab. Möge Allah deine Absicht annehmen.",
+    aboutTitle:"Was ist Zakat?", faqTitle:"Häufige Fragen",
+    ab1t:"Eine der 5 Säulen", ab1d:"Zakat ist die Pflichtabgabe auf Vermögen — eine göttliche Reinigung.",
+    ab2t:"Der Nisab", ab2d:"Zakat gilt ab Nisab: 87,48g Gold oder 612,36g Silber, ein Mondjahr gehalten.",
+    ab3t:"Satz 2,5%", ab3d:"Der Standard ist 2,5%. Landwirtschaft und Geschäft weichen ab — Gelehrten fragen.",
+    aboutText:"Unser Rechner fasst alle gängigen Vermögenswerte zusammen und zieht kurzfristige Schulden ab.",
+    footerNote:"Kostenloser, privater Zakat-Rechner für die gesamte Umma. Deine Daten verlassen dein Gerät nicht.",
+    quickLinks:"Schnelllinks", supported:"Unterstützt", supportedNote:"20+ Sprachen · Alle Währungen · Live-Kurse · Offline.",
+    madeWith:"Mit Sorgfalt für die globale muslimische Gemeinschaft erstellt",
+    gramLabel:"Gramm", live:"● Live", offline:"● Gespeichert",
+    faq:[
+      {q:"Welchen Nisab — Gold oder Silber?", a:"Gelehrte unterscheiden sich. Silber ist inklusiver (niedriger), aus Vorsicht empfohlen."},
+      {q:"Auf Haus oder Auto fällt Zakat an?", a:"Nein. Wohnsitz, Fahrzeug und Privatbesitz sind befreit."},
+      {q:"Zakat auf Krypto?", a:"Ja, wenn als Anlage über dem Nisab ein Mondjahr gehalten."},
+      {q:"Wenn Einkommen im Jahr schwankt?", a:"Zakat bezieht sich auf Vermögen am Hawl-Datum. Gelehrten fragen."},
+      {q:"Werden Geschäftsschulden abgezogen?", a:"Kurzfristige Verbindlichkeiten ja. Langfristig anders — Rat einholen."}
+    ]
+  },
+  it:{
+    tagline:"Calcolatrice Zakat intelligente", badge:"✨ Precisa · Tassi live · Tutte le valute",
+    navCalculator:"Calcolatrice", navAbout:"Cos'è", navFaq:"FAQ",
+    heroTitle:"Calcolatrice Zakat Intelligente Completa",
+    heroSub:"Calcola la tua Zakat con precisione in ogni valuta e classe di asset — oro, argento, contanti, azioni, crypto, attività e altro. Per la comunità musulmana globale.",
+    heroBtn:"Inizia →",
+    currency:"Valuta", nisabBasedOn:"Nisab basato su", nisabSilver:"Argento (612,36g)", nisabGold:"Oro (87,48g)",
+    hawl:"Hawl (1 anno lunare)?", yes:"Sì", no:"No",
+    hawlNote:"La Zakat è dovuta solo se il patrimonio è stato detenuto un anno lunare e supera il Nisab.",
+    assetsTitle:"Asset soggetti", liabilitiesTitle:"Passività deducibili",
+    debt:"Debiti a breve termine", debtNote:"Includi bollette, prestiti e obblighi dell'anno. Casa, auto e oggetti personali non contano.",
+    reset:"↺ Reimposta",
+    resultsTitle:"Il tuo riepilogo Zakat", vsNisab:"vs Nisab",
+    totalAssets:"Totale asset", totalLiabilities:"Passività", netWealth:"Netto soggetto", nisab:"Soglia Nisab", zakatDue:"Zakat dovuta (2,5%)",
+    disclaimer:"Strumento educativo. Consulta un sapiente. Tassi indicativi, aggiornati automaticamente.",
+    eligible:"✅ Sei idoneo per la Zakat", notEligible:"ℹ️ Sotto il Nisab — nessuna Zakat",
+    belowMsg:"Il tuo patrimonio netto è sotto il Nisab. Che Allah accetti le tue intenzioni.",
+    aboutTitle:"Cos'è la Zakat?", faqTitle:"Domande frequenti",
+    ab1t:"Uno dei 5 pilastri", ab1d:"La Zakat è la carità obbligatoria sul patrimonio — una purificazione divina.",
+    ab2t:"Il Nisab", ab2d:"La Zakat si applica oltre il Nisab: 87,48g oro o 612,36g argento, per un anno lunare.",
+    ab3t:"Tasso 2,5%", ab3d:"Il tasso standard è 2,5%. Agricoltura e attività differiscono — chiedi a un sapiente.",
+    aboutText:"Il nostro calcolatore consolida tutti gli asset comuni e sottrae le passività a breve termine.",
+    footerNote:"Calcolatrice Zakat gratuita e privata per tutta l'Umma. I dati non lasciano il dispositivo.",
+    quickLinks:"Link rapidi", supported:"Supportato", supportedNote:"20+ lingue · Tutte le valute · Tassi live · Offline.",
+    madeWith:"Fatto con cura per la comunità musulmana globale",
+    gramLabel:"grammi", live:"● Live", offline:"● Salvato",
+    faq:[
+      {q:"Quale Nisab — oro o argento?", a:"I sapienti differiscono. L'argento è più inclusivo, raccomandato per cautela."},
+      {q:"Casa o auto hanno Zakat?", a:"No. Residenza, veicolo e beni personali sono esenti."},
+      {q:"Zakat sul crypto?", a:"Sì, se detenuto come investimento oltre il Nisab per un anno lunare."},
+      {q:"Se il reddito varia durante l'anno?", a:"La Zakat riguarda il patrimonio alla data di Hawl. Chiedi consiglio."},
+      {q:"I debiti d'impresa si detraggono?", a:"Le passività a breve termine sì. Lungo termine diverge — chiedi."}
+    ]
+  },
+  tr:{
+    tagline:"Akıllı Zekat Hesaplayıcı", badge:"✨ Doğru · Canlı Kurlar · Tüm Para Birimleri",
+    navCalculator:"Hesaplayıcı", navAbout:"Zekat Hakkında", navFaq:"SSS",
+    heroTitle:"Kapsamlı Akıllı Zekat Hesaplayıcı",
+    heroSub:"Zekatınızı her para birimi ve varlık sınıfında hassasiyetle hesaplayın — altın, gümüş, nakit, hisse, kripto, iş ve daha fazlası. Küresel Müslüman toplumu için.",
+    heroBtn:"Hesaplamaya Başla →",
+    currency:"Para Birimi", nisabBasedOn:"Nisap şuna göre", nisabSilver:"Gümüş (612,36g)", nisabGold:"Altın (87,48g)",
+    hawl:"Havl (1 kameri yıl)?", yes:"Evet", no:"Hayır",
+    hawlNote:"Zekat yalnızca malınız bir kameri yıl boyunca tutulmuş ve Nisap'ı aşmışsa farzdır.",
+    assetsTitle:"Zekatlık Varlıklar", liabilitiesTitle:"Düşülebilecek Borçlar",
+    debt:"Kısa vadeli borçlarınız", debtNote:"Faturalar, krediler ve yıl içi yükümlülükler. Ev, araba ve şahsi eşyalar dahil değil.",
+    reset:"↺ Tümünü sıfırla",
+    resultsTitle:"Zekat Özeti", vsNisab:"Nisap'a göre",
+    totalAssets:"Toplam Varlık", totalLiabilities:"Borçlar", netWealth:"Zekatlık Net", nisab:"Nisap Eşiği", zakatDue:"Zekat (2,5%)",
+    disclaimer:"Eğitici araçtır. Bir âlime danışın. Kurlar göstergeseldir, otomatik güncellenir.",
+    eligible:"✅ Zekat için uygunsunuz", notEligible:"ℹ️ Nisap altı — Zekat yok",
+    belowMsg:"Net varlığınız Nisap'ın altında. Allah niyetinizi kabul etsin.",
+    aboutTitle:"Zekat Nedir?", faqTitle:"Sıkça Sorulan Sorular",
+    ab1t:"5 Şarttan biri", ab1d:"Zekat mal üzerine farz olan sadakadır — ilahi bir arınma.",
+    ab2t:"Nisap", ab2d:"Zekat, Nisap'ı aşınca farz olur: 87,48g altın veya 612,36g gümüş, bir kameri yıl.",
+    ab3t:"%2,5 Oranı", ab3d:"Standart oran %2,5'tir. Tarım ve iş farklıdır — âlime sorun.",
+    aboutText:"Hesaplayıcımız tüm yaygın varlıkları toplar ve kısa vadeli borçları düşerek gerçek netinizi gösterir.",
+    footerNote:"Tüm Ümmet için ücretsiz, gizliliğe saygılı Zekat hesaplayıcı. Verileriniz cihazınızdan çıkmaz.",
+    quickLinks:"Hızlı Bağlantılar", supported:"Desteklenen", supportedNote:"20+ dil · Tüm para birimleri · Canlı altın/gümüş/kripto · Çevrimdışı.",
+    madeWith:"Küresel Müslüman toplumu için özenle hazırlandı",
+    gramLabel:"gram", live:"● Canlı", offline:"● Önbellek",
+    faq:[
+      {q:"Hangi Nisap — altın mı gümüş mü?", a:"Âlimler farklıdır. Gümüş daha kapsayıcıdır, ihtiyat için önerilir."},
+      {q:"Evim veya arabamda Zekat var mı?", a:"Hayır. İkamet, araç ve şahsi eşyalar muaf."},
+      {q:"Kriptoda Zekat var mı?", a:"Evet, yatırım olarak bir kameri yıl tutulduysa."},
+      {q:"Gelirim yıl boyu değişirse?", a:"Zekat Havl tarihinizdeki mala göredir. Âlime danışın."},
+      {q:"İş borçları düşülür mü?", a:"Kısa vadeli yükümlülükler düşülür. Uzun vadeli farklıdır."}
+    ]
+  },
+  id:{
+    tagline:"Kalkulator Zakat Cerdas", badge:"✨ Akurat · Kurs Live · Semua Mata Uang",
+    navCalculator:"Kalkulator", navAbout:"Tentang Zakat", navFaq:"FAQ",
+    heroTitle:"Kalkulator Zakat Cerdas yang Lengkap",
+    heroSub:"Hitung Zakat Anda dengan presisi dalam setiap mata uang dan aset — emas, perak, tunai, saham, kripto, bisnis, dan lainnya. Dibuat untuk komunitas Muslim global.",
+    heroBtn:"Mulai Hitung →",
+    currency:"Mata Uang", nisabBasedOn:"Nisab berdasarkan", nisabSilver:"Perak (612,36g)", nisabGold:"Emas (87,48g)",
+    hawl:"Hawl (1 tahun hijriah)?", yes:"Ya", no:"Tidak",
+    hawlNote:"Zakat wajib hanya jika harta Anda dipegang penuh satu tahun hijriah dan melebihi Nisab.",
+    assetsTitle:"Aset Kena Zakat", liabilitiesTitle:"Kewajiban yang Dikurangi",
+    debt:"Hutang jangka pendek", debtNote:"Masukkan tagihan, pinjaman, dan kewajiban tahun berjalan. Rumah, mobil, dan barang pribadi bebas.",
+    reset:"↺ Atur Ulang",
+    resultsTitle:"Ringkasan Zakat Anda", vsNisab:"vs Nisab",
+    totalAssets:"Total Aset", totalLiabilities:"Kewajiban", netWealth:"Net Kena Zakat", nisab:"Ambang Nisab", zakatDue:"Zakat (2,5%)",
+    disclaimer:"Alat bimbingan. Silakan konsultasi ulama. Kurs indikatif, otomatis diperbarui.",
+    eligible:"✅ Anda wajib Zakat", notEligible:"ℹ️ Di bawah Nisab — tidak ada Zakat",
+    belowMsg:"Harta bersih Anda di bawah Nisab. Semoga Allah menerima niat Anda.",
+    aboutTitle:"Apa itu Zakat?", faqTitle:"Pertanyaan Umum",
+    ab1t:"Satu dari 5 Rukun", ab1d:"Zakat adalah sedekah wajib atas harta — penyucian ilahi.",
+    ab2t:"Nisab", ab2d:"Zakat berlaku melewati Nisab: 87,48g emas atau 612,36g perak, satu tahun hijriah.",
+    ab3t:"Tarif 2,5%", ab3d:"Tarif standar 2,5%. Pertanian dan bisnis berbeda — tanya ulama.",
+    aboutText:"Kalkulator kami mengonsolidasi semua aset umum lalu mengurangi kewajiban jangka pendek.",
+    footerNote:"Kalkulator Zakat gratis dan privat untuk seluruh Umat. Data Anda tidak meninggalkan perangkat.",
+    quickLinks:"Tautan Cepat", supported:"Didukung", supportedNote:"20+ bahasa · Semua mata uang · Kurs emas/perak/kripto live · Offline.",
+    madeWith:"Dibuat dengan cinta untuk komunitas Muslim global",
+    gramLabel:"gram", live:"● Live", offline:"● Tersimpan",
+    faq:[
+      {q:"Nisab mana — emas atau perak?", a:"Ulama berbeda. Perak lebih inklusif (ambang lebih rendah), disarankan sebagai kehati-hatian."},
+      {q:"Rumah atau mobil saya kena Zakat?", a:"Tidak. Tempat tinggal, kendaraan, dan barang pribadi bebas."},
+      {q:"Zakat untuk kripto?", a:"Ya, jika diinvestasikan melewati Nisab selama setahun hijriah."},
+      {q:"Jika pendapatan berubah sepanjang tahun?", a:"Zakat atas harta di tanggal Hawl Anda. Konsultasi ulama."},
+      {q:"Hutang bisnis dikurangi?", a:"Kewajiban jangka pendek ya. Jangka panjang berbeda — tanya."}
+    ]
+  },
+  ms:{
+    tagline:"Kalkulator Zakat Pintar", badge:"✨ Tepat · Kadar Live · Semua Mata Wang",
+    navCalculator:"Kalkulator", navAbout:"Tentang Zakat", navFaq:"Soalan",
+    heroTitle:"Kalkulator Zakat Pintar Menyeluruh",
+    heroSub:"Kira Zakat anda dengan tepat dalam setiap mata wang dan aset — emas, perak, tunai, saham, kripto, perniagaan dan lebih lagi. Untuk umat Islam global.",
+    heroBtn:"Mula Kira →",
+    currency:"Mata Wang", nisabBasedOn:"Nisab berdasarkan", nisabSilver:"Perak (612.36g)", nisabGold:"Emas (87.48g)",
+    hawl:"Hawl (1 tahun qamari)?", yes:"Ya", no:"Tidak",
+    hawlNote:"Zakat wajib hanya jika harta ditahan penuh satu tahun qamari dan melebihi Nisab.",
+    assetsTitle:"Aset Kena Zakat", liabilitiesTitle:"Liabiliti Tolak",
+    debt:"Hutang jangka pendek", debtNote:"Masukkan bil, pinjaman dan obligasi tahun ini. Rumah, kereta dan barang peribadi dikecualikan.",
+    reset:"↺ Set Semula",
+    resultsTitle:"Ringkasan Zakat Anda", vsNisab:"vs Nisab",
+    totalAssets:"Jumlah Aset", totalLiabilities:"Liabiliti", netWealth:"Bersih Kena Zakat", nisab:"Ambang Nisab", zakatDue:"Zakat (2.5%)",
+    disclaimer:"Alat panduan. Rujuk ulama. Kadar indikatif, kemas kini automatik.",
+    eligible:"✅ Anda wajib Zakat", notEligible:"ℹ️ Bawah Nisab — tiada Zakat",
+    belowMsg:"Harta bersih anda di bawah Nisab. Semoga Allah terima niat anda.",
+    aboutTitle:"Apa itu Zakat?", faqTitle:"Soalan Lazim",
+    ab1t:"Satu dari 5 Rukun", ab1d:"Zakat adalah sedekah wajib ke atas harta — pensucian ilahi.",
+    ab2t:"Nisab", ab2d:"Zakat berlaku melebihi Nisab: 87.48g emas atau 612.36g perak, setahun qamari.",
+    ab3t:"Kadar 2.5%", ab3d:"Kadar standard 2.5%. Pertanian dan perniagaan berbeza — rujuk ulama.",
+    aboutText:"Kalkulator kami gabungkan semua aset lazim dan tolak liabiliti jangka pendek.",
+    footerNote:"Kalkulator Zakat percuma dan privasi untuk seluruh Ummah. Data anda tidak keluar peranti.",
+    quickLinks:"Pautan Pantas", supported:"Disokong", supportedNote:"20+ bahasa · Semua mata wang · Kadar emas/perak/kripto live · Offline.",
+    madeWith:"Dibuat dengan kasih untuk umat Islam global",
+    gramLabel:"gram", live:"● Live", offline:"● Simpan",
+    faq:[
+      {q:"Nisab mana — emas atau perak?", a:"Ulama berbeza. Perak lebih inklusif, disarankan sebagai berhati-hati."},
+      {q:"Rumah atau kereta kena Zakat?", a:"Tidak. Kediaman, kenderaan dan barang peribadi dikecuali."},
+      {q:"Zakat untuk kripto?", a:"Ya, jika dilabur melebihi Nisab setahun qamari."},
+      {q:"Jika pendapatan berubah sepanjang tahun?", a:"Zakat ke atas harta pada tarikh Hawl. Rujuk ulama."},
+      {q:"Hutang perniagaan ditolak?", a:"Liabiliti jangka pendek ya. Jangka panjang berbeza — tanya."}
+    ]
+  },
+  bn:{
+    tagline:"স্মার্ট যাকাত ক্যালকুলেটর", badge:"✨ সঠিক · লাইভ রেট · সব মুদ্রা",
+    navCalculator:"ক্যালকুলেটর", navAbout:"যাকাত সম্পর্কে", navFaq:"জিজ্ঞাসা",
+    heroTitle:"ব্যাপক স্মার্ট যাকাত ক্যালকুলেটর",
+    heroSub:"প্রতিটি মুদ্রা ও সম্পদ শ্রেণিতে আপনার যাকাত সঠিকভাবে হিসাব করুন — সোনা, রূপা, নগদ, শেয়ার, ক্রিপ্টো, ব্যবসা ও আরও অনেক কিছু। বৈশ্বিক মুসলিম উম্মাহর জন্য।",
+    heroBtn:"হিসাব শুরু করুন →",
+    currency:"মুদ্রা", nisabBasedOn:"নিসাব ভিত্তিক", nisabSilver:"রূপা (৬১২.৩৬গ্রাম)", nisabGold:"সোনা (৮৭.৪৮গ্রাম)",
+    hawl:"হাওল (১ চান্দ্র বছর)?", yes:"হ্যাঁ", no:"না",
+    hawlNote:"যাকাত তখনই ওয়াজিব যখন সম্পদ পূর্ণ চান্দ্র বছর ধরে থাকে ও নিসাব ছাড়ায়।",
+    assetsTitle:"যাকাতযোগ্য সম্পদ", liabilitiesTitle:"বিয়োজ্য দেনা",
+    debt:"আপনার স্বল্পমেয়াদী ঋণ", debtNote:"বিল, ঋণ ও বছরের দায় অন্তর্ভুক্ত করুন। ব্যক্তিগত বাড়ি, গাড়ি ও জিনিস যাকাতমুক্ত।",
+    reset:"↺ সব রিসেট করুন",
+    resultsTitle:"আপনার যাকাত সারসংক্ষেপ", vsNisab:"নিসাবের বিপরীতে",
+    totalAssets:"মোট সম্পদ", totalLiabilities:"দেনা", netWealth:"যাকাতযোগ্য নিট", nisab:"নিসাব সীমা", zakatDue:"যাকাত (২.৫%)",
+    disclaimer:"শিক্ষামূলক টুল। আলেমের পরামর্শ নিন। রেট আনুমানিক, স্বয়ংক্রিয় আপডেট।",
+    eligible:"✅ আপনি যাকাতের যোগ্য", notEligible:"ℹ️ নিসাবের নিচে — যাকাত নেই",
+    belowMsg:"আপনার নিট সম্পদ নিসাবের নিচে। আল্লাহ আপনার নিয়ত কবুল করুন।",
+    aboutTitle:"যাকাত কী?", faqTitle:"সচরাচর জিজ্ঞাসা",
+    ab1t:"পাঁচ স্তম্ভের একটি", ab1d:"যাকাত সম্পদের ওপর বাধ্যতামূলক দান — ঐশী পবিত্রতা।",
+    ab2t:"নিসাব", ab2d:"নিসাব ছাড়ালে যাকাত ওয়াজিব: ৮৭.৪৮গ্রাম সোনা বা ৬১২.৩৬গ্রাম রূপা, এক চান্দ্র বছর।",
+    ab3t:"২.৫% হার", ab3d:"স্ট্যান্ডার্ড হার ২.৫%। কৃষি ও ব্যবসা ভিন্ন — আলেম জিজ্ঞাসা করুন।",
+    aboutText:"আমাদের ক্যালকুলেটর সব সাধারণ সম্পদ একত্র করে স্বল্পমেয়াদী দেনা বিয়োগ করে।",
+    footerNote:"সমগ্র উম্মাহর জন্য বিনামূল্য, গোপনীয় যাকাত ক্যালকুলেটর। আপনার ডেটা ডিভাইস ছাড়া যায় না।",
+    quickLinks:"দ্রুত লিংক", supported:"সমর্থিত", supportedNote:"২০+ ভাষা · সব মুদ্রা · লাইভ রেট · অফলাইন।",
+    madeWith:"বৈশ্বিক মুসলিম উম্মাহর জন্য যত্নে তৈরি",
+    gramLabel:"গ্রাম", live:"● লাইভ", offline:"● সংরক্ষিত",
+    faq:[
+      {q:"কোন নিসাব — সোনা না রূপা?", a:"আলেমদের মতভেদ আছে। রূপা বেশি অন্তর্ভুক্তিক, সতর্কতায় উত্তম।"},
+      {q:"বাড়ি বা গাড়িতে যাকাত হয়?", a:"না। ব্যক্তিগত বাড়ি, গাড়ি ও জিনিস মুক্ত।"},
+      {q:"ক্রিপ্টোতে যাকাত?", a:"হ্যাঁ, বিনিয়োগ হিসেবে নিসাব ছাড়ালে এক চান্দ্র বছর।"},
+      {q:"বছরজুড়ে আয় বদলালে?", a:"যাকাত আপনার হাওল তারিখের সম্পদে। আলেম জিজ্ঞাসা করুন।"},
+      {q:"ব্যবসার ঋণ বিয়োগ হয়?", a:"স্বল্পমেয়াদী দায় হ্যাঁ। দীর্ঘমেয়াদী ভিন্ন — পরামর্শ নিন।"}
+    ]
+  },
+  hi:{
+    tagline:"स्मार्ट ज़कात कैलकुलेटर", badge:"✨ सटीक · लाइव रेट · सभी मुद्राएँ",
+    navCalculator:"कैलकुलेटर", navAbout:"ज़कात के बारे में", navFaq:"सामान्य प्रश्न",
+    heroTitle:"व्यापक स्मार्ट ज़कात कैलकुलेटर",
+    heroSub:"हर मुद्रा और संपत्ति वर्ग में अपनी ज़कात सटीक रूप से निकालें — सोना, चाँदी, नकद, शेयर, क्रिप्टो, व्यवसाय और अधिक। वैश्विक मुस्लिम समुदाय के लिए।",
+    heroBtn:"गणना शुरू करें →",
+    currency:"मुद्रा", nisabBasedOn:"निसाब आधारित", nisabSilver:"चाँदी (612.36ग्राम)", nisabGold:"सोना (87.48ग्राम)",
+    hawl:"हवल (1 चांद्र वर्ष)?", yes:"हाँ", no:"नहीं",
+    hawlNote:"ज़कात तभी अनिवार्य है जब संपत्ति पूरा चांद्र वर्ष रही हो और निसाब से अधिक हो।",
+    assetsTitle:"ज़कात योग्य संपत्ति", liabilitiesTitle:"घटाए जाने योग्य दायित्व",
+    debt:"आपके अल्पकालिक ऋण", debtNote:"बिल, ऋण और वर्ष की देनदारियाँ शामिल करें। व्यक्तिगत घर, गाड़ी व सामान मुक्त हैं।",
+    reset:"↺ सभी रीसेट करें",
+    resultsTitle:"आपका ज़कात सारांश", vsNisab:"निसाब के विरुद्ध",
+    totalAssets:"कुल संपत्ति", totalLiabilities:"दायित्व", netWealth:"शुद्ध ज़कात योग्य", nisab:"निसाब सीमा", zakatDue:"ज़कात (2.5%)",
+    disclaimer:"शैक्षिक उपकरण। विद्वान से परामर्श लें। दरें सांकेतिक हैं, स्वतः अद्यतन।",
+    eligible:"✅ आप ज़कात के पात्र हैं", notEligible:"ℹ️ निसाब से नीचे — ज़कात नहीं",
+    belowMsg:"आपकी शुद्ध संपत्ति निसाब से नीचे है। अल्लाह आपकी नीयत कबूल करे।",
+    aboutTitle:"ज़कात क्या है?", faqTitle:"सामान्य प्रश्न",
+    ab1t:"५ स्तंभों में से एक", ab1d:"ज़कात संपत्ति पर अनिवार्य दान है — ईश्वरीय पवित्रता।",
+    ab2t:"निसाब", ab2d:"निसाब पार करने पर ज़कात: 87.48ग्राम सोना या 612.36ग्राम चाँदी, एक चांद्र वर्ष।",
+    ab3t:"2.5% दर", ab3d:"मानक दर 2.5% है। कृषि व्यवसाय भिन्न हो सकते हैं — विद्वान से पूछें।",
+    aboutText:"हमारा कैलकुलेटर सभी सामान्य संपत्तियों को जोड़कर अल्पकालिक दायित्व घटाता है।",
+    footerNote:"सम्पूर्ण उम्माह के लिए निःशुल्क, निजी ज़कात कैलकुलेटर। आपका डेटा डिवाइस नहीं छोड़ता।",
+    quickLinks:"त्वरित लिंक", supported:"समर्थित", supportedNote:"20+ भाषाएँ · सभी मुद्राएँ · लाइव रेट · ऑफलाइन।",
+    madeWith:"वैश्विक मुस्लिम समुदाय के लिए स्नेह से बनाया",
+    gramLabel:"ग्राम", live:"● लाइव", offline:"● संग्रहीत",
+    faq:[
+      {q:"कौन सा निसाब — सोना या चाँदी?", a:"विद्वान भिन्न हैं। चाँदी अधिक समावेशी है, सावधानी हेतु उत्तम।"},
+      {q:"घर या गाड़ी पर ज़कात?", a:"नहीं। निजी आवास, वाहन व सामान मुक्त हैं।"},
+      {q:"क्रिप्टो पर ज़कात?", a:"हाँ, निवेश रूप में निसाब से अधिक होने पर एक चांद्र वर्ष।"},
+      {q:"यदि वर्ष भर आय बदले?", a:"ज़कात आपकी हवल तिथि की संपत्ति पर। विद्वान से पूछें।"},
+      {q:"व्यवसाय का ऋण घटेगा?", a:"अल्पकालिक दायित्व हाँ। दीर्घकालिक भिन्न — परामर्श लें।"}
+    ]
+  },
+  zh:{
+    tagline:"智能天课计算器", badge:"✨ 精准 · 实时汇率 · 所有货币",
+    navCalculator:"计算器", navAbout:"关于天课", navFaq:"常见问题",
+    heroTitle:"全面智能天课计算器",
+    heroSub:"以每种货币和资产类别精准计算您的天课 — 黄金、白银、现金、股票、加密货币、商业等。为全球穆斯林社群打造。",
+    heroBtn:"开始计算 →",
+    currency:"货币", nisabBasedOn:"天课起征点基于", nisabSilver:"白银 (612.36克)", nisabGold:"黄金 (87.48克)",
+    hawl:"周年（一个阴历年）？", yes:"是", no:"否",
+    hawlNote:"仅当您的应税财富持满一个阴历年且超过起征点（Nisab）时，天课才成为义务。",
+    assetsTitle:"应税资产", liabilitiesTitle:"可扣除负债",
+    debt:"您的短期债务", debtNote:"包括账单、贷款和年内到期债务。自住房、汽车及个人用品免征税。",
+    reset:"↺ 重置全部",
+    resultsTitle:"您的天课摘要", vsNisab:"对比起征点",
+    totalAssets:"总资产", totalLiabilities:"负债", netWealth:"应税净额", nisab:"起征点门槛", zakatDue:"应缴天课 (2.5%)",
+    disclaimer:"本工具仅供参考。请咨询学者。汇率为指示性，自动更新。",
+    eligible:"✅ 您符合缴纳天课资格", notEligible:"ℹ️ 低于起征点 — 无需天课",
+    belowMsg:"您的净资产低于起征点。愿真主接受您的诚意。",
+    aboutTitle:"什么是天课？", faqTitle:"常见问题",
+    ab1t:"五大支柱之一", ab1d:"天课是财富上的 obligatory 施舍 — 神圣的净化。",
+    ab2t:"起征点", ab2d:"超过起征点即需缴纳：87.48克黄金或612.36克白银，持满一个阴历年。",
+    ab3t:"2.5% 税率", ab3d:"标准税率为2.5%。农业与商业有所不同 — 请咨询学者。",
+    aboutText:"我们的计算器整合所有常见资产，并扣除短期负债，呈现真实的应税净额。",
+    footerNote:"为全体乌玛打造的免费、隐私优先天课计算器。您的数据永不离开设备。",
+    quickLinks:"快速链接", supported:"支持", supportedNote:"20+ 语言 · 所有货币 · 黄金/白银/加密货币实时汇率 · 离线可用。",
+    madeWith:"为全球穆斯林社群用心打造",
+    gramLabel:"克", live:"● 实时", offline:"● 已缓存",
+    faq:[
+      {q:"使用哪个起征点 — 黄金还是白银？", a:"学者看法不同。白银更具包容性（门槛更低），谨慎起见推荐白银。"},
+      {q:"我的房屋或汽车需要天课吗？", a:"不需要。自住房、车辆及个人用品均豁免。"},
+      {q:"加密货币需要天课吗？", a:"需要，若作为投资持满一个阴历年且超过起征点。"},
+      {q:"如果年内收入波动？", a:"天课以您周年日的财富为准。请咨询学者。"},
+      {q:"商业债务可扣除吗？", a:"短期债务可扣除。长期债务不同 — 请咨询。"}
+    ]
+  },
+  ru:{
+    tagline:"Умный калькулятор Закята", badge:"✨ Точно · Курсы в реальном времени · Все валюты",
+    navCalculator:"Калькулятор", navAbout:"О Закяте", navFaq:"FAQ",
+    heroTitle:"Полный умный калькулятор Закята",
+    heroSub:"Рассчитайте свой Закят точно в любой валюте и классе активов — золото, серебро, наличные, акции, крипто, бизнес и др. Для глобальной мусульманской общины.",
+    heroBtn:"Начать →",
+    currency:"Валюта", nisabBasedOn:"Нисаб на основе", nisabSilver:"Серебро (612,36г)", nisabGold:"Золото (87,48г)",
+    hawl:"Хавл (1 лунный год)?", yes:"Да", no:"Нет",
+    hawlNote:"Закят обязателен, только если богатство удерживалось полный лунный год и превышает Нисаб.",
+    assetsTitle:"Облагаемые активы", liabilitiesTitle:"Вычитаемые обязательства",
+    debt:"Краткосрочные долги", debtNote:"Включите счета, кредиты и обязательства года. Жильё, машина и личные вещи освобождены.",
+    reset:"↺ Сбросить",
+    resultsTitle:"Ваша сводка Закята", vsNisab:"отн. Нисаб",
+    totalAssets:"Всего активов", totalLiabilities:"Обязательства", netWealth:"Чистый облагаемый", nisab:"Порог Нисаб", zakatDue:"Закят (2,5%)",
+    disclaimer:"Обучающий инструмент. Проконсультируйтесь с учёным. Курсы ориентировочны, обновляются автоматически.",
+    eligible:"✅ Вы обязаны Закятом", notEligible:"ℹ️ Ниже Нисаб — Закята нет",
+    belowMsg:"Ваш чистый капитал ниже Нисаб. Да примет Аллах ваше намерение.",
+    aboutTitle:"Что такое Закят?", faqTitle:"Частые вопросы",
+    ab1t:"Один из 5 столпов", ab1d:"Закят — обязательная милостыня с имущества — божественное очищение.",
+    ab2t:"Нисаб", ab2d:"Закят при превышении Нисаб: 87,48г золота или 612,36г серебра, удержанных лунный год.",
+    ab3t:"Ставка 2,5%", ab3d:"Стандартная ставка 2,5%. Сельское хозяйство и бизнес отличаются — спросите учёного.",
+    aboutText:"Наш калькулятор объединяет все активы и вычитает краткосрочные обязательства.",
+    footerNote:"Бесплатный приватный калькулятор Закята для всей Уммы. Данные не покидают устройство.",
+    quickLinks:"Быстрые ссылки", supported:"Поддержка", supportedNote:"20+ языков · Все валюты · Курсы в реальном времени · Офлайн.",
+    madeWith:"С заботой для глобальной мусульманской общины",
+    gramLabel:"грамм", live:"● В эфире", offline:"● Кэш",
+    faq:[
+      {q:"Какой Нисаб — золото или серебро?", a:"Учёные расходятся. Серебро инклюзивнее (порог ниже), рекомендуется осторожно."},
+      {q:"На дом или машину Закят?", a:"Нет. Жильё, транспорт и личные вещи освобождены."},
+      {q:"Закят с крипто?", a:"Да, если удерживалось как инвестиция выше Нисаб лунный год."},
+      {q:"Если доход меняется за год?", a:"Закят по имуществу на дату Хавл. Проконсультируйтесь с учёным."},
+      {q:"Вычитаются ли долги бизнеса?", a:"Краткосрочные обязательства — да. Долгосрочные иначе — спросите."}
+    ]
+  },
+  pt:{
+    tagline:"Calculadora de Zakat inteligente", badge:"✨ Precisa · Taxas ao vivo · Todas moedas",
+    navCalculator:"Calculadora", navAbout:"Sobre o Zakat", navFaq:"FAQ",
+    heroTitle:"Calculadora Inteligente Completa de Zakat",
+    heroSub:"Calcule seu Zakat com precisão em cada moeda e classe de ativo — ouro, prata, dinheiro, ações, cripto, negócios e mais. Feita para a comunidade muçulmana global.",
+    heroBtn:"Começar →",
+    currency:"Moeda", nisabBasedOn:"Nisab baseado em", nisabSilver:"Prata (612,36g)", nisabGold:"Ouro (87,48g)",
+    hawl:"Hawl (1 ano lunar)?", yes:"Sim", no:"Não",
+    hawlNote:"O Zakat é devido apenas se sua riqueza foi mantida um ano lunar completo e excede o Nisab.",
+    assetsTitle:"Ativos sujeitos", liabilitiesTitle:"Passivos dedutíveis",
+    debt:"Dívidas de curto prazo", debtNote:"Inclua contas, empréstimos e obrigações do ano. Residência, carro e itens pessoais são isentos.",
+    reset:"↺ Redefinir",
+    resultsTitle:"Seu resumo de Zakat", vsNisab:"vs Nisab",
+    totalAssets:"Total de ativos", totalLiabilities:"Passivos", netWealth:"Líquido sujeito", nisab:"Limite Nisab", zakatDue:"Zakat devido (2,5%)",
+    disclaimer:"Ferramenta educativa. Consulte um sábio. Taxas indicativas, atualizam automaticamente.",
+    eligible:"✅ Você é elegível para Zakat", notEligible:"ℹ️ Abaixo do Nisab — sem Zakat",
+    belowMsg:"Sua riqueza líquida está abaixo do Nisab. Que Allah aceite suas intenções.",
+    aboutTitle:"O que é o Zakat?", faqTitle:"Perguntas frequentes",
+    ab1t:"Um dos 5 pilares", ab1d:"O Zakat é a caridade obrigatória sobre a riqueza — uma purificação divina.",
+    ab2t:"O Nisab", ab2d:"O Zakat aplica-se acima do Nisab: 87,48g de ouro ou 612,36g de prata, por um ano lunar.",
+    ab3t:"Taxa 2,5%", ab3d:"A taxa padrão é 2,5%. Agricultura e negócios diferem — consulte um sábio.",
+    aboutText:"Nossa calculadora consolida todos os ativos comuns e subtrai passivos de curto prazo.",
+    footerNote:"Calculadora de Zakat gratuita e privada para toda a Umma. Seus dados nunca saem do dispositivo.",
+    quickLinks:"Links rápidos", supported:"Suportado", supportedNote:"20+ idiomas · Todas moedas · Taxas ouro/prata/cripto ao vivo · Offline.",
+    madeWith:"Feito com carinho para a comunidade muçulmana global",
+    gramLabel:"gramas", live:"● Ao vivo", offline:"● Salvo",
+    faq:[
+      {q:"Qual Nisab — ouro ou prata?", a:"Sábios divergem. A prata é mais inclusiva (limite menor), recomendada por cautela."},
+      {q:"Minha casa ou carro têm Zakat?", a:"Não. Residência, veículo e itens pessoais são isentos."},
+      {q:"Zakat sobre cripto?", a:"Sim, se mantida como investimento acima do Nisab por um ano lunar."},
+      {q:"Se minha renda muda no ano?", a:"O Zakat recai sobre a riqueza na sua data de Hawl. Consulte um sábio."},
+      {q:"Dívidas de negócio são deduzidas?", a:"Obrigações de curto prazo, sim. Longo prazo difere — peça conselho."}
+    ]
+  },
+  nl:{
+    tagline:"Slimme Zakat-calculator", badge:"✨ Nauwkeurig · Live koersen · Alle valuta",
+    navCalculator:"Calculator", navAbout:"Over Zakat", navFaq:"FAQ",
+    heroTitle:"Uitgebreide slimme Zakat-calculator",
+    heroSub:"Bereken je Zakat nauwkeurig in elke valuta en activaklasse — goud, zilver, contant, aandelen, crypto, bedrijf en meer. Voor de wereldwijde moslimgemeenschap.",
+    heroBtn:"Begin →",
+    currency:"Valuta", nisabBasedOn:"Nisab gebaseerd op", nisabSilver:"Zilver (612,36g)", nisabGold:"Goud (87,48g)",
+    hawl:"Hawl (1 maanjaar)?", yes:"Ja", no:"Nee",
+    hawlNote:"Zakat is alleen verplicht als je vermogen een vol maanjaar is aangehouden en de Nisab overschrijdt.",
+    assetsTitle:"Zakatplichtige bezittingen", liabilitiesTitle:"Aftrekbare schulden",
+    debt:"Kortlopende schulden", debtNote:"Voeg rekeningen, leningen en verplichtingen toe. Woning, auto en persoonlijke spullen zijn vrijgesteld.",
+    reset:"↺ Alles resetten",
+    resultsTitle:"Jouw Zakat-overzicht", vsNisab:"vs Nisab",
+    totalAssets:"Totaal bezit", totalLiabilities:"Schulden", netWealth:"Zakatplichtig netto", nisab:"Nisab-drempel", zakatDue:"Zakat verschuldigd (2,5%)",
+    disclaimer:"Educatief hulpmiddel. Raadpleeg een geleerde. Koersen indicatief, automatisch bijgewerkt.",
+    eligible:"✅ Je bent Zakat-plichtig", notEligible:"ℹ️ Onder Nisab — geen Zakat",
+    belowMsg:"Je netto vermogen ligt onder de Nisab. Moge Allah je intentie aanvaarden.",
+    aboutTitle:"Wat is Zakat?", faqTitle:"Veelgestelde vragen",
+    ab1t:"Een van de 5 pilaren", ab1d:"Zakat is de verplichte liefdadigheid over vermogen — een goddelijke zuivering.",
+    ab2t:"De Nisab", ab2d:"Zakat geldt boven de Nisab: 87,48g goud of 612,36g zilver, een maanjaar aangehouden.",
+    ab3t:"Tarief 2,5%", ab3d:"Het standaardtarief is 2,5%. Landbouw en bedrijf verschillen — raadpleeg een geleerde.",
+    aboutText:"Onze calculator bundelt alle gebruikelijke bezittingen en trekt kortlopende schulden af.",
+    footerNote:"Gratis, privacyvriendelijke Zakat-calculator voor de hele Umma. Je gegevens verlaten je apparaat niet.",
+    quickLinks:"Snelle links", supported:"Ondersteund", supportedNote:"20+ talen · Alle valuta · Live koersen · Offline.",
+    madeWith:"Met zorg gemaakt voor de wereldwijde moslimgemeenschap",
+    gramLabel:"gram", live:"● Live", offline:"● Opgeslagen",
+    faq:[
+      {q:"Welke Nisab — goud of zilver?", a:"Geleerden verschillen. Zilver is inclusiever (lagere drempel), uit voorzorg aanbevolen."},
+      {q:"Zakat op huis of auto?", a:"Nee. Woning, voertuig en persoonlijke spullen zijn vrijgesteld."},
+      {q:"Zakat op crypto?", a:"Ja, als belegging boven de Nisab een maanjaar aangehouden."},
+      {q:"Als inkomen door het jaar varieert?", a:"Zakat ziet op vermogen op je Hawl-datum. Raadpleeg een geleerde."},
+      {q:"Worden bedrijfsschulden afgetrokken?", a:"Kortlopende verplichtingen ja. Langlopend verschilt — vraag advies."}
+    ]
+  },
+  sw:{
+    tagline:"Kikokotoo cha Zakat cha Akili", badge:"✨ Sahihi · Bei za Moja kwa Moja · Sarafu Zote",
+    navCalculator:"Kikokotoo", navAbout:"Kuhusu Zakat", navFaq:"Maswali",
+    heroTitle:"Kikokotoo cha Zakat cha Akili cha Kina",
+    heroSub:"Kokotoa Zakat yako kwa usahihi katika kila sarafu na aina ya mali — dhahabu, fedha, pesa taslimu, hisa, crypto, biashara na zaidi. Kwa jamii ya Waislamu duniani.",
+    heroBtn:"Anza →",
+    currency:"Sarafu", nisabBasedOn:"Nisab kulingana na", nisabSilver:"Fedha (612.36g)", nisabGold:"Dhahabu (87.48g)",
+    hawl:"Hawl (mwaka 1 wa kamari)?", yes:"Ndiyo", no:"Hapana",
+    hawlNote:"Zakat inawajibika tu ikimaliwa mwaka mzima wa kamari na kuzidi Nisab.",
+    assetsTitle:"Mali Zinazotozwa", liabilitiesTitle:"Madeni Yanayopunguzwa",
+    debt:"Madeni yako ya muda mfupi", debtNote:"Weka bili, mikopo na madeni ya mwaka. Nyumba, gari na vitu binafsi havitozwi.",
+    reset:"↺ Weka upya yote",
+    resultsTitle:"Muhtasari wako wa Zakat", vsNisab:"dhidi ya Nisab",
+    totalAssets:"Jumla ya Mali", totalLiabilities:"Madeni", netWealth:"Safi Inayotozwa", nisab:"Kiwango cha Nisab", zakatDue:"Zakat Inayodue (2.5%)",
+    disclaimer:"Zana ya elimu. Taka mkubwa. Bei ni za dalili, zinaboreshwa pekee.",
+    eligible:"✅ Uko stahili ya Zakat", notEligible:"ℹ️ Chini ya Nisab — hakuna Zakat",
+    belowMsg:"Mali yako safi iko chini ya Nisab. Mungu akubali nia yako.",
+    aboutTitle:"Zakat ni nini?", faqTitle:"Maswali Yanayoulizwa Mara kwa Mara",
+    ab1t:"Moja ya Nguzo 5", ab1d:"Zakat ni sadaka inayolazimishwa kwa mali — usafi wa kimungu.",
+    ab2t:"Nisab", ab2d:"Zakat inatumika ikizidi Nisab: 87.48g dhahabu au 612.36g fedha, kwa mwaka wa kamari.",
+    ab3t:"Kiwango 2.5%", ab3d:"Kiwango cha kawaida ni 2.5%. Kilimo na biashara hutofautiana — uliza mkubwa.",
+    aboutText:"Kikokotoo chetu kinaunganisha mali zote za kawaida na kupunguza madeni ya muda mfupi.",
+    footerNote:"Kikokotoo cha Zakat cha bure, cha faragha kwa Umma yote. Data yako haiachi kifaa chako.",
+    quickLinks:"Viungo vya Haraka", supported:"Inayoungwa", supportedNote:"Lugha 20+ · Sarafu zote · Bei za moja kwa moja · Nje ya mtandao.",
+    madeWith:"Imefanywa kwa uangalifu kwa jamii ya Waislamu duniani",
+    gramLabel:"gramu", live:"● Moja kwa Moja", offline:"● Imehifadhiwa",
+    faq:[
+      {q:"Nisab gani — dhahabu au fedha?", a:"Wakubwa hutofautiana. Fedha ni pamoja zaidi (kiwango cha chini), inashauriwa kwa tahadhari."},
+      {q:"Nyumba au gari langu lina Zakat?", a:"Hapana. Makazi, gari na vitu binafsi vimeachwa."},
+      {q:"Zakat kwenye crypto?", a:"Ndiyo, ikiwa imewekewa uwekezaji juu ya Nisab kwa mwaka wa kamari."},
+      {q:"Ikiwa mapato hubadilika mwaka?", a:"Zakat ni juu ya mali kwenye tarehe yako ya Hawl. Uliza mkubwa."},
+      {q:"Madeni ya biashara yanapunguzwa?", a:"Madeni ya muda mfupi, ndiyo. Ya muda mrefu hutofautiana — uliza."}
+    ]
+  },
+  ja:{
+    tagline:"スマート・ザカート計算機", badge:"✨ 正確 · ライブレート · 全通貨",
+    navCalculator:"計算機", navAbout:"ザカートについて", navFaq:"よくある質問",
+    heroTitle:"包括的なスマート・ザカート計算機",
+    heroSub:"あらゆる通貨と資産クラスで正確にザカートを計算 — 金、銀、現金、株式、暗号資産、事業など。世界中のムスリム共同体のために。",
+    heroBtn:"計算を始める →",
+    currency:"通貨", nisabBasedOn:"ニサーブの基準", nisabSilver:"銀 (612.36g)", nisabGold:"金 (87.48g)",
+    hawl:"ハウル（1太陰年）？", yes:"はい", no:"いいえ",
+    hawlNote:"ザカートは、資産を1太陰年間保持しニサーブを超えた場合にのみ義務です。",
+    assetsTitle:"課税資産", liabilitiesTitle:"控除可能負債",
+    debt:"短期債務", debtNote:"請求書、ローン、年内の義務を含めます。自宅、車、個人物品は非課税です。",
+    reset:"↺ すべてリセット",
+    resultsTitle:"ザカートの概要", vsNisab:"ニサーブ比",
+    totalAssets:"総資産", totalLiabilities:"負債", netWealth:"課税純資産", nisab:"ニサーブ基準", zakatDue:"ザカート (2.5%)",
+    disclaimer:"教育用ツール。学者に相談してください。レートは指標であり自動更新されます。",
+    eligible:"✅ あなたはザカートの対象です", notEligible:"ℹ️ ニサーブ未満 — ザカート不要",
+    belowMsg:"純資産がニサーブ未満です。アッラーがあなたの意志を受け入れますように。",
+    aboutTitle:"ザカートとは？", faqTitle:"よくある質問",
+    ab1t:"5本の柱の1つ", ab1d:"ザカートは財産に対する義務的な喜捨 — 神聖な清めです。",
+    ab2t:"ニサーブ", ab2d:"ニサーブを超えると適用：金87.48gまたは銀612.36gを1太陰年保持。",
+    ab3t:"2.5% の率", ab3d:"標準税率は2.5%。農業や事業は異なります — 学者に相談を。",
+    aboutText:"当計算機はすべての一般的資産を統合し、短期負債を差し引きます。",
+    footerNote:"全ウンマのための無料・プライベートなザカート計算機。データは端末を出ません。",
+    quickLinks:"クイックリンク", supported:"対応", supportedNote:"20以上の言語 · 全通貨 · ライブレート · オフライン。",
+    madeWith:"世界中のムスリム共同体のために愛を込めて",
+    gramLabel:"グラム", live:"● ライブ", offline:"● 保存済",
+    faq:[
+      {q:"どのニサーブ — 金か銀か？", a:"学者によって異なります。銀はより包括的（基準が低い）で、慎重さから推奨されます。"},
+      {q:"家や車にザカートは？", a:"いいえ。自宅、車、個人物品は免除です。"},
+      {q:"暗号資産にザカート？", a:"はい、投資として1太陰年ニサーブ超で保持された場合。"},
+      {q:"年中収入が変動する場合？", a:"ザカートはあなたのハウル日の財産に基づきます。学者に相談を。"},
+      {q:"事業の債務は控除される？", a:"短期債務は控除されます。長期は異なります — 助言を。"}
+    ]
+  },
+  ko:{
+    tagline:"스마트 자카트 계산기", badge:"✨ 정확 · 실시간 환율 · 모든 통화",
+    navCalculator:"계산기", navAbout:"자카트란", navFaq:"자주 묻는 질문",
+    heroTitle:"포괄적인 스마트 자카트 계산기",
+    heroSub:"모든 통화와 자산군에서 정확히 자카트를 계산하세요 — 금, 은, 현금, 주식, 암호화폐, 사업 등. 전 세계 무슬림 공동체를 위해.",
+    heroBtn:"계산 시작 →",
+    currency:"통화", nisabBasedOn:"니사브 기준", nisabSilver:"은 (612.36g)", nisabGold:"금 (87.48g)",
+    hawl:"하울 (음력 1년)?", yes:"예", no:"아니오",
+    hawlNote:"자카트는 자산을 음력 1년간 보유하고 니사브를 초과할 때만 의무입니다.",
+    assetsTitle:"과세 자산", liabilitiesTitle:"공제 부채",
+    debt:"단기 부채", debtNote:"청구서, 대출, 연내 의무를 포함하세요. 자택, 차량, 개인물품은 면제됩니다.",
+    reset:"↺ 모두 초기화",
+    resultsTitle:"자카트 요약", vsNisab:"니사브 대비",
+    totalAssets:"총 자산", totalLiabilities:"부채", netWealth:"과세 순자산", nisab:"니사브 기준선", zakatDue:"자카트 (2.5%)",
+    disclaimer:"교육용 도구입니다. 학자에게 상담하세요. 환율은 지표성이며 자동 업데이트됩니다.",
+    eligible:"✅ 귀하는 자카트 대상입니다", notEligible:"ℹ️ 니사브 미만 — 자카트 없음",
+    belowMsg:"순자산이 니사브 미만입니다. 하나님이 당신의 의도를 받아주시길.",
+    aboutTitle:"자카트란 무엇인가요?", faqTitle:"자주 묻는 질문",
+    ab1t:"5대 기둥 중 하나", ab1d:"자카트는 재산에 대한 의무적 자선 — 신성한 정화입니다.",
+    ab2t:"니사브", ab2d:"니사브를 초과할 때 적용: 금 87.48g 또는 은 612.36g을 음력 1년 보유.",
+    ab3t:"2.5% 세율", ab3d:"표준 세율은 2.5%입니다. 농업과 사업은 다를 수 있습니다 — 학자에게 문의하세요.",
+    aboutText:"계산기는 모든 일반 자산을 통합하고 단기 부채를 공제합니다.",
+    footerNote:"전체 움마를 위한 무료·사생활 보호 자카트 계산기. 데이터는 기기를 떠나지 않습니다.",
+    quickLinks:"빠른 링크", supported:"지원", supportedNote:"20개 이상 언어 · 모든 통화 · 실시간 환율 · 오프라인.",
+    madeWith:"전 세계 무슬림 공동체를 위해 정성껏 제작",
+    gramLabel:"그램", live:"● 라이브", offline:"● 저장됨",
+    faq:[
+      {q:"어느 니사브 — 금인가 은인가?", a:"학자마다 다릅니다. 은이 더 포괄적(기준선 낮음)이라 신중히 권장됩니다."},
+      {q:"집이나 차에 자카트가?", a:"아니요. 자택, 차량, 개인물품은 면제입니다."},
+      {q:"암호화폐에 자카트?", a:"예, 투자로 음력 1년 니사브 초과 보유 시."},
+      {q:"연중 소득이 변하면?", a:"자카트는 하울 날짜의 재산 기준입니다. 학자에게 상담하세요."},
+      {q:"사업 부채는 공제되나요?", a:"단기 의무는 공제됩니다. 장기는 다릅니다 — 조언을 구하세요."}
+    ]
+  }
+};
+
+/* =========================================================
+   Currency & rate data
+   ========================================================= */
+const CURRENCIES = {
+  USD:{name:"US Dollar",symbol:"$"}, EUR:{name:"Euro",symbol:"€"}, GBP:{name:"British Pound",symbol:"£"},
+  SAR:{name:"Saudi Riyal",symbol:"﷼"}, AED:{name:"UAE Dirham",symbol:"د.إ"}, EGP:{name:"Egyptian Pound",symbol:"£"},
+  PKR:{name:"Pakistani Rupee",symbol:"₨"}, INR:{name:"Indian Rupee",symbol:"₹"}, BDT:{name:"Bangladeshi Taka",symbol:"৳"},
+  IDR:{name:"Indonesian Rupiah",symbol:"Rp"}, MYR:{name:"Malaysian Ringgit",symbol:"RM"}, TRY:{name:"Turkish Lira",symbol:"₺"},
+  IRR:{name:"Iranian Rial",symbol:"﷼"}, NGN:{name:"Nigerian Naira",symbol:"₦"}, BRL:{name:"Brazilian Real",symbol:"R$"},
+  JPY:{name:"Japanese Yen",symbol:"¥"}, CNY:{name:"Chinese Yuan",symbol:"¥"}, RUB:{name:"Russian Ruble",symbol:"₽"},
+  ZAR:{name:"South African Rand",symbol:"R"}, CAD:{name:"Canadian Dollar",symbol:"C$"}, AUD:{name:"Australian Dollar",symbol:"A$"},
+  KRW:{name:"South Korean Won",symbol:"₩"}, KWD:{name:"Kuwaiti Dinar",symbol:"د.ك"}, QAR:{name:"Qatari Riyal",symbol:"﷼"},
+  NGN2:{name:"",symbol:""}
+};
+// remove placeholder
+delete CURRENCIES.NGN2;
+
+// Fallback static rates (relative to 1 USD). Live fetch overrides these.
+const FALLBACK_RATES = {
+  USD:1, EUR:0.92, GBP:0.79, SAR:3.75, AED:3.67, EGP:48.5, PKR:278, INR:83.3, BDT:118,
+  IDR:15800, MYR:4.7, TRY:32, IRR:42000, NGN:1500, BRL:5.4, JPY:155, CNY:7.2, RUB:92,
+  ZAR:18.5, CAD:1.37, AUD:1.52, KRW:1370, KWD:0.31, QAR:3.64
+};
+const FALLBACK_GOLD_USD = 65;   // per gram
+const FALLBACK_SILVER_USD = 0.92; // per gram
+
+let RATES = {...FALLBACK_RATES};
+let GOLD_PER_G_USD = FALLBACK_GOLD_USD;
+let SILVER_PER_G_USD = FALLBACK_SILVER_USD;
+let isLive = false;
+
+/* =========================================================
+   Asset field definitions
+   ========================================================= */
+const ASSET_FIELDS = [
+  {key:"cashHand",  icon:"💵", tKey:"cashHand",  hint:"cashHandHint"},
+  {key:"cashBank",  icon:"🏦", tKey:"cashBank",  hint:"cashBankHint"},
+  {key:"goldGrams", icon:"🥇", tKey:"gold",      hint:"gramsHint", unit:true},
+  {key:"silverGrams",icon:"🥈",tKey:"silver",    hint:"gramsHint", unit:true},
+  {key:"stocks",    icon:"📈", tKey:"stocks",    hint:"stocksHint"},
+  {key:"crypto",    icon:"⟠",  tKey:"crypto",    hint:"cryptoHint"},
+  {key:"business",  icon:"🏬", tKey:"business",  hint:"businessHint"},
+  {key:"receivables",icon:"🤝",tKey:"receivables",hint:"receivablesHint"},
+  {key:"realEstate",icon:"🏘️", tKey:"realEstate",hint:"realEstateHint"}
+];
+
+const HINTS = {
+  en:{cashHand:"Notes & coins you hold",cashBank:"Checking & savings balances",gold:"Weight of pure gold",silver:"Weight of pure silver",stocks:"Current market value of shares",crypto:"Current value of crypto holdings",business:"Inventory & trade goods value",receivables:"Loans & money owed to you",realEstate:"Property held for sale/trade"},
+  ar:{cashHand:"النقد الذي تحتفظ به",cashBank:"أرصدة الحسابات",gold:"وزن الذهب الخالص",silver:"وزن الفضة الخالصة",stocks:"القيمة السوقية للأسهم",crypto:"قيمة العملات الرقمية",business:"قيمة المخزون والسلع",receivables:"القروض والمبالغ المستحقة لك",realEstate:"عقار معد للبيع/التجارة"},
+  ur:{cashHand:"آپ کے پاس نقد",cashBank:"بینک بیلنس",gold:"خالص سونے کا وزن",silver:"خالص چاندی کا وزن",stocks:"حصص کی مارکیٹ ویلیو",crypto:"کریپٹو کی موجودہ ویلیو",business:"انوینٹری اور سامان کی ویلیو",receivables:"قرضے اور واجب الودائع",realEstate:"فروخت/تجارت کے لیے جائیداد"},
+  fa:{cashHand:"پول نقد در دست",cashBank:"موجودی حساب‌ها",gold:"وزن طلای خالص",silver:"وزن نقره خالص",stocks:"ارزش بازار سهام",crypto:"ارزش رمزارزها",business:"ارزش موجودی و کالا",receivables:"وام‌ها و مطالبات",realEstate:"ملک برای فروش/تجارت"},
+  fr:{cashHand:"Espèces que vous détenez",cashBank:"Soldes des comptes",gold:"Poids d'or pur",silver:"Poids d'argent pur",stocks:"Valeur de marché des actions",crypto:"Valeur des cryptos",business:"Valeur du stock",receivables:"Prêts et créances",realEstate:"Bien détenu pour vente"},
+  es:{cashHand:"Efectivo que posees",cashBank:"Saldos bancarios",gold:"Peso de oro puro",silver:"Peso de plata pura",stocks:"Valor de mercado de acciones",crypto:"Valor de cripto",business:"Valor de inventario",receivables:"Préstamos y cuentas por cobrar",realEstate:"Inmueble para venta"},
+  de:{cashHand:"Bargeld in Besitz",cashBank:"Kontostände",gold:"Gewicht reinen Goldes",silver:"Gewicht reinen Silbers",stocks:"Marktwert der Aktien",crypto:"Wert der Krypto",business:"Lagerwert",receivables:"Darlehen und Forderungen",realEstate:"Zum Verkauf gehaltene Immobilie"},
+  it:{cashHand:"Contanti in possesso",cashBank:"Saldi dei conti",gold:"Peso di oro puro",silver:"Peso di argento puro",stocks:"Valore di mercato azioni",crypto:"Valore crypto",business:"Valore magazzino",receivables:"Prestiti e crediti",realEstate:"Immobile per vendita"},
+  tr:{cashHand:"Elindeki nakit",cashBank:"Hesap bakiyeleri",gold:"Saf altın ağırlığı",silver:"Saf gümüş ağırlığı",stocks:"Hisse piyasa değeri",crypto:"Kripto değeri",business:"Stok değeri",receivables:"Verilen borçlar",realEstate:"Satılık emlak"},
+  id:{cashHand:"Uang tunai Anda",cashBank:"Saldo rekening",gold:"Berat emas murni",silver:"Berat perak murni",stocks:"Nilai pasar saham",crypto:"Nilai kripto",business:"Nilai inventaris",receivables:"Piutang",realEstate:"Properti untuk dijual"},
+  ms:{cashHand:"Wang tunai anda",cashBank:"Baki akaun",gold:"Berat emas tulen",silver:"Berat perak tulen",stocks:"Nilai pasaran saham",crypto:"Nilai kripto",business:"Nilai inventori",receivables:"Hutang piutang",realEstate:"Hartanah untuk dijual"},
+  bn:{cashHand:"আপনার হাতে নগদ",cashBank:"ব্যাংক ব্যালেন্স",gold:"বিশুদ্ধ সোনার ওজন",silver:"বিশুদ্ধ রূপার ওজন",stocks:"শেয়ারের বাজারমূল্য",crypto:"ক্রিপ্টোর মূল্য",business:"ইনভেন্টরি মূল্য",receivables:"পাওনা ঋণ",realEstate:"বিক্রির জন্য সম্পত্তি"},
+  hi:{cashHand:"आपके पास नकद",cashBank:"बैंक शेष",gold:"शुद्ध सोने का वज़न",silver:"शुद्ध चाँदी का वज़न",stocks:"शेयर का बाज़ार मूल्य",crypto:"क्रिप्टो मूल्य",business:"इन्वेंटरी मूल्य",receivables:"देय ऋण",realEstate:"बिक्री हेतु संपत्ति"},
+  zh:{cashHand:"手持现金",cashBank:"账户余额",gold:"纯金重量",silver:"纯银重量",stocks:"股票市值",crypto:"加密货币价值",business:"库存价值",receivables:"应收款项",realEstate:"待售房产"},
+  ru:{cashHand:"Наличные на руках",cashBank:"Остатки на счетах",gold:"Вес чистого золота",silver:"Вес чистого серебра",stocks:"Рыночная стоимость акций",crypto:"Стоимость крипто",business:"Стоимость запасов",receivables:"Займы и дебиторка",realEstate:"Недвижимость на продажу"},
+  pt:{cashHand:"Dinheiro em mãos",cashBank:"Saldos bancários",gold:"Peso de ouro puro",silver:"Peso de prata pura",stocks:"Valor de mercado das ações",crypto:"Valor da cripto",business:"Valor do estoque",receivables:"Empréstimos e contas a receber",realEstate:"Imóvel à venda"},
+  nl:{cashHand:"Contant geld",cashBank:"Rekeningsaldi",gold:"Gewicht puur goud",silver:"Gewicht puur zilver",stocks:"Marktwaarde aandelen",crypto:"Crypto-waarde",business:"Voorraadwaarde",receivables:"Leningen en vorderingen",realEstate:"Onroerend goed te koop"},
+  sw:{cashHand:"Pesa taslimu mkononi",cashBank:"Salio za benki",gold:"Uzito wa dhahabu safi",silver:"Uzito wa fedha safi",stocks:"Thamani ya hisa",crypto:"Thamani ya crypto",business:"Thamani ya mizania",receivables:"Mikopo inayodaiwa",realEstate:"Mali ya kuuzwa"},
+  ja:{cashHand:"手元の現金",cashBank:"口座残高",gold:"純金の重量",silver:"純銀の重量",stocks:"株式の時価",crypto:"暗号資産の価値",business:"在庫価値",receivables:"貸付金",realEstate:"売却用不動産"},
+  ko:{cashHand:"소지 현금",cashBank:"계좌 잔액",gold:"순금 무게",silver:"순은 무게",stocks:"주식 시장가",crypto:"암호화폐 가치",business:"재고 가치",receivables:"대여금",realEstate:"매각용 부동산"}
+};
+
+/* =========================================================
+   State & persistence
+   ========================================================= */
+const DEFAULT_STATE = {
+  lang:"en", theme:"dark", currency:"USD", nisabType:"silver", hawl:"yes",
+  values:{cashHand:0,cashBank:0,goldGrams:0,silverGrams:0,stocks:0,crypto:0,business:0,receivables:0,realEstate:0,debt:0}
+};
+let state = {...DEFAULT_STATE, values:{...DEFAULT_STATE.values}};
+
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem("zakatpro"));
+    if(s){
+      state = {...DEFAULT_STATE, ...s, values:{...DEFAULT_STATE.values, ...(s.values||{})}};
+    }
+  }catch(e){}
+}
+function saveState(){
+  try{ localStorage.setItem("zakatpro", JSON.stringify(state)); }catch(e){}
+}
+
+/* =========================================================
+   i18n helpers
+   ========================================================= */
+function t(key){
+  const L = T[state.lang] || T.en;
+  return (L[key] !== undefined ? L[key] : (T.en[key] !== undefined ? T.en[key] : key));
+}
+function hint(key){ return (HINTS[state.lang] && HINTS[state.lang][key]) || (HINTS.en[key]||""); }
+function faqList(){ return (T[state.lang] && T[state.lang].faq) || T.en.faq; }
+
+function applyLang(){
+  const L = LANGS[state.lang] || LANGS.en;
+  document.documentElement.lang = state.lang;
+  document.documentElement.dir = L.dir;
+  document.body.className = (state.theme==="dark"?"dark":"light") + (L.font?(" "+L.font):"");
+  document.body.setAttribute("dir", L.dir);
+
+  // data-i18n
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k = el.getAttribute("data-i18n");
+    el.textContent = t(k);
+  });
+  // dynamic labels
+  document.getElementById("langName").textContent = L.name;
+  document.getElementById("langFlag").textContent = L.flag;
+  document.getElementById("curLabel").textContent = state.currency;
+  document.getElementById("heroTitle").innerHTML = t("heroTitle");
+  document.getElementById("heroSub").textContent = t("heroSub");
+  document.getElementById("rateStatus").textContent = isLive ? t("live") : t("offline");
+
+  buildCurrencyOptions();
+  buildAssets();
+  buildFaq();
+  // hawl seg
+  document.querySelectorAll("[data-hawl]").forEach(b=>{
+    b.classList.toggle("active", b.getAttribute("data-hawl")===state.hawl);
+  });
+  document.getElementById("nisabType").value = state.nisabType;
+  calculate();
+}
+
+/* =========================================================
+   Build UI pieces
+   ========================================================= */
+function buildCurrencyOptions(){
+  const sel = document.getElementById("currency");
+  const cur = state.currency;
+  sel.innerHTML = "";
+  Object.keys(CURRENCIES).forEach(code=>{
+    const o = document.createElement("option");
+    o.value = code;
+    o.textContent = code + " — " + CURRENCIES[code].name;
+    sel.appendChild(o);
+  });
+  sel.value = cur;
+}
+
+function buildAssets(){
+  const grid = document.getElementById("assetsGrid");
+  grid.innerHTML = "";
+  ASSET_FIELDS.forEach(f=>{
+    const div = document.createElement("div");
+    div.className = "field";
+    const val = state.values[f.key] || 0;
+    const isUnit = f.unit;
+    div.innerHTML = `
+      <label class="label">${f.icon} ${t(f.tKey)} ${isUnit?'<span class="opacity-70">('+t("gramLabel")+')</span>':''}</label>
+      <input type="number" min="0" step="any" class="input num" data-key="${f.key}" value="${val}" placeholder="0" />
+      <p class="text-[11px] text-[var(--muted)] mt-1 leading-snug">${hint(f.key)}</p>
+      <div class="text-[11px] font-semibold mt-1 text-[var(--green)]" data-derived="${f.key}"></div>
+    `;
+    grid.appendChild(div);
+  });
+  // re-bind inputs
+  grid.querySelectorAll("input.num").forEach(inp=>{
+    inp.addEventListener("input", onInput);
+  });
+}
+
+function buildFaq(){
+  const list = document.getElementById("faqList");
+  list.innerHTML = "";
+  faqList().forEach((item,i)=>{
+    const d = document.createElement("details");
+    d.className = "faq";
+    if(i===0) d.open = true;
+    d.innerHTML = `<summary><span>${item.q}</span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="ans">${item.a}</div>`;
+    list.appendChild(d);
+  });
+}
+
+/* =========================================================
+   Input handling
+   ========================================================= */
+function onInput(e){
+  const k = e.target.getAttribute("data-key");
+  state.values[k] = parseFloat(e.target.value) || 0;
+  saveState();
+  calculate();
+}
+
+/* =========================================================
+   Core calculation
+   ========================================================= */
+function fmt(v){
+  const code = state.currency;
+  try{
+    return new Intl.NumberFormat(state.lang==="ar"||state.lang==="ur"||state.lang==="fa"?"ar":state.lang, {
+      style:"currency", currency:code, maximumFractionDigits:2
+    }).format(v);
+  }catch(e){
+    return (CURRENCIES[code]?.symbol||"") + " " + v.toFixed(2);
+  }
+}
+function num(v){ return new Intl.NumberFormat(state.lang==="ar"||state.lang==="ur"||state.lang==="fa"?"ar":state.lang).format(Math.round(v)); }
+
+function goldValue(){ return (state.values.goldGrams||0) * GOLD_PER_G_USD * (RATES[state.currency]||1); }
+function silverValue(){ return (state.values.silverGrams||0) * SILVER_PER_G_USD * (RATES[state.currency]||1); }
+
+function calculate(){
+  const v = state.values;
+  const rate = RATES[state.currency] || 1;
+
+  const assetValues = {
+    cashHand: v.cashHand||0,
+    cashBank: v.cashBank||0,
+    gold: goldValue(),
+    silver: silverValue(),
+    stocks: v.stocks||0,
+    crypto: v.crypto||0,
+    business: v.business||0,
+    receivables: v.receivables||0,
+    realEstate: v.realEstate||0
+  };
+  const totalAssets = Object.values(assetValues).reduce((a,b)=>a+b,0);
+  const liab = v.debt||0;
+  const net = totalAssets - liab;
+
+  // derived display per asset
+  document.querySelectorAll("[data-derived]").forEach(el=>{
+    const k = el.getAttribute("data-derived");
+    el.textContent = assetValues[k] ? "≈ " + fmt(assetValues[k]) : "";
+  });
+
+  // Nisab
+  const nisab = state.nisabType==="gold"
+    ? 87.48 * GOLD_PER_G_USD * rate
+    : 612.36 * SILVER_PER_G_USD * rate;
+
+  const zakat = (net > nisab && state.hawl==="yes") ? net * 0.025 : 0;
+  const pct = nisab>0 ? Math.min(net/nisab,1) : 0;
+
+  // animate numbers
+  animateValue(document.getElementById("rAssets"), parseFloat(getComputedText("rAssets"))||0, totalAssets, fmt);
+  animateValue(document.getElementById("rLiab"), parseFloat(getComputedText("rLiab"))||0, liab, fmt);
+  animateValue(document.getElementById("rNet"), parseFloat(getComputedText("rNet"))||0, net, fmt);
+  animateValue(document.getElementById("rNisab"), parseFloat(getComputedText("rNisab"))||0, nisab, fmt);
+  animateValue(document.getElementById("rZakat"), parseFloat(getComputedText("rZakat"))||0, zakat, fmt);
+  animateValue(document.getElementById("assetsTotal"), parseFloat(getComputedText("assetsTotal"))||0, totalAssets, fmt);
+  animateValue(document.getElementById("liabTotal"), parseFloat(getComputedText("liabTotal"))||0, liab, fmt);
+
+  // ring
+  const C = 527.79;
+  document.getElementById("ringFg").style.strokeDashoffset = C*(1-pct);
+  animateRingPct(pct);
+
+  // status
+  const box = document.getElementById("statusBox");
+  if(state.hawl!=="yes"){
+    box.style.background = "rgba(245,158,11,.12)";
+    box.style.color = "#fcd34d";
+    box.style.border = "1px solid rgba(245,158,11,.3)";
+    box.textContent = "⏳ " + t("hawlNote");
+  } else if(net > nisab){
+    box.style.background = "rgba(52,211,153,.12)";
+    box.style.color = "var(--green)";
+    box.style.border = "1px solid rgba(52,211,153,.3)";
+    box.textContent = t("eligible");
+  } else {
+    box.style.background = "rgba(148,163,184,.12)";
+    box.style.color = "var(--muted)";
+    box.style.border = "1px solid var(--border-soft)";
+    box.textContent = t("notEligible") + " — " + t("belowMsg");
+  }
+
+  // store for animation continuity
+  document.getElementById("rAssets").dataset.val = totalAssets;
+  document.getElementById("rLiab").dataset.val = liab;
+  document.getElementById("rNet").dataset.val = net;
+  document.getElementById("rNisab").dataset.val = nisab;
+  document.getElementById("rZakat").dataset.val = zakat;
+  document.getElementById("assetsTotal").dataset.val = totalAssets;
+  document.getElementById("liabTotal").dataset.val = liab;
+}
+function getComputedText(id){
+  return document.getElementById(id).dataset.val || "0";
+}
+
+/* animation helpers */
+function animateValue(el, from, to, formatFn){
+  const dur = 600, start = performance.now();
+  function frame(now){
+    const p = Math.min((now-start)/dur,1);
+    const eased = 1-Math.pow(1-p,3);
+    const val = from + (to-from)*eased;
+    el.textContent = formatFn(val);
+    if(p<1) requestAnimationFrame(frame);
+    else el.textContent = formatFn(to);
+  }
+  requestAnimationFrame(frame);
+}
+let ringPctCurrent = 0;
+function animateRingPct(to){
+  const dur=600, start=performance.now(), from=ringPctCurrent;
+  function frame(now){
+    const p=Math.min((now-start)/dur,1);
+    const eased=1-Math.pow(1-p,3);
+    const val=from+(to-from)*eased;
+    document.getElementById("ringPct").textContent = Math.round(val*100)+"%";
+    if(p<1) requestAnimationFrame(frame);
+    else { document.getElementById("ringPct").textContent = Math.round(to*100)+"%"; ringPctCurrent=to; }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* =========================================================
+   Live data fetch (currency + gold/silver)
+   ========================================================= */
+async function fetchRates(){
+  try{
+    const [fxRes, goldRes, silverRes] = await Promise.all([
+      fetch("https://open.er-api.com/v6/latest/USD").then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch("https://api.gold-api.com/price/XAU").then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch("https://api.gold-api.com/price/XAG").then(r=>r.ok?r.json():null).catch(()=>null)
+    ]);
+    if(fxRes && fxRes.rates){
+      Object.keys(CURRENCIES).forEach(c=>{ if(fxRes.rates[c]) RATES[c]=fxRes.rates[c]; });
+    }
+    if(goldRes && goldRes.price){ GOLD_PER_G_USD = goldRes.price/31.1035; } // oz -> g
+    if(silverRes && silverRes.price){ SILVER_PER_G_USD = silverRes.price/31.1035; }
+    if((fxRes&&fxRes.rates)||goldRes||silverRes){ isLive=true; }
+  }catch(e){ isLive=false; }
+  document.getElementById("rateStatus").textContent = isLive ? t("live") : t("offline");
+  buildTicker();
+  calculate();
+}
+
+function buildTicker(){
+  const items = [];
+  const rate = RATES[state.currency]||1;
+  const g = GOLD_PER_G_USD*rate, s = SILVER_PER_G_USD*rate;
+  const cur = state.currency;
+  items.push(`${t("gold")}: ${fmt(g)}/${t("gramLabel")}`);
+  items.push(`${t("silver")}: ${fmt(s)}/${t("gramLabel")}`);
+  items.push(`1 ${cur} = ${(1/rate).toFixed(6)} USD`);
+  items.push(`${t("nisabSilver")}: ${fmt(612.36*s)}`);
+  items.push(`${t("nisabGold")}: ${fmt(87.48*g)}`);
+  items.push(`1g ${t("gold")} = ${(GOLD_PER_G_USD/SILVER_PER_G_USD).toFixed(2)}g ${t("silver")}`);
+  const line = items.map(i=>`<span class="px-4">${i}</span>`).join("");
+  document.getElementById("ticker").innerHTML = line + line; // duplicate for seamless scroll
+}
+
+/* =========================================================
+   Theme & language controls
+   ========================================================= */
+function applyTheme(){
+  document.body.className = (state.theme==="dark"?"dark":"light") + (LANGS[state.lang]?.font?(" "+LANGS[state.lang].font):"");
+  document.getElementById("iconMoon").innerHTML = state.theme==="dark"
+    ? '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'
+    : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+}
+
+function buildLangMenu(){
+  const menu = document.getElementById("langMenu");
+  menu.innerHTML = "";
+  Object.keys(LANGS).forEach(code=>{
+    const L = LANGS[code];
+    const d = document.createElement("div");
+    d.className = "lang-opt" + (code===state.lang?" active":"");
+    d.innerHTML = `<span>${L.flag}</span><span class="flex-1">${L.name}</span>`;
+    d.onclick = ()=>{
+      state.lang = code; saveState();
+      menu.classList.add("hidden");
+      applyLang();
+      applyTheme();
+    };
+    menu.appendChild(d);
+  });
+}
+
+/* =========================================================
+   Event wiring
+   ========================================================= */
+function wire(){
+  document.getElementById("themeBtn").addEventListener("click", ()=>{
+    state.theme = state.theme==="dark"?"light":"dark"; saveState(); applyTheme();
+  });
+  const langBtn = document.getElementById("langBtn");
+  const langMenu = document.getElementById("langMenu");
+  langBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    langMenu.classList.toggle("hidden");
+    buildLangMenu();
+  });
+  document.addEventListener("click", ()=> langMenu.classList.add("hidden"));
+  langMenu.addEventListener("click", e=>e.stopPropagation());
+
+  document.getElementById("currency").addEventListener("change", e=>{
+    state.currency = e.target.value; saveState();
+    document.getElementById("curLabel").textContent = state.currency;
+    buildTicker(); calculate();
+  });
+  document.getElementById("nisabType").addEventListener("change", e=>{
+    state.nisabType = e.target.value; saveState(); calculate();
+  });
+  document.querySelectorAll("[data-hawl]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.hawl = b.getAttribute("data-hawl"); saveState();
+      document.querySelectorAll("[data-hawl]").forEach(x=>x.classList.toggle("active", x===b));
+      calculate();
+    });
+  });
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    state.values = {...DEFAULT_STATE.values};
+    saveState(); applyLang();
+  });
+
+  // reveal on scroll
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add("in"); obs.unobserve(en.target);} });
+  },{threshold:0.12});
+  document.querySelectorAll(".reveal").forEach(el=>obs.observe(el));
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+}
+
+/* =========================================================
+   Init
+   ========================================================= */
+loadState();
+wire();
+applyTheme();
+applyLang();
+buildLangMenu();
+fetchRates();
+</script>
+</body>
+</html>
