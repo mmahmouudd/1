@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nisab — Smart Comprehensive Zakat Calculator</title>
+<meta name="description" content="Comprehensive smart Zakat calculator for all currencies and assets: cash, gold, silver, investments, business, agriculture, livestock and debts. Multilingual, dark mode, live nisab.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700;900&family=Noto+Naskh+Arabic:wght@400;500;700&family=Noto+Sans+Arabic:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script>window.I18N_PACKS = window.I18N_PACKS || {};</script>
+<style>
+  :root{
+    --bg:#060a0f; --bg2:#0a1118; --panel:rgba(14,21,31,.74); --panel2:rgba(20,29,41,.72); --solid:#0e151f;
+    --border:rgba(231,198,118,.16); --border2:rgba(255,255,255,.07);
+    --txt:#e9eff7; --txt2:#a3b5c9; --txt3:#6d8298;
+    --gold:#e7c676; --gold2:#f7e5ba; --goldDim:rgba(231,198,118,.12);
+    --em:#10b981; --em2:#43e0a0; --red:#fb7185; --blue:#7dd3fc; --violet:#c4b5fd;
+    --shadow:0 24px 60px -28px rgba(0,0,0,.85);
+    --r:20px; --font:'Inter','Cairo',system-ui,sans-serif;
+  }
+  [data-theme=light]{
+    --bg:#f5f6f1; --bg2:#ffffff; --panel:rgba(255,255,255,.82); --panel2:rgba(255,255,255,.9); --solid:#ffffff;
+    --border:rgba(140,105,20,.18); --border2:rgba(15,23,42,.08);
+    --txt:#0d1a26; --txt2:#4a5b6d; --txt3:#75879a;
+    --gold:#9a7415; --gold2:#7c5d0e; --goldDim:rgba(154,116,21,.09);
+    --em:#047857; --em2:#059669; --red:#e11d48; --blue:#0369a1; --violet:#6d28d9;
+    --shadow:0 18px 44px -26px rgba(15,23,42,.35);
+  }
+  *{-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--txt); font-family:var(--font);
+    transition:background .5s ease,color .35s ease; overflow-x:hidden;
+  }
+  html[dir=rtl] body{letter-spacing:0}
+  ::selection{background:var(--gold); color:#0a0f16}
+  /* ---------- decorative background ---------- */
+  .bg-layer{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+  .bg-layer .grad{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5}
+  [data-theme=light] .bg-layer .grad{opacity:.35}
+  .g1{width:46vw;height:46vw;background:radial-gradient(circle,#10b98166,transparent 70%);top:-14vw;left:-10vw}
+  .g2{width:40vw;height:40vw;background:radial-gradient(circle,#e7c6764d,transparent 70%);top:22vh;right:-12vw}
+  .g3{width:38vw;height:38vw;background:radial-gradient(circle,#0ea5e94d,transparent 70%);bottom:-14vw;left:24vw}
+  .bg-layer svg{position:absolute;inset:0;width:100%;height:100%;opacity:.35}
+  [data-theme=light] .bg-layer svg{opacity:.6}
+  /* ---------- components ---------- */
+  .glass{background:var(--panel);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border)}
+  .card{background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);transition:transform .4s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .4s}
+  .card-hover:hover{transform:translateY(-4px);border-color:var(--gold)}
+  .grad-text{background:linear-gradient(100deg,var(--gold2),var(--gold) 45%,var(--em2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .gold-line{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.6}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border-radius:14px;padding:.7rem 1.15rem;font-weight:600;font-size:.9rem;border:1px solid var(--border2);background:var(--panel2);color:var(--txt);cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden}
+  .btn:hover{border-color:var(--gold);color:var(--gold2);transform:translateY(-2px)}
+  .btn:active{transform:translateY(0) scale(.98)}
+  .btn-gold{background:linear-gradient(120deg,var(--gold),#d9a94f);color:#0b1220;border-color:transparent;box-shadow:0 12px 30px -12px rgba(231,198,118,.7)}
+  [data-theme=light] .btn-gold{color:#1a1300}
+  .btn-gold:hover{color:#0b1220;filter:brightness(1.08);box-shadow:0 16px 36px -12px rgba(231,198,118,.85)}
+  .btn-ghost{background:transparent}
+  .btn-sm{padding:.45rem .75rem;font-size:.8rem;border-radius:11px}
+  .icon-btn{width:42px;height:42px;padding:0;border-radius:13px;display:grid;place-items:center}
+  .input{width:100%;background:var(--panel2);border:1px solid var(--border2);border-radius:13px;padding:.72rem .9rem;color:var(--txt);font-size:.95rem;font-weight:600;transition:all .25s;outline:none;font-variant-numeric:tabular-nums}
+  .input:focus{border-color:var(--gold);box-shadow:0 0 0 4px var(--goldDim)}
+  .input::placeholder{color:var(--txt3);font-weight:400}
+  select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--txt3) 50%),linear-gradient(135deg,var(--txt3) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-inline-end:2rem}
+  .lbl{font-size:.82rem;font-weight:600;color:var(--txt2);margin-bottom:.35rem;display:flex;gap:.35rem;align-items:baseline;justify-content:space-between}
+  .note{font-size:.72rem;color:var(--txt3);line-height:1.5;margin-top:.3rem}
+  .chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:600;padding:.3rem .65rem;border-radius:999px;background:var(--goldDim);color:var(--gold);border:1px solid var(--border)}
+  .tab{display:flex;align-items:center;gap:.5rem;padding:.7rem 1rem;border-radius:14px;font-size:.86rem;font-weight:600;color:var(--txt2);border:1px solid transparent;white-space:nowrap;cursor:pointer;transition:all .25s;background:transparent}
+  .tab:hover{color:var(--txt);background:var(--panel2)}
+  .tab.active{color:var(--gold2);background:var(--goldDim);border-color:var(--border)}
+  .field-row{display:flex;align-items:center;gap:.5rem}
+  .suffix{font-size:.75rem;color:var(--txt3);font-weight:600;white-space:nowrap}
+  .kpi{border-radius:16px;padding:.9rem 1rem;border:1px solid var(--border2);background:linear-gradient(160deg,var(--panel2),transparent);transition:.3s}
+  .kpi:hover{border-color:var(--border)}
+  .kpi .k{font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--txt3);font-weight:700}
+  .kpi .v{font-size:1.15rem;font-weight:800;margin-top:.2rem;font-variant-numeric:tabular-nums}
+  .result-card{background:linear-gradient(155deg,var(--goldDim),var(--panel));border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+  .switch{position:relative;width:46px;height:26px;border-radius:999px;background:var(--border2);cursor:pointer;transition:.3s;flex:none;border:1px solid var(--border2)}
+  .switch::after{content:'';position:absolute;top:2px;inset-inline-start:2px;width:20px;height:20px;border-radius:50%;background:var(--txt3);transition:.3s cubic-bezier(.3,1.6,.4,1)}
+  .switch.on{background:linear-gradient(120deg,var(--gold),#d9a94f);border-color:transparent}
+  .switch.on::after{background:#0b1220;inset-inline-start:23px}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.2,.8,.2,1)}
+  .toast{position:fixed;z-index:90;inset-inline-end:1rem;bottom:1.2rem;display:flex;flex-direction:column;gap:.5rem}
+  .toast>div{animation:slideIn .35s cubic-bezier(.2,1.4,.3,1);background:var(--solid);border:1px solid var(--gold);color:var(--txt);padding:.7rem 1rem;border-radius:14px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow)}
+  @keyframes slideIn{from{transform:translateY(20px) scale(.9);opacity:0}}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pulseGold{0%,100%{box-shadow:0 0 0 0 rgba(231,198,118,.45)}70%{box-shadow:0 0 0 16px rgba(231,198,118,0)}}
+  .float{animation:float 6s ease-in-out infinite}
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .spin{animation:spin 1s linear infinite}
+  .pulse-ring{animation:pulseGold 2.6s infinite}
+  .donut-seg{transition:stroke-dasharray .8s cubic-bezier(.2,.8,.2,1),stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)}
+  .modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:1rem;background:rgba(3,7,12,.72);backdrop-filter:blur(8px)}
+  .modal.open{display:flex}
+  .modal-box{width:100%;max-width:760px;max-height:86vh;display:flex;flex-direction:column;background:var(--solid);border:1px solid var(--gold);border-radius:24px;box-shadow:var(--shadow);animation:pop .35s cubic-bezier(.2,1.3,.3,1)}
+  @keyframes pop{from{transform:scale(.94) translateY(14px);opacity:0}}
+  .lang-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .75rem;border-radius:13px;cursor:pointer;border:1px solid transparent;transition:.2s;font-size:.88rem}
+  .lang-item:hover{background:var(--goldDim);border-color:var(--border)}
+  .lang-item.active{background:var(--goldDim);border-color:var(--gold)}
+  .lang-item b{font-weight:700}
+  .lang-item span{color:var(--txt3);font-size:.76rem}
+  .scroll-thin{scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
+  .scroll-thin::-webkit-scrollbar{width:6px;height:6px}
+  .scroll-thin::-webkit-scrollbar-thumb{background:var(--gold);border-radius:99px;opacity:.5}
+  .tabbar{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.35rem;scrollbar-width:none}
+  .tabbar::-webkit-scrollbar{display:none}
+  .ledger-row{display:flex;justify-content:space-between;gap:1rem;padding:.5rem 0;border-bottom:1px dashed var(--border2);font-size:.86rem}
+  .ledger-row:last-child{border-bottom:0}
+  .prog{height:8px;border-radius:99px;background:var(--border2);overflow:hidden}
+  .prog>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--em),var(--gold));transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .marquee{display:flex;gap:1.2rem;overflow-x:auto;scrollbar-width:none;padding:.15rem 0}
+  .marquee::-webkit-scrollbar{display:none}
+  .stat-mini{min-width:150px;flex:1;display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;border-radius:14px;background:var(--panel2);border:1px solid var(--border2)}
+  .num{font-variant-numeric:tabular-nums}
+  a{color:inherit}
+  @media print{
+    .no-print{display:none!important}
+    body{background:#fff;color:#000}
+    .card,.result-card{box-shadow:none;border:1px solid #ccc;background:#fff}
+    .grad-text{color:#000!important;-webkit-text-fill-color:#000}
+  }
+</style>
+</head>
+<body>
+<div class="bg-layer">
+  <div class="grad g1"></div><div class="grad g2"></div><div class="grad g3"></div>
+  <svg aria-hidden="true"><defs>
+    <pattern id="girih" width="96" height="96" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <g fill="none" stroke="currentColor" stroke-width="1" style="color:var(--gold)" opacity=".55">
+        <path d="M48 6 L62 34 L90 48 L62 62 L48 90 L34 62 L6 48 L34 34 Z"/>
+        <path d="M48 22 L76 48 L48 74 L20 48 Z"/>
+        <circle cx="48" cy="48" r="9"/>
+      </g>
+    </pattern>
+  </defs><rect width="100%" height="100%" fill="url(#girih)"/></svg>
+</div>
+
+<!-- ================= HEADER ================= -->
+<header class="sticky top-0 z-50 glass no-print" style="border-radius:0 0 22px 22px">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+    <a href="#top" class="flex items-center gap-3 shrink-0">
+      <div class="w-11 h-11 rounded-2xl grid place-items-center float" style="background:linear-gradient(140deg,var(--gold),#b8871f);box-shadow:0 10px 26px -10px rgba(231,198,118,.8)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0b1220" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.5 13.9 8.6 20 10.5 13.9 12.4 12 18.5 10.1 12.4 4 10.5 10.1 8.6Z"/><path d="M19 4.2 19.6 6 21.4 6.6 19.6 7.2 19 9 18.4 7.2 16.6 6.6 18.4 6Z"/></svg>
+      </div>
+      <div class="leading-tight">
+        <div class="text-[1.05rem] font-extrabold grad-text" data-i18n="brand">Nisab</div>
+        <div class="text-[.68rem] tracking-wider uppercase" style="color:var(--txt3)" data-i18n="brand_sub">Smart Zakat Suite</div>
+      </div>
+    </a>
+    <nav class="hidden lg:flex items-center gap-1 mx-auto text-sm font-semibold" style="color:var(--txt2)">
+      <a class="px-3 py-2 rounded-xl hover:bg-[var(--panel2)] transition" href="#calculator" data-i18n="nav_calc">Calculator</a>
+      <a class="px-3 py-2 rounded-xl hover:bg-[var(--panel2)] transition" href="#tools" data-i18n="nav_tools">Extra Tools</a>
+      <a class="px-3 py-2 rounded-xl hover:bg-[var(--panel2)] transition" href="#faq" data-i18n="nav_faq">Fiqh Q&amp;A</a>
+    </nav>
+    <div class="flex items-center gap-2 ms-auto lg:ms-0">
+      <button id="btnLang" class="btn btn-sm no-print" title="Language">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+        <span id="langLabel" class="max-w-[110px] truncate">English</span>
+      </button>
+      <select id="curTop" class="input no-print" style="width:auto;padding:.5rem 2rem .5rem .7rem;font-size:.82rem"></select>
+      <button id="btnTheme" class="btn icon-btn no-print" title="Theme">
+        <svg id="icoSun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ================= HERO ================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
+    <div class="grid lg:grid-cols-[1.15fr_.85fr] gap-8 items-center">
+      <div class="reveal">
+        <div class="flex flex-wrap gap-2 mb-5">
+          <span class="chip"><span>🌙</span><span data-i18n="hero_kicker">Shariah-aligned · 4 Madhhab notes</span></span>
+          <span class="chip"><span>💱</span><span id="curCount">150+ currencies</span></span>
+          <span class="chip"><span>🌐</span><span id="langCount">60+ languages</span></span>
+        </div>
+        <h1 class="text-[2.3rem] sm:text-6xl font-extrabold leading-[1.08] tracking-tight">
+          <span data-i18n="hero_title_1">Calculate your</span>
+          <span class="grad-text" data-i18n="hero_title_2">Zakat</span>
+          <span data-i18n="hero_title_3">with total confidence</span>
+        </h1>
+        <p class="mt-5 text-[1.02rem] leading-relaxed max-w-2xl" style="color:var(--txt2)" data-i18n="hero_sub">
+          A comprehensive smart calculator covering cash, gold &amp; silver, investments, business inventory, agriculture (ushr), livestock, rikaz and deductible debts — in any currency, with live nisab thresholds.
+        </p>
+        <div class="mt-7 flex flex-wrap gap-3">
+          <a href="#calculator" class="btn btn-gold pulse-ring" data-i18n="cta_start">Start calculating</a>
+          <a href="#tools" class="btn" data-i18n="cta_fitr">Zakat al-Fitr tool</a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">
+          <div class="kpi"><div class="k" data-i18n="stat_rate_k">Zakat rate</div><div class="v" style="color:var(--gold2)">2.5%</div></div>
+          <div class="kpi"><div class="k" data-i18n="stat_ng">Gold nisab</div><div class="v num">87.48 g</div></div>
+          <div class="kpi"><div class="k" data-i18n="stat_ns">Silver nisab</div><div class="v num">612.36 g</div></div>
+          <div class="kpi"><div class="k" data-i18n="stat_hawl">Hawl</div><div class="v num" data-i18n="stat_hawl_v">1 lunar year</div></div>
+        </div>
+      </div>
+      <div class="card p-5 reveal" style="animation-delay:.15s">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2 font-bold text-sm"><span>📊</span><span data-i18n="live_prices">Live metal prices</span></div>
+          <button id="btnRefresh" class="btn btn-sm"><svg id="refIco" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg><span data-i18n="refresh">Refresh</span></button>
+        </div>
+        <div class="marquee gap-3 mb-4">
+          <div class="stat-mini"><span class="text-xl">🥇</span><div><div class="text-[.68rem]" style="color:var(--txt3)">Au · <span data-i18n="per_gram">per gram</span></div><div class="font-extrabold num" id="auPrice">—</div></div></div>
+          <div class="stat-mini"><span class="text-xl">🥈</span><div><div class="text-[.68rem]" style="color:var(--txt3)">Ag · <span data-i18n="per_gram">per gram</span></div><div class="font-extrabold num" id="agPrice">—</div></div></div>
+          <div class="stat-mini"><span class="text-xl">🕌</span><div><div class="text-[.68rem]" style="color:var(--txt3)" data-i18n="hijri">Hijri date</div><div class="font-bold num text-[.8rem]" id="hijriDate">—</div></div></div>
+        </div>
+        <div class="gold-line my-4"></div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="lbl" for="auIn"><span data-i18n="au_manual">Gold price (manual)</span></label>
+            <div class="field-row"><input id="auIn" class="input" inputmode="decimal" placeholder="0.00"><span class="suffix" id="auUnit">/g</span></div>
+          </div>
+          <div>
+            <label class="lbl" for="agIn"><span data-i18n="ag_manual">Silver price (manual)</span></label>
+            <div class="field-row"><input id="agIn" class="input" inputmode="decimal" placeholder="0.00"><span class="suffix" id="agUnit">/g</span></div>
+          </div>
+        </div>
+        <p class="note mt-2" data-i18n="price_note">Prices are fetched live when available and shown in your selected currency. Always verify with your local market before paying.</p>
+        <div class="mt-3 flex items-center gap-2 text-[.72rem]" style="color:var(--txt3)">
+          <span id="priceSrc" class="chip">—</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CALCULATOR ================= -->
+  <section id="calculator" class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div class="grid lg:grid-cols-[1fr_400px] gap-6 items-start">
+      <div class="reveal">
+        <div class="card p-4 sm:p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+            <div>
+              <h2 class="text-xl font-extrabold" data-i18n="assets_title">Your assets</h2>
+              <p class="note" data-i18n="assets_sub">Enter amounts in your selected currency · fields marked grams stay in grams</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-[.75rem] font-semibold" style="color:var(--txt3)" for="curMain" data-i18n="currency">Currency</label>
+              <select id="curMain" class="input" style="width:auto;padding:.5rem 2rem .5rem .7rem;font-size:.82rem"></select>
+            </div>
+          </div>
+          <div class="tabbar scroll-thin" id="tabbar"></div>
+          <div class="gold-line my-4"></div>
+          <div id="panels"></div>
+          <div class="flex flex-wrap gap-2 mt-5 no-print">
+            <button id="btnSave" class="btn"><span>💾</span><span data-i18n="save">Save</span></button>
+            <button id="btnCsv" class="btn"><span>📥</span><span data-i18n="csv">Export CSV</span></button>
+            <button id="btnPrint" class="btn"><span>🖨️</span><span data-i18n="print">Print / PDF</span></button>
+            <button id="btnReset" class="btn btn-ghost" style="color:var(--red)"><span>↺</span><span data-i18n="reset">Reset all</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <aside class="lg:sticky lg:top-24 reveal">
+        <div class="result-card p-5">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-xl">🧮</span>
+            <h2 class="font-extrabold text-lg" data-i18n="summary">Zakat summary</h2>
+          </div>
+          <div class="space-y-2 mb-4">
+            <div class="ledger-row"><span style="color:var(--txt2)" data-i18n="total_assets">Total zakatable assets</span><b class="num" id="rAssets">—</b></div>
+            <div class="ledger-row"><span style="color:var(--txt2)" data-i18n="total_liab">Deductible liabilities</span><b class="num" id="rLiab" style="color:var(--red)">—</b></div>
+            <div class="ledger-row"><span style="color:var(--txt2)" data-i18n="net_wealth">Net zakatable wealth</span><b class="num" id="rNet">—</b></div>
+            <div class="ledger-row"><span style="color:var(--txt2)" data-i18n="nisab_lbl">Nisab threshold</span><b class="num" id="rNisab">—</b></div>
+          </div>
+          <div class="rounded-2xl p-4 text-center" style="background:var(--panel2);border:1px solid var(--border)">
+            <div class="text-[.7rem] font-bold uppercase tracking-wider" style="color:var(--txt3)" data-i18n="zakat_due">Zakat due (2.5%)</div>
+            <div class="text-[2.1rem] font-extrabold num grad-text leading-tight mt-1" id="rZakat">—</div>
+            <div class="mt-2 inline-flex items-center gap-2 text-[.75rem] font-semibold px-3 py-1 rounded-full" id="rStatus">—</div>
+          </div>
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[.78rem] font-bold" data-i18n="nisab_std">Nisab standard</span>
+              <div class="flex gap-1 p-1 rounded-xl" style="background:var(--panel2);border:1px solid var(--border2)">
+                <button class="btn btn-sm std-btn" data-std="silver" data-i18n="std_silver">Silver</button>
+                <button class="btn btn-sm std-btn" data-std="gold" data-i18n="std_gold">Gold</button>
+              </div>
+            </div>
+            <p class="note" id="nisabNote"></p>
+          </div>
+          <div class="gold-line my-4"></div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[.78rem] font-bold" data-i18n="composition">Asset composition</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <svg id="donut" viewBox="0 0 120 120" class="w-[112px] h-[112px] shrink-0"></svg>
+            <div id="legend" class="flex-1 space-y-1 text-[.75rem]"></div>
+          </div>
+          <div class="gold-line my-4"></div>
+          <div class="space-y-2" id="extraDues"></div>
+          <div class="gold-line my-4"></div>
+          <div>
+            <div class="text-[.78rem] font-bold mb-2" data-i18n="insights">Smart insights</div>
+            <ul id="insights" class="space-y-2 text-[.8rem]" style="color:var(--txt2)"></ul>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= TOOLS ================= -->
+  <section id="tools" class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div class="flex items-end justify-between gap-4 flex-wrap mb-6 reveal">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold" data-i18n="tools_title">Extra Zakat tools</h2>
+        <p class="note text-sm" data-i18n="tools_sub">Zakat al-Fitr, the eight categories of recipients, and your hawl tracker</p>
+      </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5">
+      <!-- Fitr -->
+      <div class="card card-hover p-5 reveal">
+        <div class="flex items-center gap-2 mb-3"><span class="text-2xl">🌾</span><h3 class="font-extrabold" data-i18n="fitr_title">Zakat al-Fitr</h3></div>
+        <p class="note mb-4" data-i18n="fitr_sub">≈ 2.5 kg (or 5 lbs) of staple food per household member, paid before the Eid prayer.</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="lbl" for="fitrPersons"><span data-i18n="persons">Persons in household</span></label><input id="fitrPersons" class="input" inputmode="numeric" value="4"></div>
+          <div><label class="lbl" for="fitrPrice"><span data-i18n="food_price">Staple food price / kg</span></label><div class="field-row"><input id="fitrPrice" class="input" inputmode="decimal" placeholder="0.00"><span class="suffix" id="fitrCur">—</span></div></div>
+        </div>
+        <div class="mt-3 flex items-center justify-between rounded-2xl p-4" style="background:var(--panel2);border:1px solid var(--border)">
+          <div><div class="text-[.68rem] uppercase font-bold" style="color:var(--txt3)" data-i18n="fitr_total">Total due</div><div class="text-xl font-extrabold num grad-text" id="fitrTotal">—</div></div>
+          <div class="text-end text-[.75rem]" style="color:var(--txt3)"><span data-i18n="per_person">Per person</span><div class="font-bold num" style="color:var(--txt)" id="fitrPer">—</div></div>
+        </div>
+        <p class="note mt-2" data-i18n="fitr_note">Based on 2.5 kg of the dominant staple (rice, wheat, dates, barley). Many scholars allow the cash equivalent.</p>
+      </div>
+      <!-- Asnaf -->
+      <div class="card card-hover p-5 reveal">
+        <div class="flex items-center gap-2 mb-3"><span class="text-2xl">🤲</span><h3 class="font-extrabold" data-i18n="asnaf_title">Eight categories (Asnaf)</h3></div>
+        <p class="note mb-3" data-i18n="asnaf_sub">Qur'an 9:60 — distribute your zakat among these categories.</p>
+        <div id="asnafList" class="space-y-1.5"></div>
+      </div>
+      <!-- Hawl -->
+      <div class="card card-hover p-5 reveal">
+        <div class="flex items-center gap-2 mb-3"><span class="text-2xl">📅</span><h3 class="font-extrabold" data-i18n="hawl_title">Hawl tracker</h3></div>
+        <p class="note mb-4" data-i18n="hawl_note">Zakat becomes obligatory when wealth ≥ nisab is held for a full lunar year (354 days).</p>
+        <label class="lbl" for="hawlDate"><span data-i18n="hawl_start">Date wealth reached nisab</span></label>
+        <input id="hawlDate" type="date" class="input">
+        <div class="mt-4">
+          <div class="flex justify-between text-[.75rem] font-semibold mb-1"><span data-i18n="hawl_progress">Hawl progress</span><span class="num" id="hawlPct">0%</span></div>
+          <div class="prog"><i id="hawlBar" style="width:0%"></i></div>
+        </div>
+        <div class="mt-4 rounded-2xl p-4" style="background:var(--panel2);border:1px solid var(--border)">
+          <div class="flex justify-between text-[.8rem]"><span style="color:var(--txt2)" data-i18n="hawl_remaining">Days remaining</span><b class="num" id="hawlLeft">—</b></div>
+          <div class="flex justify-between text-[.8rem] mt-1"><span style="color:var(--txt2)" data-i18n="hawl_due_date">Due date (approx.)</span><b class="num" id="hawlDue">—</b></div>
+          <div class="flex justify-between text-[.8rem] mt-1"><span style="color:var(--txt2)" data-i18n="hijri">Hijri date</span><b class="num text-[.75rem]" id="hawlHijri">—</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section id="faq" class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <h2 class="text-2xl sm:text-3xl font-extrabold text-center reveal" data-i18n="faq_title">Zakat questions &amp; answers</h2>
+    <p class="text-center note mt-2 mb-6 reveal" data-i18n="faq_sub">Concise fiqh guidance drawn from the four Sunni schools.</p>
+    <div id="faqList" class="space-y-3"></div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
+    <div class="card p-5 reveal" style="border-color:var(--border)">
+      <div class="flex items-center gap-2 mb-2"><span>⚠️</span><h3 class="font-extrabold" data-i18n="disc_title">Scholarly disclaimer</h3></div>
+      <p class="note" data-i18n="disc_body">This tool offers estimates based on widely held fiqh positions and may not reflect every scholar's opinion, your local market prices, or tax rules. For significant wealth, unusual asset types, or endowment and inheritance matters, please consult a qualified scholar or your local fatwa council. May Allah accept your zakat and purify your wealth.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="glass no-print" style="border-radius:26px 26px 0 0">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row gap-4 items-center justify-between text-[.8rem]" style="color:var(--txt3)">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl grid place-items-center" style="background:linear-gradient(140deg,var(--gold),#b8871f)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b1220" stroke-width="1.8"><path d="M12 2.5 13.9 8.6 20 10.5 13.9 12.4 12 18.5 10.1 12.4 4 10.5 10.1 8.6Z"/></svg>
+      </div>
+      <div><b style="color:var(--txt)">Nisab</b> · <span data-i18n="footer_note">Smart Zakat calculator · built for the Ummah</span></div>
+    </div>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <button class="hover:text-[var(--gold)] transition" id="footLang" data-i18n="nav_lang">Language</button>
+      <button class="hover:text-[var(--gold)] transition" onclick="window.print()" data-i18n="print">Print</button>
+      <span>© <span id="yr"></span> Nisab</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= LANGUAGE MODAL ================= -->
+<div class="modal no-print" id="langModal">
+  <div class="modal-box">
+    <div class="p-5 flex items-center justify-between gap-3" style="border-bottom:1px solid var(--border)">
+      <div>
+        <h3 class="text-lg font-extrabold" data-i18n="choose_lang">Choose your language</h3>
+        <p class="note" data-i18n="lang_hint">Type to search over 60 languages · layout switches automatically (RTL/LTR)</p>
+      </div>
+      <button class="btn icon-btn" id="langClose" aria-label="Close">✕</button>
+    </div>
+    <div class="p-4">
+      <input id="langSearch" class="input" placeholder="Search language…" data-i18n-ph="search_lang">
+    </div>
+    <div id="langGrid" class="px-4 pb-5 overflow-y-auto scroll-thin grid sm:grid-cols-2 gap-1.5"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ LANGUAGE PACKS (injected) ============ -->
+<script>window.I18N_PACKS.ar={
+brand:"نِسَاب",brand_sub:"حاسبة الزكاة الذكية",nav_calc:"الحاسبة",nav_tools:"أدوات إضافية",nav_faq:"أسئلة فقهية",nav_lang:"اللغة",
+hero_kicker:"متوافقة مع الشريعة · مذاهب الأئمة الأربعة",hero_title_1:"احسب",hero_title_2:"زكاتك",hero_title_3:"بثقة تامة",
+hero_sub:"حاسبة شاملة ذكية تغطي النقود والذهب والفضة والاستثمارات وعروض التجارة والزروع (العشر) والأنعام والركاز والديون المخصومة — بأي عملة وبنصاب يُحدَّث مباشرة.",
+cta_start:"ابدأ الحساب",cta_fitr:"زكاة الفطر",stat_rate_k:"نسبة الزكاة",stat_ng:"نصاب الذهب",stat_ns:"نصاب الفضة",stat_hawl:"الحول",stat_hawl_v:"سنة هجرية",
+live_prices:"أسعار المعادن الحيّة",per_gram:"للجرام",refresh:"تحديث",refreshing:"جارٍ التحديث…",au_manual:"سعر الذهب (يدوي)",ag_manual:"سعر الفضة (يدوي)",
+price_note:"تُجلب الأسعار مباشرة عند توفرها وتُعرض بعملتك. تحقّق دائمًا من السوق المحلي قبل الدفع.",hijri:"التاريخ الهجري",
+assets_title:"أموالك",assets_sub:"أدخل المبالغ بعملتك المختارة · الحقول المحددة بالجرام تبقى بالجرام",currency:"العملة",currency_hint:"تُحوَّل المبالغ تلقائيًا عند تغيير العملة.",
+choose_lang:"اختر لغتك",lang_hint:"ابحث في أكثر من 60 لغة · يتغيّر اتجاه الصفحة تلقائيًا (يمين/يسار)",search_lang:"ابحث عن لغة…",
+summary:"ملخص الزكاة",total_assets:"إجمالي الأموال الزكوية",total_liab:"الديون المخصومة",net_wealth:"صافي المال الزكوي",nisab_lbl:"حد النصاب",
+zakat_due:"الزكاة الواجبة (2.5%)",nisab_std:"معيار النصاب",std_gold:"الذهب",std_silver:"الفضة",composition:"توزيع الأموال",insights:"ملاحظات ذكية",
+status_above:"فوق النصاب — الزكاة واجبة",status_below:"دون النصاب — لا زكاة",status_above_d:"اكتملت شروط الوجوب: بلوغ النصاب والحول.",status_below_d:"واصل الادخار وأعد الحساب عند بلوغ النصاب.",
+ins_no_data:"أدخل أموالك لتحصل على إرشادات مخصّصة.",ins_above:"صافي مالك يتجاوز النصاب بمقدار {x}. أدفع 2.5% ({z}) ويمكن التقسيط عند الحاجة.",
+ins_gold_ok:"ذهبك وفضتُك وحدهما ({v}) تبلغ النصاب.",ins_silver_std:"اعتماد نصاب الفضة أكثر ورعًا وأنفع للفقراء.",
+ins_debt:"لديك ديون بمقدار {v} — يجوز خصم الديون المستحقة خلال سنة.",ins_crypto:"العملات الرقمية تُعامل معاملة النقود (2.5%) عند أغلب مجامع الفتوى المعاصرة.",
+ins_agri:"زكاة الزروع تُدفع عند الحصاد: 10% للبعلة و5% للمسقية.",ins_live:"زكاة الأنعام تجب إذا سارت سائمة عامًا كاملًا، وأنعام التجارة تُزكّى بـ 2.5%.",
+ins_rikaz:"الركاز (الكنز المدفون) فيه الخمس (20%) فورًا بلا حول.",ins_fitr:"لا تنسَ زكاة الفطر عن كل فرد من أهل بيتك.",
+ins_zeroliab:"لم تُدخل ديونًا — إن كنت مدينًا فيمكنك خصمها.",ins_business:"تُقدَّر عروض التجارة بقيمتها السوقية الحالية لا بسعر الشراء.",
+save:"حفظ",saved:"تم حفظ بياناتك على هذا الجهاز.",reset:"إعادة تعيين",reset_confirm:"هل تمسح جميع الحقول وتبدأ من جديد؟",print:"طباعة / PDF",csv:"تصدير CSV",
+tools_title:"أدوات زكاة إضافية",tools_sub:"زكاة الفطر، ثماني فئات المستحقين، ومتابعة الحول",
+fitr_title:"زكاة الفطر",fitr_sub:"نحو 2.5 كجم من غالب طعام البلد عن كل فرد، تُدفع قبل صلاة العيد.",persons:"أفراد الأسرة",food_price:"سعر الطعام / كجم",
+fitr_total:"الإجمالي الواجب",per_person:"للفرد",fitr_note:"محسوبة على 2.5 كجم من غالب الطعام (أرز، قمح، تمر، شعير)، ويجوز لأكثر الفقهاء دفع قيمتها نقدًا.",
+asnaf_title:"ثماني فئات (المستحقون)",asnaf_sub:"سورة التوبة 60 — وزّع زكاتك على هذه الفئات.",asnaf_1:"الفقراء",asnaf_2:"المساكين",asnaf_3:"العاملون عليها",
+asnaf_4:"المؤلَّفة قلوبهم",asnaf_5:"في الرقاب",asnaf_6:"الغارمون",asnaf_7:"في سبيل الله",asnaf_8:"ابن السبيل",
+hawl_title:"متابعة الحول",hawl_note:"تجب الزكاة إذا بلغ المال النصاب وحال عليه الحول (354 يومًا).",hawl_start:"تاريخ بلوغ النصاب",hawl_progress:"تقدّم الحول",
+hawl_remaining:"الأيام المتبقية",hawl_due_date:"تاريخ الاستحقاق (تقريبي)",hawl_done:"تم الحول — الزكاة واجبة الآن 🌙",
+faq_title:"أسئلة وأجوبة عن الزكاة",faq_sub:"إرشادات فقهية موجزة من مذاهب الأئمة الأربعة.",
+disc_title:"تنبيه شرعي",disc_body:"تُقدّم هذه الأداة تقديرات مبنية على أقوال فقهية مشهورة وقد لا تشمل كل الآراء أو أسعار السوق المحلية أو الأنظمة الضريبية. وفي الأموال الكبيرة أو الأنواع غير المألوفة أو الوقف والتركات استشر عالمًا مؤهّلًا أو دار الإفتاء. تقبّل الله زكاتك وطهّر مالك.",
+footer_note:"حاسبة زكاة ذكية · صنعت لأجل الأمة",optional:"اختياري",approx:"تقريبي",grams:"غ",kg:"كجم",days:"يومًا",computed:"القيمة الحالية",est:"تقديري",
+g_cash:"النقود والسيولة",g_cash_d:"النقد في اليد وأرصدة البنوك والودائع والمحافظ وما لك عند الناس.",
+g_metals:"الذهب والفضة",g_metals_d:"الحُلي والمصاغ والعملات. أدخل الأوزان بالجرام وتُحسب القيم بالأسعار الحيّة.",
+g_invest:"الاستثمارات",g_invest_d:"الأسهم والصناديق والعملات الرقمية والصكوك ومدخرات التقاعد.",
+g_biz:"التجارة",g_biz_d:"عروض التجارة ونقد العمل والديون المرجوة، مطروحًا منها التزامات العمل.",
+g_agri:"الزروع والثمار",g_agri_d:"الحبوب والثمار: 10% للبعلة و5% للمسقية، ونصابها نحو 653 كجم.",
+g_live:"الأنعام",g_live_d:"الإبل والبقر والجاموس والغنم والمعز بجداول النصاب المأثورة.",
+g_rikaz:"الركاز",g_rikaz_d:"الكنز المدفون الموجود بلا تعب — الخمس (20%) فورًا.",g_debt:"ديون تُخصم",g_debt_d:"الالتزامات المستحقة خلال سنة تُخصم من المال الزكوي.",
+f_cashHand:"النقد في اليد",f_bank:"حسابات البنوك",f_deposit:"الودائع الثابتة",f_ewallet:"المحافظ الرقمية والبطاقات مسبقة الدفع",
+f_receivable:"ما لك عند الناس",f_otherCash:"نقد آخر وعملات أجنبية",n_receivable:"أدخل ما تتوقّع تحصيله فعلًا.",
+f_goldJew:"حُلي الذهب",f_goldBull:"مصاغ وسبائك الذهب",f_goldCoin:"عملات الذهب (الدنانير)",f_silverJew:"حُلي الفضة",f_silverBull:"سبائك الفضة والآنية والعملات",
+purity:"العيار",n_purity:"يؤثر العيار في القيمة السوقية؛ 24 قيراط = 99.9%، 22 = 91.6%، 21 = 87.5%، 18 = 75%.",
+f_stocks:"الأسهم",f_funds:"صناديق الاستثمار والمؤشرات",f_crypto:"العملات الرقمية",f_sukuk:"السندات والصكوك",f_retirement:"مدخرات التقاعد",f_otherInvest:"استثمارات أخرى",
+n_stocks:"استخدم القيمة السوقية الحالية، والأسهم المخصّصة للتجارة تُزكّى بالكامل.",n_crypto:"تُقيَّم بسعر السوق بعملتك.",
+n_retirement:"المجامع المعاصرة: تُزكّى الحسابات المتاحة (2.5%). وعند الحنفية على الجزء الممكن الوصول إليه.",
+f_bizCash:"نقد العمل وحسابه",f_inventory:"عروض التجارة (المخزون)",f_bizRec:"ديون العمل المرجوة",f_bizOther:"أصول أخرى للعمل",
+f_bizDebts:"التزامات العمل (خلال سنة)",n_bizDebts:"تُقابل أصول العمل.",n_bizRec:"استبعد الديون المعدومة.",
+f_cropQty:"كمية المحصول",f_cropPrice:"سعر الكيلو في السوق",f_irrigation:"طريقة السقي",opt_rain:"البعلة (10%)",opt_irrigated:"المسقية (5%)",opt_mixed:"مختلطة (7.5%)",
+n_agri:"نصاب الزروع نحو 653 كجم (خمسة أوسق)، وما دون ذلك لا عشر فيه.",
+f_camels:"الإبل",f_cattle:"البقر والثيران",f_buffalo:"الجاموس",f_sheep:"الغنم",f_goats:"المعز",
+f_rikaz:"قيمة الركاز الموجود",n_rikaz:"الخمس فورًا — بلا حول ولا نصاب.",
+f_debtsDue:"ديون شخصية مستحقة خلال سنة",f_ccDue:"بطاقات ائتمان وأقساط",f_billsDue:"فواتير وإيجارات مستحقة",f_taxesDue:"ضرائب مستحقة",f_otherDebts:"التزامات أخرى",
+n_debtsDue:"القرض طويل الأجل: يجوز عند كثير من الفقهاء خصم أقساط السنة القادمة فقط.",
+sub_total:"إجمالي المجموعة",liab_note:"تُخصم الالتزامات المستحقة خلال سنة هجرية واحدة فقط.",extra_due:"التزامات أخرى",
+due_agri:"عُشر الزروع (نسبة {r})",due_rikaz:"الركاز 20%",live_total:"إجمالي الأنعام",
+an_sheep:"شاة",an_camel1:"بنت مخاد",an_camel2:"بنت لبون",an_camel3:"حِقّة",an_camel4:"جذعاء",an_cow1:"تبيّع",an_cow2:"بقرة",
+live_nisab_note:"نصاب الأنعام: 5 من الإبل · 30 من البقر · 40 من الغنم.",
+price_fail:"الأسعار الحيّة غير متاحة — أدخلها يدويًا.",price_live:"حيّ · {src}",price_manual:"إدخال يدوي",price_est:"تقدير استرشادي",
+rates_fail:"استُخدمت أسعار صرف دون اتصال — يمكنك اختيار أي عملة.",
+q1:"ما هو النصاب وأي معيار أعتمد؟",a1:"النصاب هو الحد الأدنى للمال الواجب فيه الزكاة، ويكون بوزن 87.48 غرامًا من الذهب الخالص أو 612.36 غرامًا من الفضة، والمقارنة بالقيمة لا بالوزن. نصاب الفضة أقل فيصير أكثر الناس زاكيين، وهو الأورع وأنفع للفقراء، ويُعتمد نصاب الذهب عادة لمن ماله نقود وذهب.",
+q2:"ما الأموال التي تجب فيها الزكاة؟",a2:"كل مال نامٍ منتِج: النقود وأرصدة البنوك والديون المرجوة والذهب والفضة (ومنها الحُلي عند الحنفية) وعروض التجارة والأسهم والعملات الرقمية والصكوك ومدخرات التقاعد المتاحة. أما لوازم الحاجة كبيت السكن والسيارة والثياب والآفات فلا زكاة فيها.",
+q3:"كيف تُعامل الديون؟",a3:"تُخصم الديون المستحقة خلال سنة هجرية من المال الزكوي، وفي القروض طويلة الأجل يخرج كثير من الفقهاء بقيمة أقساط السنة القادمة فقط. وتُقابل التزامات العمل بأصول العمل، ويُضيف ما لك عند الناس إن رجوت تحصيله.",
+q4:"لماذا 2.5% ومتى تجب؟",a4:"النقود وعروض التجارة والذهب والفضة فيها الربع من العشر (2.5%) إذا حال الحول وبلغ المال النصاب. أما الزروع والثمار (العشر) فلا حول فيها: 10% للبعلة و5% للمسقية، وتُدفع عند الحصاد. والركاز فيه الخمس فورًا.",
+q5:"كيف تُحسب زكاة الأنعام؟",a5:"النصاب: خمس من الإبل، وثلاثون من البقر أو الجاموس، وأربعون من الغنم أو المعز، بشرط أن تكون سائمة ترعى الغالب من السنة. يُدفع من جنسها بجداول مأثورة (40 شاة = شاة، 30 بقرة = تبيّع، 5 من الإبل = شاة). وأنعام التجارة تُزكّى بنسبة 2.5%.",
+q6:"هل يجوز إعطاء الزكاة للأقارب؟",a6:"يجوز دفعها لأيٍّ من الفئات الثماني ما لم يكن الوالد أو الوالدة أو الجدّ أو الأبناء أو الزوجة، لأن نفقاتهم واجبة عليك. ويجوز للإخوة والأخوات والأعمام والعمّات والأبناء العمومة وزوج الأبناء إن كانوا مستحقين، وفيه أجران. ويُستحبّ إخراجها في جهتك إن لم يكن فيها حاجة أعظم."
+};</script>
+<script>window.I18N_PACKS.fr={
+brand:"Nisab",brand_sub:"Suite Zakat intelligente",nav_calc:"Calculateur",nav_tools:"Outils",nav_faq:"Questions fiqh",nav_lang:"Langue",
+hero_kicker:"Conforme à la charia · notes des 4 écoles",hero_title_1:"Calculez votre",hero_title_2:"Zakat",hero_title_3:"en toute sérénité",
+hero_sub:"Un calculateur complet et intelligent : liquidités, or et argent, investissements, stocks commerciaux, récoltes (ushr), bétail, trésor (rikaz) et dettes déductibles — dans toutes les devises, avec nisab en temps réel.",
+cta_start:"Commencer",cta_fitr:"Zakat al-Fitr",stat_rate_k:"Taux",stat_ng:"Nisab or",stat_ns:"Nisab argent",stat_hawl:"Hawl",stat_hawl_v:"1 année lunaire",
+live_prices:"Prix des métaux en direct",per_gram:"par gramme",refresh:"Actualiser",refreshing:"Mise à jour…",au_manual:"Prix de l'or (manuel)",ag_manual:"Prix de l'argent (manuel)",
+price_note:"Les prix sont récupérés en direct si disponible et affichés dans votre devise. Vérifiez toujours votre marché local avant de payer.",hijri:"Date hégirienne",
+assets_title:"Vos actifs",assets_sub:"Saisissez les montants dans votre devise · les champs en grammes restent en grammes",currency:"Devise",currency_hint:"Les montants sont convertis automatiquement au changement de devise.",
+choose_lang:"Choisissez votre langue",lang_hint:"Plus de 60 langues · le sens de lecture s'adapte automatiquement (RTL/LTR)",search_lang:"Rechercher une langue…",
+summary:"Résumé de la zakat",total_assets:"Total des actifs zakatables",total_liab:"Dettes déductibles",net_wealth:"Patrimoine net zakatable",
+nisab_lbl:"Seuil du nisab",zakat_due:"Zakat due (2,5 %)",nisab_std:"Référence du nisab",std_gold:"Or",std_silver:"Argent",composition:"Répartition des actifs",insights:"Analyses intelligentes",
+status_above:"Au-dessus du nisab — zakat due",status_below:"Sous le nisab — pas de zakat",status_above_d:"Les conditions sont réunies : montant et hawl.",status_below_d:"Continuez à épargner et recalculez à l'atteinte du nisab.",
+ins_no_data:"Saisissez vos actifs pour obtenir des recommandations personnalisées.",
+ins_above:"Votre patrimoine dépasse le nisab de {x}. Payez 2,5 % ({z}) — un paiement fractionné est possible.",
+ins_gold_ok:"Votre or et votre argent ({v}) dépassent déjà le nisab.",ins_silver_std:"Le nisab sur l'argent est plus prudent et plus utile aux pauvres.",
+ins_debt:"Vous avez {v} de dettes — les dettes à moins d'un an sont déductibles.",ins_crypto:"Les cryptomonnaies sont traitées comme une monnaie (2,5 %) par la plupart des conseils de fatwa.",
+ins_agri:"L'ushr des récoltes se paie à la moisson : 10 % culture pluviale, 5 % irriguée.",ins_live:"La zakat du bétail est due après un an de pâturage libre ; le bétail commercial suit la règle de 2,5 %.",
+ins_rikaz:"Le trésor enfoui (rikaz) supporte 20 %, immédiatement et sans hawl.",ins_fitr:"N'oubliez pas la Zakat al-Fitr pour chaque membre du foyer.",
+ins_zeroliab:"Aucune dette saisie — vous pouvez les déduire si vous en avez.",ins_business:"Le stock commercial s'évalue au prix de vente actuel, pas au prix d'achat.",
+save:"Enregistrer",saved:"Données enregistrées sur cet appareil.",reset:"Tout réinitialiser",reset_confirm:"Effacer tous les champs et recommencer ?",print:"Imprimer / PDF",csv:"Exporter en CSV",
+tools_title:"Outils zakat complémentaires",tools_sub:"Zakat al-Fitr, les huit catégories de bénéficiaires et le suivi du hawl",
+fitr_title:"Zakat al-Fitr",fitr_sub:"≈ 2,5 kg d'aliment de base par membre du foyer, à verser avant la prière de l'Aïd.",persons:"Personnes au foyer",food_price:"Prix de l'aliment / kg",
+fitr_total:"Total dû",per_person:"Par personne",fitr_note:"Base : 2,5 kg de l'aliment dominant (riz, blé, dattes, orge). Beaucoup d'oulémas autorisent l'équivalent en espèces.",
+asnaf_title:"Huit catégories (Asnaf)",asnaf_sub:"Coran 9:60 — répartissez votre zakat entre ces catégories.",asnaf_1:"Les pauvres (fuqarā')",asnaf_2:"Les indigents (masākīn)",
+asnaf_3:"Les agents de la zakat",asnaf_4:"Ceux dont les cœurs sont à rallier",asnaf_5:"L'affranchissement des captifs",asnaf_6:"Les endettés (ghārimīn)",asnaf_7:"Dans la voie d'Allah",asnaf_8:"Le voyageur dénué",
+hawl_title:"Suivi du hawl",hawl_note:"La zakat devient obligatoire quand un capital ≥ nisab est détenu une année lunaire complète (354 jours).",
+hawl_start:"Date d'atteinte du nisab",hawl_progress:"Progression du hawl",hawl_remaining:"Jours restants",hawl_due_date:"Échéance (approx.)",hawl_done:"Hawl accompli — votre zakat est due 🌙",
+faq_title:"Questions et réponses",faq_sub:"Guidance juridique concise issue des quatre écoles sunnites.",
+disc_title:"Avertissement",disc_body:"Cet outil fournit des estimations fondées sur des positions fiqh répandues ; il peut ne pas refléter chaque avis, vos prix locaux ou vos règles fiscales. Pour un patrimoine important, des actifs atypiques ou des questions successorales, consultez un savant qualifié. Qu'Allah accepte votre zakat.",
+footer_note:"Calculateur de zakat intelligent · au service de l'Oumma",optional:"facultatif",approx:"approx.",grams:"g",kg:"kg",days:"jours",computed:"valeur actuelle",est:"estimation",
+g_cash:"Liquidités",g_cash_d:"Espèces, comptes bancaires, dépôts, portefeuilles et créances.",g_metals:"Or & argent",g_metals_d:"Bijoux, lingots et pièces. Poids en grammes ; valeur selon prix en direct.",
+g_invest:"Investissements",g_invest_d:"Actions, fonds, crypto, sukuk et épargne retraite.",g_biz:"Commerce",g_biz_d:"Stocks, trésorerie et créances professionnelles, moins les dettes.",
+g_agri:"Agriculture (ushr)",g_agri_d:"Récoltes : 10 % pluvial, 5 % irrigué, nisab ≈ 653 kg.",g_live:"Bétail",g_live_d:"Chameaux, bovins, buffles, moutons et chèvres selon les tables classiques.",
+g_rikaz:"Trésor (rikaz)",g_rikaz_d:"Trésor enfoui découvert sans effort — 20 % immédiatement.",g_debt:"Dettes à déduire",g_debt_d:"Les dettes à moins d'un an se déduisent de l'assiette zakatable.",
+f_cashHand:"Espèces en main",f_bank:"Comptes bancaires",f_deposit:"Dépôts à terme",f_ewallet:"Portefeuilles numériques",f_receivable:"Sommes prêtées",f_otherCash:"Autres liquidités et devises",
+n_receivable:"Ne comptez que ce que vous récupérerez réellement.",f_goldJew:"Bijoux en or",f_goldBull:"Lingots d'or",f_goldCoin:"Pièces d'or (dinars)",f_silverJew:"Bijoux en argent",f_silverBull:"Argent, ustensiles et pièces",
+purity:"Pureté",n_purity:"La pureté réduit la valeur marchande : 24k = 99,9 %, 22k = 91,6 %, 21k = 87,5 %, 18k = 75 %.",
+f_stocks:"Actions",f_funds:"Fonds et ETF",f_crypto:"Cryptomonnaies",f_sukuk:"Obligations & sukuk",f_retirement:"Retraite / pension",f_otherInvest:"Autres placements",
+n_stocks:"Utilisez la valeur de marché ; les titres détenus pour le commerce sont pleinement zakatables.",n_crypto:"Valorisés au prix du marché dans votre devise.",
+n_retirement:"Conseils contemporains : inclure les comptes accessibles (2,5 %). Hanafi : sur la part accessible.",
+f_bizCash:"Trésorerie professionnelle",f_inventory:"Stock commercial",f_bizRec:"Créances clients",f_bizOther:"Autres actifs professionnels",f_bizDebts:"Dettes professionnelles (< 1 an)",n_bizDebts:"Compensées avec les actifs professionnels.",n_bizRec:"Excluez les créances irrécouvrables.",
+f_cropQty:"Quantité récoltée",f_cropPrice:"Prix de marché / kg",f_irrigation:"Mode d'irrigation",opt_rain:"Pluvial (10 %)",opt_irrigated:"Irrigué (5 %)",opt_mixed:"Mixte (7,5 %)",
+n_agri:"Le nisab des récoltes est d'environ 653 kg (5 wasq). En dessous, pas d'ushr.",
+f_camels:"Chameaux",f_cattle:"Bovins",f_buffalo:"Buffles",f_sheep:"Moutons",f_goats:"Chèvres",f_rikaz:"Valeur du trésor trouvé",n_rikaz:"20 % immédiatement — sans hawl ni nisab.",
+f_debtsDue:"Dettes personnelles < 1 an",f_ccDue:"Cartes de crédit & échéances",f_billsDue:"Factures & loyers dus",f_taxesDue:"Impôts dus",f_otherDebts:"Autres dettes",
+n_debtsDue:"Prêt longue durée : beaucoup de savants ne déduisent que les échéances de l'année à venir.",
+sub_total:"Sous-total",liab_note:"Seules les dettes à moins d'une année lunaire sont déductibles.",extra_due:"Autres obligations",
+due_agri:"Ushr des récoltes (taux {r})",due_rikaz:"Rikaz 20 %",live_total:"Total bétail",
+an_sheep:"mouton(s)/chèvre(s)",an_camel1:" chamelle d'1 an (bint makhād)",an_camel2:"chamelle de 2 ans (bint labūn)",an_camel3:"chamelle de 3 ans (hiqqa)",an_camel4:"chamelle de 4 ans (jadha'a)",an_cow1:"bouvin d'1 an (tabī')",an_cow2:"vache de 2 ans (baqara)",
+live_nisab_note:"Nisab du bétail : 5 chameaux · 30 bovins · 40 moutons/chèvres.",
+price_fail:"Prix en direct indisponibles — saisissez-les manuellement.",price_live:"Direct · {src}",price_manual:"Saisie manuelle",price_est:"Estimation indicative",
+rates_fail:"Taux hors ligne utilisés — toute devise reste disponible."
+};</script>
+<script>window.I18N_PACKS.tr={
+brand:"Nisab",brand_sub:"Akıllı Zekât Sistemi",nav_calc:"Hesaplayıcı",nav_tools:"Ek Araçlar",nav_faq:"Fıkıh S.S.S.",nav_lang:"Dil",
+hero_kicker:"Şeriat uyumlu · 4 mezhep notları",hero_title_1:"Zekâtınızı",hero_title_2:"güvenle",hero_title_3:"hesaplayın",
+hero_sub:"Nakit, altın ve gümüş, yatırımlar, ticaret malı, tarım (üşr), büyük ve küçük baş hayvan, defin (rikaz) ve düşülebilir borçları kapsayan kapsamlı akıllı hesaplayıcı — tüm para birimlerinde, canlı nisab ile.",
+cta_start:"Hesaplamaya başla",cta_fitr:"Fıtır sadakası",stat_rate_k:"Zekât oranı",stat_ng:"Altın nisabı",stat_ns:"Gümüş nisabı",stat_hawl:"Havul",stat_hawl_v:"1 kamerî yıl",
+live_prices:"Canlı metal fiyatları",per_gram:"gram başına",refresh:"Yenile",refreshing:"Güncelleniyor…",au_manual:"Altın fiyatı (manuel)",ag_manual:"Gümüş fiyatı (manuel)",
+price_note:"Fiyatlar mümkün olduğunda canlı çekilir ve seçtiğiniz para biriminde gösterilir. Ödemeden önce yerel piyasayı doğrulayın.",hijri:"Hicrî tarih",
+assets_title:"Varlıklarınız",assets_sub:"Tutarları seçtiğiniz para biriminde girin · gram alanları gram olarak kalır",currency:"Para birimi",currency_hint:"Para birimi değişince tutarlar otomatik çevrilir.",
+choose_lang:"Dilinizi seçin",lang_hint:"60+ dilde arama · düzen otomatik değişir (RTL/LTR)",search_lang:"Dil ara…",
+summary:"Zekât özeti",total_assets:"Zekâta tabi varlıklar",total_liab:"Düşülebilen borçlar",net_wealth:"Net zekât malı",nisab_lbl:"Nisab sınırı",
+zakat_due:"Ödenecek zekât (%2,5)",nisab_std:"Nisab standardı",std_gold:"Altın",std_silver:"Gümüş",composition:"Varlık dağılımı",insights:"Akıllı öneriler",
+status_above:"Nisabın üzerinde — zekât gerekli",status_below:"Nisabın altında — zekât yok",status_above_d:"Şartlar tamamlandı: miktar ve havul.",status_below_d:"Birikmeye devam edin; nisaba ulaşınca yeniden hesaplayın.",
+ins_no_data:"Kişisel öneriler için varlıklarınızı girin.",ins_above:"Net malınız nisabı {x} aşıyor. %2,5 ödeyin ({z}) — gerekirse taksitle ödenebilir.",
+ins_gold_ok:"Yalnızca altın ve gümüşünüz ({v}) nisabı aşıyor.",ins_silver_std:"Gümüş nisabını kullanmak daha ihtiyatlı ve fakirlere daha faydalıdır.",
+ins_debt:"{v} borcunuz var — bir yıl içindeki borçlar düşülebilir.",ins_crypto:"Kripto paralar çoğu fetva kurulu tarafından para sayılır (%2,5).",
+ins_agri:"Tarım ürünlerinin üşrü hasatta ödenir: susuz %10, sulama %5.",ins_live:"Hayvan zekâtı bir yıl serbest otlatma sonrası gerekir; ticaret hayvanları %2,5 ile zekâtlandırılır.",
+ins_rikaz:"Gömülü define (rikaz) %20, hemen ve havulsuz.",ins_fitr:"Hane halkının her fert için fıtır sadakasını unutmayın.",
+ins_zeroliab:"Borç girilmedi — borcunuz varsa düşebilirsiniz.",ins_business:"Ticaret malı alış değil güncel satış fiyatıyla değerlenir.",
+save:"Kaydet",saved:"Verileriniz bu cihaza kaydedildi.",reset:"Tümünü sıfırla",reset_confirm:"Tüm alanlar temizlensin ve baştan başlansın mı?",print:"Yazdır / PDF",csv:"CSV indir",
+tools_title:"Ek zekât araçları",tools_sub:"Fıtır sadakası, sekiz helal kategori ve havul takibi",
+fitr_title:"Fıtır sadakası",fitr_sub:"Hane halkı başına ≈ 2,5 kg temel gıda; bayram namazından önce verilir.",persons:"Hane halkı sayısı",food_price:"Temel gıda fiyatı / kg",
+fitr_total:"Ödenecek toplam",per_person:"Kişi başına",fitr_note:"2,5 kg temel gıda esasına dayanır (pirinç, buğday, hurma, arpa). Birçok alim nakdi karşılığına izin verir.",
+asnaf_title:"Sekiz kategori (esnâf)",asnaf_sub:"Tevbe 9:60 — zekâtınızı bu kategoriler arasında dağıtın.",asnaf_1:"Fakirler",asnaf_2:"Miskinler",asnaf_3:"Zekât görevlileri",asnaf_4:"Kalpleri ısındırılacaklar",
+asnaf_5:"Köle ve esirlerin kurtuluşu",asnaf_6:"Borçlular",asnaf_7:"Allah yolunda",asnaf_8:"Yolcu (yolda kalan)",
+hawl_title:"Havul takibi",hawl_note:"Nisaba ulaşan mal bir kamerî yıl (354 gün) tutulunca zekât gerekir.",hawl_start:"Nisaba ulaşılan tarih",hawl_progress:"Havul ilerlemesi",
+hawl_remaining:"Kalan gün",hawl_due_date:"Tahmini tarih",hawl_done:"Havul tamamlandı — zekâtınız vâcip 🌙",
+faq_title:"Zekât soru ve cevapları",faq_sub:"Dört Sünnî mezhepten özlü fıkıh bilgisi.",
+disc_title:"İlmî uyarı",disc_body:"Bu araç yaygın fıkıh görüşlerine dayalı tahminler sunar; her görüşü, yerel fiyatları veya vergi kurallarını kapsamayabilir. Büyük servetler ve özel varlıklar için yetkin bir âlime danışın. Allah zekâtınızı kabul etsin.",
+footer_note:"Akıllı zekât hesaplayıcı · ümmet için",optional:"isteğe bağlı",approx:"yaklaşık",grams:"g",kg:"kg",days:"gün",computed:"güncel değer",est:"tahmini",
+g_cash:"Nakit",g_cash_d:"Elindeki nakit, banka bakiyeleri, mevduat, cüzdanlar ve alacaklar.",g_metals:"Altın & gümüş",g_metals_d:"Takı, külçe ve sikke. Gram girin; değer canlı fiyatla hesaplanır.",
+g_invest:"Yatırımlar",g_invest_d:"Hisseler, fonlar, kripto, sukuk ve emeklilik birikimi.",g_biz:"Ticaret",g_biz_d:"Stok, işletme nakdi ve alacaklar, borçlar düşülerek.",
+g_agri:"Tarım (üşr)",g_agri_d:"Ürünler: susuz %10, sulama %5, nisab ≈ 653 kg.",g_live:"Büyük/küçük baş",g_live_d:"Deve, sığır, manda, koyun ve keçi klasik nisab tablolarıyla.",
+g_rikaz:"Define (rikaz)",g_rikaz_d:"Emek harcanmadan bulunan gömülü define — %20 derhal.",g_debt:"Düşülecek borçlar",g_debt_d:"Bir yıl içindeki borçlar zekât matrahından düşülür.",
+f_cashHand:"Elindeki nakit",f_bank:"Banka hesapları",f_deposit:"Vadeli mevduat",f_ewallet:"Dijital cüzdanlar",f_receivable:"Verilen borçlar",f_otherCash:"Diğer nakit ve döviz",
+n_receivable:"Yalnızca gerçekten tahsil etmeyi beklediğinizi girin.",f_goldJew:"Altın takı",f_goldBull:"Altın külçe",f_goldCoin:"Altın sikke",f_silverJew:"Gümüş takı",f_silverBull:"Gümüş külçe ve eşya",
+purity:"Ayâr",n_purity:"Ayâr piyasa değerini azaltır: 24k = %99,9, 22k = %91,6, 21k = %87,5, 18k = %75.",
+f_stocks:"Hisseler",f_funds:"Fonlar ve ETF",f_crypto:"Kripto varlıklar",f_sukuk:"Tahvil ve sukuk",f_retirement:"Emeklilik fonu",f_otherInvest:"Diğer yatırımlar",
+n_stocks:"Güncel piyasa değerini kullanın; ticaret için tutulanlar tamamen zekâta tabidir.",n_crypto:"Piyasa fiyatıyla değerlenir.",
+n_retirement:"Çağdaş kurullar: erişilebilir hesaplar dahil (%2,5). Hanefî: erişilebilir kısım üzerinden.",
+f_bizCash:"İşletme nakdi",f_inventory:"Ticaret stoğu",f_bizRec:"Tahsil edilebilir alacaklar",f_bizOther:"Diğer işletme varlıkları",f_bizDebts:"İşletme borçları (< 1 yıl)",n_bizDebts:"İşletme varlıklarından düşülür.",n_bizRec:"Tahsil edilemeyecek alacakları çıkarın.",
+f_cropQty:"Ürün miktarı",f_cropPrice:"Kilogram fiyatı",f_irrigation:"Sulama yöntemi",opt_rain:"Susuz (%10)",opt_irrigated:"Sulama (%5)",opt_mixed:"Karma (%7,5)",
+n_agri:"Ürün nisabı yaklaşık 653 kg'dır (5 vask). Altında üşr gerekmez.",
+f_camels:"Deve",f_cattle:"Sığır",f_buffalo:"Manda",f_sheep:"Koyun",f_goats:"Keçi",f_rikaz:"Bulunan definin değeri",n_rikaz:"Derhal %20 — havul ve nisab şartı yok.",
+f_debtsDue:"Bir yıl içindeki kişisel borçlar",f_ccDue:"Kredi kartı ve taksitler",f_billsDue:"Fatura ve kira borçları",f_taxesDue:"Vergiler",f_otherDebts:"Diğer borçlar",
+n_debtsDue:"Uzun vadeli kredi: birçok âlime göre yalnızca gelecek yılın taksitleri düşülür.",
+sub_total:"Grup toplamı",liab_note:"Yalnızca bir kamerî yıl içindeki borçlar düşülebilir.",extra_due:"Diğer yükümlülükler",
+due_agri:"Ürün üşrü (oran {r})",due_rikaz:"Rikaz %20",live_total:"Hayvan toplamı",
+an_sheep:"koyun/keçi",an_camel1:"1 yaşlı dişi deve",an_camel2:"2 yaşlı dişi deve",an_camel3:"3 yaşlı dişi deve",an_camel4:"4 yaşlı dişi deve",an_cow1:"1 yaşlı öküz",an_cow2:"2 yaşlı inek",
+live_nisab_note:"Hayvan nisabı: 5 deve · 30 sığır · 40 koyun/keçi.",
+price_fail:"Canlı fiyatlar alınamadı — elle girin.",price_live:"Canlı · {src}",price_manual:"Elle giriş",price_est:"Tahmini değer",
+rates_fail:"Çevrimdışı kurlar kullanıldı — yine de tüm para birimleri seçilebilir."
+};</script>
+<script>window.I18N_PACKS.ur={
+brand:"نصاب",brand_sub:"سمارٹ زکات کیلکولیٹر",nav_calc:"کیلکولیٹر",nav_tools:"اضافی اوزار",nav_faq:"فقہی سوالات",nav_lang:"زبان",
+hero_kicker:"شرعی اصولوں پر مبنی · چاروں مذاہب کی رہنمائی",hero_title_1:"اپنی",hero_title_2:"زکات",hero_title_3:"پورے اطمینان سے حساب کریں",
+hero_sub:"ایک جامع سمارٹ کیلکولیٹر: نقدی، سونا و چاندی، سرمایہ کاری، تجارتی مال، زرعی پیداوار (عشر)، مویشی، رکاز اور قابل کٹوتی قرضے — ہر کرنسی میں، موجودہ نصاب کے ساتھ۔",
+cta_start:"حساب شروع کریں",cta_fitr:"زکات الفطر",stat_rate_k:"زکات کی شرح",stat_ng:"نصابِ سونا",stat_ns:"نصابِ چاندی",stat_hawl:"حول",stat_hawl_v:"ایک قمری سال",
+live_prices:"دھاتوں کی موجودہ قیمتیں",per_gram:"فی گرام",refresh:"تازہ کریں",refreshing:"اپ ڈیٹ ہو رہا ہے…",au_manual:"سونے کی قیمت (دستی)",ag_manual:"چاندی کی قیمت (دستی)",
+price_note:"قیمتیں دستیاب ہونے پر خودکار طور پر حاصل کی جاتی ہیں اور آپ کی کرنسی میں دکھائی جاتی ہیں۔ ادائیگی سے پہلے مقامی بازار تصدیق کریں۔",hijri:"ہجری تاریخ",
+assets_title:"آپ کا مال",assets_sub:"رقم منتخب کرنسی میں درج کریں · گرام والے خانے گرام میں رہیں گے",currency:"کرنسی",currency_hint:"کرنسی تبدیل کرنے پر رقم خودکار تبدیل ہو جاتی ہے۔",
+choose_lang:"اپنی زبان منتخب کریں",lang_hint:"60 سے زائد زبانیں · سمت خودکار تبدیل ہوتی ہے (RTL/LTR)",search_lang:"زبان تلاش کریں…",
+summary:"زکات کا خلاصہ",total_assets:"کل زکات والا مال",total_liab:"قابل کٹوتی قرضے",net_wealth:"خالص زکاتی مال",nisab_lbl:"نصاب کی حد",
+zakat_due:"واجب زکات (2.5%)",nisab_std:"نصاب کا معیار",std_gold:"سونا",std_silver:"چاندی",composition:"مال کی تقسیم",insights:"سمارٹ رہنمائی",
+status_above:"نصاب سے زیادہ — زکات واجب",status_below:"نصاب سے کم — زکات نہیں",status_above_d:"وجوب کی شرطیں مکمل: مال اور حول۔",status_below_d:"بچت جاری رکھیں؛ نصاب پر پہنچ کر دوبارہ حساب کریں۔",
+ins_no_data:"ذاتی رہنمائی کے لیے اپنا مال درج کریں۔",ins_above:"آپ کا خالص مال نصاب سے {x} زیادہ ہے۔ 2.5% ({z}) ادا کریں، ضرورت پر اقساط میں بھی۔",
+ins_gold_ok:"صرف آپ کا سونا اور چاندی ({v}) نصاب تک پہنچ چکا ہے۔",ins_silver_std:"نصابِ چاندی اختیار کرنا احتیاط اور فقراء کے لیے بہتر ہے۔",
+ins_debt:"آپ پر {v} کے قرض ہیں — ایک سال کے اندر واجب الادا قرض کٹ سکتے ہیں۔",ins_crypto:"جدید فتویٰ بورڈز کے نزدیک کرپٹو کرنسی بطور زر (2.5%) ہے۔",
+ins_agri:"زرعی پیداوار کی زکات کٹائی کے وقت: بارانی 10%، آبپاشی 5%۔",ins_live:"مویشیوں کی زکات اس وقت واجب ہے جب وہ ایک سال سائمنے والی ہوں؛ تجارتی مویشی 2.5% پر۔",
+ins_rikaz:"دفن شدہ خزانہ (رکاز) میں 20% فوراً واجب ہے، بلا حول۔",ins_fitr:"گھر کے ہر فرد کی زکات الفطر نہ بھولیں۔",
+ins_zeroliab:"کوئی قرض درج نہیں — اگر قرض ہے تو اسے کٹ سکتے ہیں۔",ins_business:"تجارتی مال کی قیمت موجودہ بازاری قیمت پر ہوتی ہے، خرید قیمت پر نہیں۔",
+save:"محفوظ کریں",saved:"آپ کا ڈیٹا اس ڈیوائس پر محفوظ ہو گیا۔",reset:"سب ری سیٹ",reset_confirm:"تمام خانے صاف کر کے نئے سرے سے شروع کریں؟",print:"پرنٹ / PDF",csv:"CSV ایکسپورٹ",
+tools_title:"اضافی زکات اوزار",tools_sub:"زکات الفطر، مستحقین کی آٹھ گہریاں، اور حول کا ٹریکَر",
+fitr_title:"زکات الفطر",fitr_sub:"ہر فرد کے لیے تقریباً 2.5 کلو عام کھانا، عید کی نماز سے پہلے۔",persons:"گھر کے افراد",food_price:"کھانے کی قیمت / کلو",
+fitr_total:"کل واجب",per_person:"فی فرد",fitr_note:"2.5 کلو غالب غذا (چاول، گندم، کھجور، جو) کی بنیاد پر۔ اکثر علما نقدی معادل جائز سمجھتے ہیں۔",
+asnaf_title:"آٹھ گہریاں (مستحقین)",asnaf_sub:"سورۃ التوبہ 60 — اپنی زکات ان گہریوں میں تقسیم کریں۔",asnaf_1:"فقراء",asnaf_2:"مساکین",asnaf_3:"عاملین (ذمہ دار)",asnaf_4:"مؤلفۃ القلوب",
+asnaf_5:"غلاموں کی آزادی",asnaf_6:"غارمین (قرض دار)",asnaf_7:"فی سبیل اللہ",asnaf_8:"ابن السبیل",
+hawl_title:"حول ٹریکَر",hawl_note:"زکات اُس وقت واجب ہوتی ہے جب نصاب جتنا مال پورا قمری سال (354 دن) رہے۔",hawl_start:"نصاب تک پہنچنے کی تاریخ",hawl_progress:"حول کی پیش رفت",
+hawl_remaining:"باقی دن",hawl_due_date:"تاریخِ استحقاق (تقریباً)",hawl_done:"حول مکمل — زکات اب واجب ہے 🌙",
+faq_title:"زکات سوال و جواب",faq_sub:"چاروں مذاہب سے مختصر فقہی رہنمائی۔",
+disc_title:"شرعی نوٹ",disc_body:"یہ ٹول مشہور فقہی آراء پر مبنی تخمینہ دیتا ہے اور ہر رائے، مقامی قیمتوں یا ٹیکس قوانین کا احاطہ نہیں کرتا۔ بڑے مال یا غیر معمولی اثاثوں کے لیے مستند عالم یا دارالافتاء سے رجوع کریں۔ اللہ آپ کی زکات قبول فرمائے۔",
+footer_note:"سمارٹ زکات کیلکولیٹر · امت کے لیے",optional:"اختیاری",approx:"تقریباً",grams:"گرام",kg:"کلو",days:"دن",computed:"موجودہ قیمت",est:"اندازاً",
+g_cash:"نقدی",g_cash_d:"جیب کی نقدی، بینک بیلنس، جمع شدہ رقم، والٹس اور دوسروں کے پاس رکھا ہوا مال۔",
+g_metals:"سونا و چاندی",g_metals_d:"زیور، سکّہ اور اِنجیلیں۔ وزن گرام میں؛ قیمت موجودہ ریٹ سے۔",
+g_invest:"سرمایہ کاری",g_invest_d:"شیئرز، فنڈز، کرپٹو، صکوک اور ریٹائرمنٹ بچت۔",g_biz:"کاروبار",g_biz_d:"تجارتی مال، کاروباری نقدی اور وصولی، منہائے کاروباری قرضے۔",
+g_agri:"زرعی پیداوار",g_agri_d:"اناج و پھل: بارانی 10%، آبپاشی 5%، نصاب تقریباً 653 کلو۔",g_live:"مویشی",g_live_d:"اونٹ، گائے بیل، بھینس، بھیڑ اور بکریاں روایتی نصاب کے مطابق۔",
+g_rikaz:"رکاز",g_rikaz_d:"بغیر محنت دفن شدہ خزانہ — فوراً 20%۔",g_debt:"کٹنے والے قرضے",g_debt_d:"ایک سال کے اندر واجب الادا قرضے زکاتی مال سے کٹ جاتے ہیں۔",
+f_cashHand:"جیب کی نقدی",f_bank:"بینک اکاؤنٹس",f_deposit:"مقررہ جمع شدہ رقم",f_ewallet:"ڈیجیٹل والٹس",f_receivable:"دوسروں کے پاس آپ کا مال",f_otherCash:"دیگر نقدی و غیر ملکی کرنسی",
+n_receivable:"صرف وہی رقم درج کریں جس کی وصولی کی امید ہو۔",f_goldJew:"سونے کے زیور",f_goldBull:"سونے کی اِنجیل",f_goldCoin:"سونے کے سکّے",f_silverJew:"چاندی کے زیور",f_silverBull:"چاندی کی اِنجیل و برتن",
+purity:"خالصیت",n_purity:"خالصیت قیمت گھٹاتی ہے: 24 کیریٹ = 99.9%، 22 = 91.6%، 21 = 87.5%، 18 = 75%۔",
+f_stocks:"شیئرز",f_funds:"میوچول فنڈز و ETF",f_crypto:"کرپٹو کرنسی",f_sukuk:"بونڈز و صکوک",f_retirement:"ریٹائرمنٹ اکاؤنٹ",f_otherInvest:"دیگر سرمایہ کاری",
+n_stocks:"موجودہ بازاری قیمت استعمال کریں؛ تجارت کے لیے رکھے شیئرز مکمل زکاتی ہیں۔",n_crypto:"بازاری قیمت پر مالیت۔",
+n_retirement:"جدید مجالس: دستیاب اکاؤنٹس شامل (2.5%)۔ حنفی: قابلِ رسائی حصے پر۔",
+f_bizCash:"کاروباری نقدی",f_inventory:"تجارتی مال (اسٹاک)",f_bizRec:"قابل وصول کاروباری قرضے",f_bizOther:"دیگر کاروباری اثاثے",f_bizDebts:"کاروباری قرضے (ایک سال کے اندر)",n_bizDebts:"کاروباری اثاثوں میں سے کاٹا جاتا ہے۔",n_bizRec:"ناقابل وصول قرضے شامل نہ کریں۔",
+f_cropQty:"فصل کی مقدار",f_cropPrice:"فی کلو بازاری قیمت",f_irrigation:"آبپاشی کا طریقہ",opt_rain:"بارانی (10%)",opt_irrigated:"آبپاشی (5%)",opt_mixed:"مخلوط (7.5%)",
+n_agri:"فصل کا نصاب تقریباً 653 کلو (5 وسق) ہے۔ اس سے کم پر عشر نہیں۔",
+f_camels:"اونٹ",f_cattle:"گائے بیل",f_buffalo:"بھینس",f_sheep:"بھیڑ",f_goats:"بکریاں",f_rikaz:"ملے ہوئے خزانے کی قیمت",n_rikaz:"فوراً 20% — نہ حول نہ نصاب۔",
+f_debtsDue:"ایک سال کے اندر شخصی قرضے",f_ccDue:"کریڈٹ کارڈ اور اقساط",f_billsDue:"واجب الادا بل و کرایہ",f_taxesDue:"واجب الادا ٹیکس",f_otherDebts:"دیگر قرضے",
+n_debtsDue:"طویل مدتی قرض: اکثر علما صرف آنے والے سال کی اقساط کاٹتے ہیں۔",
+sub_total:"مجموعی گروپ",liab_note:"صرف ایک قمری سال کے اندر کے قرضے کٹتے ہیں۔",extra_due:"دیگر ذمہ داریاں",
+due_agri:"فصل کا عشر (شرح {r})",due_rikaz:"رکاز 20%",live_total:"مویشیوں کا کل",
+an_sheep:"بھیڑ/بکری",an_camel1:"بنت مخاد",an_camel2:"بنت لبون",an_camel3:"حِقّہ",an_camel4:"جذعاء",an_cow1:"تبیع",an_cow2:"بقرة",
+live_nisab_note:"مویشیوں کا نصاب: 5 اونٹ · 30 گائے · 40 بھیڑ/بکری۔",
+price_fail:"موجودہ قیمتیں دستیاب نہیں — دستی درج کریں۔",price_live:"موجودہ · {src}",price_manual:"دستی درج",price_est:"اندازاً تخمینہ",
+rates_fail:"آف لائن ریٹ استعمال ہوئے — پھر بھی ہر کرنسی منتخب کر سکتے ہیں۔"
+};</script>
+<script>window.I18N_PACKS.fa={
+brand:"نصاب",brand_sub:"محاسبه هوشمند زکات",nav_calc:"محاسبه‌گر",nav_tools:"ابزارهای بیشتر",nav_faq:"پرسش‌های فقهی",nav_lang:"زبان",
+hero_kicker:"هماهنگ با شریعت · یادداشت چهار مذهب",hero_title_1:"زکات خود را",hero_title_2:"با اطمینان",hero_title_3:"محاسبه کنید",
+hero_sub:"محاسبه‌گر جامع و هوشمند: پول نقد، طلا و نقره، سرمایه‌گذاری، کالای تجاری، محصولات کشاورزی (عشر)، چهارپایان، گنج (ریکاز) و بدهی‌های قابل کسر — با هر ارز و نصاب به‌روز.",
+cta_start:"شروع محاسبه",cta_fitr:"زکات فطر",stat_rate_k:"نرخ زکات",stat_ng:"نصاب طلا",stat_ns:"نصاب نقره",stat_hawl:"حول",stat_hawl_v:"یک سال قمری",
+live_prices:"قیمت لحظه‌ای فلزات",per_gram:"هر گرم",refresh:"به‌روزرسانی",refreshing:"در حال بروزرسانی…",au_manual:"قیمت طلا (دستی)",ag_manual:"قیمت نقره (دستی)",
+price_note:"قیمت‌ها در صورت دسترسی به‌صورت لحظه‌ای دریافت و به ارز شما نمایش داده می‌شوند. پیش از پرداخت با بازار محلی بررسی کنید.",hijri:"تاریخ هجری",
+assets_title:"دارایی‌های شما",assets_sub:"مبالغ را به ارز انتخابی وارد کنید · فیلدهای گرم به گرم باقی می‌مانند",currency:"ارز",currency_hint:"با تغییر ارز، مبالغ خودکار تبدیل می‌شوند.",
+choose_lang:"زبان خود را انتخاب کنید",lang_hint:"جست‌وجو در بیش از ۶۰ زبان · جهت صفحه خودکار تغییر می‌کند",search_lang:"جست‌وجوی زبان…",
+summary:"خلاصه زکات",total_assets:"کل دارایی زکوی",total_liab:"بدهی‌های قابل کسر",net_wealth:"دارایی خالص زکوی",nisab_lbl:"آستانه نصاب",
+zakat_due:"زکات واجب (۲.۵٪)",nisab_std:"مبنای نصاب",std_gold:"طلا",std_silver:"نقره",composition:"ترکیب دارایی",insights:"نکات هوشمند",
+status_above:"بالای نصاب — زکات واجب است",status_below:"زیر نصاب — زکات نیست",status_above_d:"شرایط وجوب کامل است: مقدار و حول.",status_below_d:"به پس‌انداز ادامه دهید و با رسیدن به نصاب دوباره محاسبه کنید.",
+ins_no_data:"برای راهنمایی شخصی دارایی‌های خود را وارد کنید.",ins_above:"دارایی خالص شما {x} از نصاب بیشتر است. ۲.۵٪ ({z}) بپردازید؛ در صورت نیاز قسطی.",
+ins_gold_ok:"تنها طلا و نقره شما ({v}) به نصاب رسیده است.",ins_silver_std:"استفاده از نصاب نقره محتاطانه‌تر و برای فقرا سودمندتر است.",
+ins_debt:"شما {v} بدهی دارید — بدهی‌های یک‌ساله قابل کسر است.",ins_crypto:"ارزهای دیجیتال در نظر بیشتر مراجع فتوا مانند پول است (۲.۵٪).",
+ins_agri:"عشر محصولات هنگام برداشت پرداخت می‌شود: دیم ۱۰٪، آبی ۵٪.",ins_live:"زکات چهارپایان پس از یک سال چرای آزاد واجب است؛ چهارپایان تجاری ۲.۵٪.",
+ins_rikaz:"گنج دفن‌شده (ریکاز) ۲۰٪ و بی‌درنگ است.",ins_fitr:"زکات فطر هر عضو خانواده را فراموش نکنید.",
+ins_zeroliab:"بدهی وارد نشده — اگر بدهی دارید می‌توانید کسر کنید.",ins_business:"ارزش کالای تجاری بر اساس قیمت فروش روز است نه خرید.",
+save:"ذخیره",saved:"داده‌های شما در این دستگاه ذخیره شد.",reset:"بازنشانی همه",reset_confirm:"همه فیلدها پاک و از نو شروع شود؟",print:"چاپ / PDF",csv:"خروجی CSV",
+tools_title:"ابزارهای دیگر زکات",tools_sub:"زکات فطر، هشت گروه مستحق و پیگیر حول",
+fitr_title:"زکات فطر",fitr_sub:"حدود ۲.۵ کیلوگرم غذای اصلی برای هر عضو خانواده، پیش از نماز عید.",persons:"اعضای خانواده",food_price:"قیمت غذا / کیلو",
+fitr_total:"کل واجب",per_person:"هر نفر",fitr_note:"بر پایه ۲.۵ کیلو غذای غالب (برنج، گندم، خرما، جو). بسیاری از علما پرداخت نقدی معادل را جایز می‌دانند.",
+asnaf_title:"هشت گروه (مستحقان)",asnaf_sub:"توبه ۶۰ — زکات خود را میان این گروه‌ها تقسیم کنید.",asnaf_1:"فقیران",asnaf_2:"مسکینان",asnaf_3:"عاملان زکات",asnaf_4:"مؤلفةالقلوب",
+asnaf_5:"آزادسازی بردگان",asnaf_6:"بدهکاران",asnaf_7:"در راه خدا",asnaf_8:"در راه‌مانده",
+hawl_title:"پیگیر حول",hawl_note:"زکات وقتی واجب می‌شود که دارایی به نصاب رسیده یک سال قمری کامل (۳۵۴ روز) بماند.",hawl_start:"تاریخ رسیدن به نصاب",hawl_progress:"پیشرفت حول",
+hawl_remaining:"روز باقی‌مانده",hawl_due_date:"موعد تقریبی",hawl_done:"حول کامل شد — زکات شما واجب است 🌙",
+faq_title:"پرسش و پاسخ زکات",faq_sub:"راهنمای مختصر فقهی از چهار مذهب اهل سنت.",
+disc_title:"هشدار شرعی",disc_body:"این ابزار برخوردار از دیدگاه‌های رایج فقهی برآورد می‌دهد و ممکن است همه نظرها، قیمت‌های محلی یا قوانین مالیاتی را در بر نگیرد. برای اموال بزرگ و دارایی‌های خاص با عالم صلاحیت‌دار مشورت کنید. خدا زکات شما را بپذیرد.",
+footer_note:"محاسبه‌گر هوشمند زکات · برای امت",optional:"اختیاری",approx:"تقریبی",grams:"گرم",kg:"کیلو",days:"روز",computed:"ارزش کنونی",est:"تقریبی",
+g_cash:"پول نقد",g_cash_d:"نقد در دست، موجودی بانکی، سپرده، کیف پول و مطالبات.",g_metals:"طلا و نقره",g_metals_d:"زیورآلات، شمش و سکه. وزن به گرم؛ ارزش با قیمت لحظه‌ای.",
+g_invest:"سرمایه‌گذاری",g_invest_d:"سهام، صندوق‌ها، رمزارز، صکوک و پس‌انداز بازنشستگی.",g_biz:"تجارت",g_biz_d:"کالای تجاری، نقد کار و مطالبات، منهای بدهی‌های تجاری.",
+g_agri:"کشاورزی (عشر)",g_agri_d:"محصولات: دیم ۱۰٪، آبی ۵٪، نصاب ≈ ۶۵۳ کیلوگرم.",g_live:"چهارپایان",g_live_d:"شتر، گاو، بوفالو، گوسفند و بز بر اساس جداول کلاسیک.",
+g_rikaz:"گنج (ریکاز)",g_rikaz_d:"گنج دفن‌شده که بی‌زحمت یافت شود — ۲۰٪ بی‌درنگ.",g_debt:"بدهی‌های قابل کسر",g_debt_d:"بدهی‌های یک‌ساله از پایه زکوی کسر می‌شود.",
+f_cashHand:"نقد در دست",f_bank:"حساب‌های بانکی",f_deposit:"سپرده ثابت",f_ewallet:"کیف پول دیجیتال",f_receivable:"طلب از دیگران",f_otherCash:"سایر نقد و ارز",
+n_receivable:"فقط مبلغی که انتظار وصول آن را دارید.",f_goldJew:"زیور طلا",f_goldBull:"شمش طلا",f_goldCoin:"سکه طلا",f_silverJew:"زیور نقره",f_silverBull:"شمش و ظروف نقره",
+purity:"عیار",n_purity:"عیار ارزش بازار را کم می‌کند: ۲۴ = ۹۹.۹٪، ۲۲ = ۹۱.۶٪، ۲۱ = ۸۷.۵٪، ۱۸ = ۷۵٪.",
+f_stocks:"سهام",f_funds:"صندوق‌ها و ETF",f_crypto:"رمزارزها",f_sukuk:"اوراق و صکوک",f_retirement:"صندوق بازنشستگی",f_otherInvest:"سایر سرمایه‌گذاری‌ها",
+n_stocks:"از ارزش روز بازار استفاده کنید؛ سهام تجاری به‌طور کامل زکوی است.",n_crypto:"بر اساس قیمت بازار ارزیابی می‌شود.",
+n_retirement:"مراجع معاصر: حساب‌های در دسترس (۲.۵٪). حنفی: بر بخش قابل دسترس.",
+f_bizCash:"نقد کار",f_inventory:"موجودی کالا",f_bizRec:"مطالبات قابل وصول",f_bizOther:"سایر دارایی‌های کار",f_bizDebts:"بدهی‌های کار (یک‌ساله)",n_bizDebts:"از دارایی‌های کار کسر می‌شود.",n_bizRec:"مطالبات سوخت‌شده را حذف کنید.",
+f_cropQty:"مقدار محصول",f_cropPrice:"قیمت هر کیلو",f_irrigation:"روش آبیاری",opt_rain:"دیم (۱۰٪)",opt_irrigated:"آبی (۵٪)",opt_mixed:"مختلط (۷.۵٪)",
+n_agri:"نصاب محصولات حدود ۶۵۳ کیلوگرم است؛ کمتر از آن عشر ندارد.",
+f_camels:"شتر",f_cattle:"گاو",f_buffalo:"بوفالو",f_sheep:"گوسفند",f_goats:"بز",f_rikaz:"ارزش گنج یافت‌شده",n_rikaz:"۲۰٪ بی‌درنگ — بدون حول و نصاب.",
+f_debtsDue:"بدهی شخصی یک‌ساله",f_ccDue:"کارت اعتباری و اقساط",f_billsDue:"قبض و اجاره معوق",f_taxesDue:"مالیات",f_otherDebts:"سایر بدهی‌ها",
+n_debtsDue:"وام بلندمدت: بیشتر علما فقط اقساط سال آینده را کسر می‌کنند.",
+sub_total:"جمع بخش",liab_note:"فقط بدهی‌های یک سال قمری قابل کسر است.",extra_due:"سایر تعهدات",
+due_agri:"عشر محصولات (نرخ {r})",due_rikaz:"ریکاز ۲۰٪",live_total:"جمع چهارپایان",
+an_sheep:"گوسفند/بز",an_camel1:"شتر یک‌ساله",an_camel2:"شتر دو‌ساله",an_camel3:"شتر سه‌ساله",an_camel4:"شتر چهار‌ساله",an_cow1:"گاو یک‌ساله",an_cow2:"گاو دو‌ساله",
+live_nisab_note:"نصاب چهارپایان: ۵ شتر · ۳۰ گاو · ۴۰ گوسفند/بز.",
+price_fail:"قیمت لحظه‌ای در دسترس نیست — دستی وارد کنید.",price_live:"لحظه‌ای · {src}",price_manual:"ورود دستی",price_est:"برآورد",
+rates_fail:"نرخ‌های آفلاین استفاده شد — همه ارزها در دسترس‌اند."
+};</script>
+<script>window.I18N_PACKS.id={
+brand:"Nisab",brand_sub:"Kalkulator Zakat Pintar",nav_calc:"Kalkulator",nav_tools:"Alat lain",nav_faq:"Tanya Fikih",nav_lang:"Bahasa",
+hero_kicker:"Sesuai syariat · catatan 4 mazhab",hero_title_1:"Hitung",hero_title_2:"zakat",hero_title_3:"Anda dengan yakin",
+hero_sub:"Kalkulator pintar yang lengkap: uang tunai, emas & perak, investasi, stok dagang, hasil pertanian (usyr), ternak, rikaz, dan hutang yang dapat dikurangi — dalam semua mata uang, dengan nisab terkini.",
+cta_start:"Mulai hitung",cta_fitr:"Zakat fitrah",stat_rate_k:"Kadar zakat",stat_ng:"Nisab emas",stat_ns:"Nisab perak",stat_hawl:"Haul",stat_hawl_v:"1 tahun hijriah",
+live_prices:"Harga logam langsung",per_gram:"per gram",refresh:"Muat ulang",refreshing:"Memperbarui…",au_manual:"Harga emas (manual)",ag_manual:"Harga perak (manual)",
+price_note:"Harga diambil langsung bila tersedia dan ditampilkan dalam mata uang Anda. Selalu cek pasar lokal sebelum membayar.",hijri:"Tanggal Hijriah",
+assets_title:"Harta Anda",assets_sub:"Masukkan jumlah dalam mata uang pilihan · kolom gram tetap dalam gram",currency:"Mata uang",currency_hint:"Nominal otomatis dikonversi saat mata uang diganti.",
+choose_lang:"Pilih bahasa Anda",lang_hint:"Cari di 60+ bahasa · arah tata letak otomatis (RTL/LTR)",search_lang:"Cari bahasa…",
+summary:"Ringkasan zakat",total_assets:"Total harta wajib zakat",total_liab:"Hutang yang dikurangkan",net_wealth:"Harta bersih zakat",nisab_lbl:"Ambang nisab",
+zakat_due:"Zakat terutang (2,5%)",nisab_std:"Standar nisab",std_gold:"Emas",std_silver:"Perak",composition:"Komposisi harta",insights:"Wawasan pintar",
+status_above:"Di atas nisab — zakat wajib",status_below:"Di bawah nisab — tidak ada zakat",status_above_d:"Syarat telah terpenuhi: jumlah dan haul.",status_below_d:"Terus menabung dan hitung ulang saat mencapai nisab.",
+ins_no_data:"Masukkan harta Anda untuk mendapatkan saran personal.",ins_above:"Harta bersih Anda melebihi nisab {x}. Bayar 2,5% ({z}) — boleh dicicil.",
+ins_gold_ok:"Emas dan perak Anda saja ({v}) sudah melewati nisab.",ins_silver_std:"Nisab perak lebih berhati-hati dan lebih bermanfaat bagi kaum fakir.",
+ins_debt:"Anda punya hutang {v} — hutang yang jatuh tempo dalam setahun dapat dikurangi.",ins_crypto:"Kripto diperlakukan sebagai mata uang (2,5%) oleh sebagian besar lembaga fatwa.",
+ins_agri:"Zakat pertanian dibayar saat panen: 10% tadah hujan, 5% irigasi.",ins_live:"Zakat ternak wajib setelah setahun digembalakan; ternak dagang memakai aturan 2,5%.",
+ins_rikaz:"Harta karun (rikaz) 20%, langsung tanpa haul.",ins_fitr:"Jangan lupa zakat fitrah untuk setiap anggota keluarga.",
+ins_zeroliab:"Belum ada hutang — jika Anda berhutang, bisa dikurangkan.",ins_business:"Stok dagang dinilai pada harga jual sekarang, bukan harga beli.",
+save:"Simpan",saved:"Data Anda tersimpan di perangkat ini.",reset:"Reset semua",reset_confirm:"Hapus semua kolom dan mulai dari awal?",print:"Cetak / PDF",csv:"Ekspor CSV",
+tools_title:"Alat zakat lainnya",tools_sub:"Zakat fitrah, delapan golongan penerima, dan pelacak haul",
+fitr_title:"Zakat fitrah",fitr_sub:"± 2,5 kg makanan pokok per anggota keluarga, dibayar sebelum salat Id.",persons:"Anggota keluarga",food_price:"Harga makanan pokok / kg",
+fitr_total:"Total terutang",per_person:"Per orang",fitr_note:"Berdasarkan 2,5 kg makanan pokok utama (beras, gandum, kurma, jelai). Banyak ulama mengizinkan nilai uang.",
+asnaf_title:"Delapan golongan (asnaf)",asnaf_sub:"QS. At-Taubah 9:60 — bagikan zakat Anda ke golongan ini.",asnaf_1:"Fakir",asnaf_2:"Miskin",asnaf_3:"Amil zakat",asnaf_4:"Muallaf",
+asnaf_5:"Memerdekakan budak",asnaf_6:"Orang berhutang",asnaf_7:"Fi sabilillah",asnaf_8:"Ibnu sabil",
+hawl_title:"Pelacak haul",hawl_note:"Zakat wajib bila harta ≥ nisab dimiliki satu tahun hijriah penuh (354 hari).",hawl_start:"Tanggal harta mencapai nisab",hawl_progress:"Progres haul",
+hawl_remaining:"Hari tersisa",hawl_due_date:"Jatuh tempo (perkiraan)",hawl_done:"Haul selesai — zakat Anda wajib 🌙",
+faq_title:"Tanya jawab zakat",faq_sub:"Panduan fikih ringkas dari empat mazhab Sunni.",
+disc_title:"Catatan syariat",disc_body:"Alat ini memberi perkiraan berdasarkan pendapat fikih yang mashhur dan mungkin tidak mencakup semua pendapat, harga lokal, atau aturan pajak. Untuk harta besar dan aset khusus, konsultasikan dengan ulama yang ahli. Semoga Allah menerima zakat Anda.",
+footer_note:"Kalkulator zakat pintar · untuk umat",optional:"opsional",approx:"kira-kira",grams:"g",kg:"kg",days:"hari",computed:"nilai kini",est:"perkiraan",
+g_cash:"Uang & tunai",g_cash_d:"Uang tunai, saldo bank, deposito, dompet digital, dan piutang.",g_metals:"Emas & perak",g_metals_d:"Perhiasan, logam mulia, dan koin. Masukkan gram; nilai memakai harga langsung.",
+g_invest:"Investasi",g_invest_d:"Saham, reksadana, kripto, sukuk, dan dana pensiun.",g_biz:"Usaha",g_biz_d:"Stok dagang, kas usaha, piutang, dikurangi hutang usaha.",
+g_agri:"Pertanian (usyr)",g_agri_d:"Hasil panen: 10% tadah hujan, 5% irigasi, nisab ± 653 kg.",g_live:"Ternak",g_live_d:"Unta, sapi, kerbau, kambing denging tabel nisab klasik.",
+g_rikaz:"Harta karun",g_rikaz_d:"Harta terpendam yang ditemukan tanpa usaha — 20% langsung.",g_debt:"Hutang yang dikurangi",g_debt_d:"Hutang yang jatuh tempo dalam setahun dikurangi dari dasar zakat.",
+f_cashHand:"Uang tunai",f_bank:"Rekening bank",f_deposit:"Deposito",f_ewallet:"Dompet digital",f_receivable:"Uang yang dipinjamkan",f_otherCash:"Uang & valas lainnya",
+n_receivable:"Hanya masukkan yang benar-benar bisa tertagih.",f_goldJew:"Perhiasan emas",f_goldBull:"Logam mulia emas",f_goldCoin:"Koin emas",f_silverJew:"Perhiasan perak",f_silverBull:"Perak & perabotnya",
+purity:"Kemurnian",n_purity:"Kemurnian menurunkan nilai pasar: 24k = 99,9%, 22k = 91,6%, 21k = 87,5%, 18k = 75%.",
+f_stocks:"Saham",f_funds:"Reksadana & ETF",f_crypto:"Kripto",f_sukuk:"Obligasi & sukuk",f_retirement:"Dana pensiun",f_otherInvest:"Investasi lain",
+n_stocks:"Gunakan nilai pasar; saham untuk dagang sepenuhnya wajib zakat.",n_crypto:"Dinilai pada harga pasar.",
+n_retirement:"Lembaga kontemporer: dana yang bisa diakses (2,5%). Hanafi: pada bagian yang dapat diakses.",
+f_bizCash:"Kas usaha",f_inventory:"Stok dagang",f_bizRec:"Piutang usaha",f_bizOther:"Aset usaha lain",f_bizDebts:"Hutang usaha (< 1 tahun)",n_bizDebts:"Dikompensasi dengan aset usaha.",n_bizRec:"Kecualikan piutang tak tertagih.",
+f_cropQty:"Jumlah panen",f_cropPrice:"Harga pasar / kg",f_irrigation:"Cara pengairan",opt_rain:"Tadah hujan (10%)",opt_irrigated:"Irigasi (5%)",opt_mixed:"Campuran (7,5%)",
+n_agri:"Nisab hasil panen ± 653 kg (5 wasaq). Di bawahnya tidak ada usyr.",
+f_camels:"Unta",f_cattle:"Sapi",f_buffalo:"Kerbau",f_sheep:"Kambing domba",f_goats:"Kambing",f_rikaz:"Nilai harta karun",n_rikaz:"20% langsung — tanpa haul dan nisab.",
+f_debtsDue:"Hutang pribadi < 1 tahun",f_ccDue:"Kartu kredit & cicilan",f_billsDue:"Tagihan & sewa",f_taxesDue:"Pajak",f_otherDebts:"Hutang lain",
+n_debtsDue:"Kredit jangka panjang: banyak ulama hanya mengurangi cicilan tahun depan.",
+sub_total:"Subtotal",liab_note:"Hanya hutang dalam satu tahun hijriah yang dapat dikurangkan.",extra_due:"Kewajiban lain",
+due_agri:"Usyr panen (tarif {r})",due_rikaz:"Rikaz 20%",live_total:"Total ternak",
+an_sheep:"kambing",an_camel1:"unta betina 1 tahun",an_camel2:"unta betina 2 tahun",an_camel3:"unta betina 3 tahun",an_camel4:"unta betina 4 tahun",an_cow1:"sapi jantan 1 tahun",an_cow2:"sapi betina 2 tahun",
+live_nisab_note:"Nisab ternak: 5 unta · 30 sapi · 40 kambing.",
+price_fail:"Harga langsung tak tersedia — masukkan manual.",price_live:"Langsung · {src}",price_manual:"Input manual",price_est:"Perkiraan",
+rates_fail:"Kurs luring dipakai — semua mata uang tetap tersedia."
+};</script>
+<script>window.I18N_PACKS.ms=Object.assign({},window.I18N_PACKS.id,{
+brand:"Nisab",brand_sub:"Kalkulator Zakat Pintar",nav_faq:"Soal Fiqh",hero_title_3:"dengan yakin",
+hero_sub:"Kalkulator pintar menyeluruh: tunai, emas & perak, pelaburan, stok dagang, hasil pertanian (usyr), ternakan, rikaz dan hutang yang boleh ditolak — dalam semua mata wang, dengan nisab semasa.",
+fitr_sub:"± 2.5 kg makanan asasi bagi setiap ahli keluarga, dibayar sebelum solat Eid.",persons:"Ahli keluarga",food_price:"Harga makanan / kg",
+asnaf_1:"Fakir",asnaf_2:"Miskin",asnaf_3:"Amil zakat",asnaf_4:"Muallaf",asnaf_5:"Membebaskan hamba",asnaf_6:"Berhutang",asnaf_7:"Fi sabilillah",asnaf_8:"Ibnu sabil",
+footer_note:"Kalkulator zakat pintar · untuk ummah",optional:"pilihan",approx:"kira-kira",grams:"g",days:"hari",computed:"nilai semasa",
+g_cash:"Wang & tunai",g_metals:"Emas & perak",g_invest:"Pelaburan",g_biz:"Perniagaan",g_agri:"Pertanian (usyr)",g_live:"Ternakan",g_rikaz:"Harta karun",g_debt:"Hutang ditolak",
+save:"Simpan",saved:"Data anda disimpan pada peranti ini.",reset:"Set semula",print:"Cetak / PDF",currency:"Mata wang",
+summary:"Ringkasan zakat",total_assets:"Jumlah harta wajib zakat",total_liab:"Hutang ditolak",net_wealth:"Harta bersih zakat",nisab_lbl:"Had nisab",
+zakat_due:"Zakat terhutang (2.5%)",insights:"Analisis pintar",composition:"Komposisi harta"
+});</script>
+<script>window.I18N_PACKS.es={
+brand:"Nisab",brand_sub:"Suite inteligente de Zakat",nav_calc:"Calculadora",nav_tools:"Herramientas",nav_faq:"Fiqh y dudas",nav_lang:"Idioma",
+hero_kicker:"Alineada con la sharia · notas de las 4 escuelas",hero_title_1:"Calcula tu",hero_title_2:"Zakat",hero_title_3:"con total confianza",
+hero_sub:"Calculadora completa e inteligente: efectivo, oro y plata, inversiones, existencias comerciales, agricultura (ushr), ganado, tesoros (rikaz) y deudas deducibles — en cualquier moneda, con nisab en vivo.",
+cta_start:"Empezar a calcular",cta_fitr:"Zakat al-Fitr",stat_rate_k:"Tasa",stat_ng:"Nisab de oro",stat_ns:"Nisab de plata",stat_hawl:"Hawl",stat_hawl_v:"1 año lunar",
+live_prices:"Precios de metales en vivo",per_gram:"por gramo",refresh:"Actualizar",refreshing:"Actualizando…",au_manual:"Precio del oro (manual)",ag_manual:"Precio de la plata (manual)",
+price_note:"Los precios se obtienen en vivo cuando es posible y se muestran en tu moneda. Verifica tu mercado local antes de pagar.",hijri:"Fecha hégira",
+assets_title:"Tus activos",assets_sub:"Introduce importes en tu moneda · los campos en gramos permanecen en gramos",currency:"Moneda",currency_hint:"Los importes se convierten automáticamente al cambiar de moneda.",
+choose_lang:"Elige tu idioma",lang_hint:"Busca entre más de 60 idiomas · la dirección cambia automáticamente",search_lang:"Buscar idioma…",
+summary:"Resumen de la zakat",total_assets:"Total de activos zakatables",total_liab:"Deudas deducibles",net_wealth:"Patrimonio neto zakatable",nisab_lbl:"Umbral del nisab",
+zakat_due:"Zakat debida (2,5 %)",nisab_std:"Referencia del nisab",std_gold:"Oro",std_silver:"Plata",composition:"Composición de activos",insights:"Análisis inteligentes",
+status_above:"Por encima del nisab — zakat debida",status_below:"Por debajo del nisab — no hay zakat",status_above_d:"Se cumplen las condiciones: cantidad y hawl.",status_below_d:"Sigue ahorrando y recalcula al alcanzar el nisab.",
+ins_no_data:"Introduce tus activos para recibir recomendaciones personalizadas.",
+ins_above:"Tu patrimonio supera el nisab en {x}. Paga el 2,5 % ({z}); puede fraccionarse.",ins_gold_ok:"Solo tu oro y plata ({v}) ya superan el nisab.",
+ins_silver_std:"El nisab de plata es más prudente y más beneficioso para los pobres.",ins_debt:"Tienes {v} en deudas — las deudas a menos de un año son deducibles.",
+ins_crypto:"Las criptomonedas se tratan como moneda (2,5 %) según la mayoría de consejos de fatwa.",ins_agri:"El ushr de cosechas se paga al recolectar: 10 % secano, 5 % regadío.",
+ins_live:"La zakat del ganado se debe tras un año de pastoreo libre; el ganado comercial sigue la regla del 2,5 %.",ins_rikaz:"El tesoro enterrado (rikaz) lleva el 20 %, de inmediato y sin hawl.",
+ins_fitr:"No olvides la Zakat al-Fitr por cada miembro del hogar.",ins_zeroliab:"No hay deudas registradas — puedes deducirlas si las tienes.",ins_business:"Las existencias se valoran al precio de venta actual, no al de compra.",
+save:"Guardar",saved:"Tus datos se guardaron en este dispositivo.",reset:"Restablecer todo",reset_confirm:"¿Borrar todos los campos y empezar de nuevo?",print:"Imprimir / PDF",csv:"Exportar CSV",
+tools_title:"Otras herramientas de zakat",tools_sub:"Zakat al-Fitr, las ocho categorías de receptores y el seguimiento del hawl",
+fitr_title:"Zakat al-Fitr",fitr_sub:"≈ 2,5 kg de alimento básico por miembro del hogar, antes del rezo del Eid.",persons:"Personas del hogar",food_price:"Precio del alimento / kg",
+fitr_total:"Total debida",per_person:"Por persona",fitr_note:"Base: 2,5 kg del alimento dominante (arroz, trigo, dátiles, cebada). Muchos ulamas permiten su equivalente en efectivo.",
+asnaf_title:"Ocho categorías (asnaf)",asnaf_sub:"Corán 9:60 — distribuye tu zakat entre estas categorías.",asnaf_1:"Los pobres",asnaf_2:"Los necesitados",asnaf_3:"Administradores de la zakat",
+asnaf_4:"Cuyos corazones se quieren atraer",asnaf_5:"Liberación de cautivos",asnaf_6:"Los endeudados",asnaf_7:"En la causa de Alá",asnaf_8:"El viajero desamparado",
+hawl_title:"Seguimiento del hawl",hawl_note:"La zakat es obligatoria cuando una riqueza ≥ nisab se mantiene un año lunar completo (354 días).",
+hawl_start:"Fecha en que se alcanzó el nisab",hawl_progress:"Progreso del hawl",hawl_remaining:"Días restantes",hawl_due_date:"Vencimiento (aprox.)",hawl_done:"Hawl cumplido — tu zakat es debida 🌙",
+faq_title:"Preguntas y respuestas",faq_sub:"Orientación fiqh concisa de las cuatro escuelas suníes.",
+disc_title:"Advertencia",disc_body:"Esta herramienta ofrece estimaciones basadas en opiniones fiqh extendidas y puede no reflejar cada parecer, tus precios locales o normas fiscales. Para patrimonios importantes consulta a un erudito cualificado. Que Alá acepte tu zakat.",
+footer_note:"Calculadora inteligente de zakat · al servicio de la Umma",optional:"opcional",approx:"aprox.",grams:"g",kg:"kg",days:"días",computed:"valor actual",est:"estimación",
+g_cash:"Dinero y efectivo",g_cash_d:"Efectivo, cuentas bancarias, depósitos, billeteras y prestamos por cobrar.",g_metals:"Oro y plata",g_metals_d:"Joyas, lingotes y monedas. Peso en gramos; valor según precio en vivo.",
+g_invest:"Inversiones",g_invest_d:"Acciones, fondos, cripto, sukuk y ahorro de jubilación.",g_biz:"Negocio",g_biz_d:"Existencias, caja y cobros del negocio, menos sus deudas.",
+g_agri:"Agricultura (ushr)",g_agri_d:"Cosechas: 10 % secano, 5 % regadío, nisab ≈ 653 kg.",g_live:"Ganado",g_live_d:"Camellos, bovinos, búfalos, ovejas y cabras según las tablas clásicas.",
+g_rikaz:"Tesoro (rikaz)",g_rikaz_d:"Tesoro enterrado hallado sin esfuerzo — 20 % inmediato.",g_debt:"Deudas a deducir",g_debt_d:"Las deudas a menos de un año se restan de la base zakatable.",
+f_cashHand:"Efectivo en mano",f_bank:"Cuentas bancarias",f_deposit:"Depósitos a plazo",f_ewallet:"Billeteras digitales",f_receivable:"Dinero prestado",f_otherCash:"Otros efectivos y divisas",
+n_receivable:"Incluye solo lo que realmente esperes recuperar.",f_goldJew:"Joyas de oro",f_goldBull:"Lingotes de oro",f_goldCoin:"Monedas de oro",f_silverJew:"Joyas de plata",f_silverBull:"Plata, utensilios y monedas",
+purity:"Pureza",n_purity:"La pureza reduce el valor: 24k = 99,9 %, 22k = 91,6 %, 21k = 87,5 %, 18k = 75 %.",
+f_stocks:"Acciones",f_funds:"Fondos y ETF",f_crypto:"Criptomonedas",f_sukuk:"Bonos y sukuk",f_retirement:"Jubilación / pensión",f_otherInvest:"Otras inversiones",
+n_stocks:"Usa el valor de mercado; los títulos para comercio son plenamente zakatables.",n_crypto:"Valorados a precio de mercado.",n_retirement:"Consejos contemporáneos: incluir cuentas accesibles (2,5 %).",
+f_bizCash:"Caja del negocio",f_inventory:"Existencias comerciales",f_bizRec:"Cobros pendientes",f_bizOther:"Otros activos del negocio",f_bizDebts:"Deudas del negocio (< 1 año)",n_bizDebts:"Se compensan con los activos del negocio.",n_bizRec:"Excluye las deudas incobrables.",
+f_cropQty:"Cantidad cosechada",f_cropPrice:"Precio de mercado / kg",f_irrigation:"Método de riego",opt_rain:"Secano (10 %)",opt_irrigated:"Regadío (5 %)",opt_mixed:"Mixto (7,5 %)",
+n_agri:"El nisab de cosechas es ≈ 653 kg (5 wasq). Por debajo no hay ushr.",
+f_camels:"Camellos",f_cattle:"Bovinos",f_buffalo:"Búfalos",f_sheep:"Ovejas",f_goats:"Cabras",f_rikaz:"Valor del tesoro hallado",n_rikaz:"20 % inmediato — sin hawl ni nisab.",
+f_debtsDue:"Deudas personales < 1 año",f_ccDue:"Tarjetas y cuotas",f_billsDue:"Facturas y alquileres",f_taxesDue:"Impuestos",f_otherDebts:"Otras deudas",
+n_debtsDue:"Hipoteca: muchos eruditos solo deducen las cuotas del próximo año.",
+sub_total:"Subtotal",liab_note:"Solo son deducibles las deudas dentro de un año lunar.",extra_due:"Otras obligaciones",
+due_agri:"Ushr de cosechas (tasa {r})",due_rikaz:"Rikaz 20 %",live_total:"Total de ganado",
+an_sheep:"oveja(s)/cabra(s)",an_camel1:"camella de 1 año",an_camel2:"camella de 2 años",an_camel3:"camella de 3 años",an_camel4:"camella de 4 años",an_cow1:"bovino de 1 año",an_cow2:"vaca de 2 años",
+live_nisab_note:"Nisab del ganado: 5 camellos · 30 bovinos · 40 ovejas/cabras.",
+price_fail:"Precios en vivo no disponibles — introdúcelos manualmente.",price_live:"En vivo · {src}",price_manual:"Entrada manual",price_est:"Estimación indicativa",
+rates_fail:"Se usaron tasas sin conexión — puedes elegir cualquier moneda."
+};</script>
+<script>window.I18N_PACKS.de={
+brand:"Nisab",brand_sub:"Intelligente Zakat-Suite",nav_calc:"Rechner",nav_tools:"Weitere Tools",nav_faq:"Fiqh-Fragen",nav_lang:"Sprache",
+hero_kicker:"Scharia-konform · Hinweise der 4 Schulen",hero_title_1:"Berechne deine",hero_title_2:"Zakat",hero_title_3:"mit voller Sicherheit",
+hero_sub:"Ein umfassender, intelligenter Rechner: Bargeld, Gold & Silber, Investments, Handelsware, Landwirtschaft (Ushr), Vieh, Schatz (Rikaz) und abziehbare Schulden — in jeder Währung, mit live Nisab.",
+cta_start:"Jetzt berechnen",cta_fitr:"Zakat al-Fitr",stat_rate_k:"Satz",stat_ng:"Gold-Nisab",stat_ns:"Silber-Nisab",stat_hawl:"Haul",stat_hawl_v:"1 Mondjahr",
+live_prices:"Live-Metallpreise",per_gram:"pro Gramm",refresh:"Aktualisieren",refreshing:"Aktualisiere…",au_manual:"Goldpreis (manuell)",ag_manual:"Silberpreis (manuell)",
+price_note:"Preise werden live geladen, sofern verfügbar, und in deiner Währung angezeigt. Prüfe vor der Zahlung den lokalen Markt.",hijri:"Hidschra-Datum",
+assets_title:"Deine Vermögenswerte",assets_sub:"Beträge in deiner Währung eingeben · Gramm-Felder bleiben in Gramm",currency:"Währung",currency_hint:"Beträge werden beim Wechsel der Währung automatisch umgerechnet.",
+choose_lang:"Sprache wählen",lang_hint:"Über 60 Sprachen · Layout richtet sich automatisch (RTL/LTR)",search_lang:"Sprache suchen…",
+summary:"Zakat-Zusammenfassung",total_assets:"Zakatpflichtiges Vermögen",total_liab:"Abziehbare Schulden",net_wealth:"Netto-Vermögen",nisab_lbl:"Nisab-Schwelle",
+zakat_due:"Geschuldete Zakat (2,5 %)",nisab_std:"Nisab-Standard",std_gold:"Gold",std_silver:"Silber",composition:"Vermögensverteilung",insights:"Smarte Hinweise",
+status_above:"Über dem Nisab — Zakat fällig",status_below:"Unter dem Nisab — keine Zakat",status_above_d:"Die Bedingungen sind erfüllt: Menge und Haul.",status_below_d:"Spare weiter und rechne bei Erreichen des Nisab erneut.",
+ins_no_data:"Gib dein Vermögen ein, um persönliche Hinweise zu erhalten.",
+ins_above:"Dein Vermögen übersteigt das Nisab um {x}. Zahle 2,5 % ({z}) — Ratenzahlung möglich.",ins_gold_ok:"Allein dein Gold und Silber ({v}) übersteigt das Nisab.",
+ins_silver_std:"Der Silber-Nisab ist vorsichtiger und nützlicher für die Armen.",ins_debt:"Du hast {v} Schulden — fällige Schulden innerhalb eines Jahres sind abziehbar.",
+ins_crypto:"Kryptowährungen gelten bei den meisten Fatwa-Räten als Geld (2,5 %).",ins_agri:"Ushr der Ernte wird bei der Ernte fällig: 10 % Regenfeld, 5 % bewässert.",
+ins_live:"Vieh-Zakat nach einem Jahr freier Weide; Handelsvieh unterliegt 2,5 %.",ins_rikaz:"Vergrabener Schatz (Rikaz): 20 %, sofort und ohne Haul.",
+ins_fitr:"Vergiss die Zakat al-Fitr für jedes Familienmitglied nicht.",ins_zeroliab:"Keine Schulden eingetragen — du darfst sie abziehen.",ins_business:"Handelsware wird zum aktuellen Verkaufspreis bewertet.",
+save:"Speichern",saved:"Daten auf diesem Gerät gespeichert.",reset:"Alles zurücksetzen",reset_confirm:"Alle Felder löschen und neu starten?",print:"Drucken / PDF",csv:"CSV exportieren",
+tools_title:"Weitere Zakat-Tools",tools_sub:"Zakat al-Fitr, die acht Empfängergruppen und Haul-Verfolgung",
+fitr_title:"Zakat al-Fitr",fitr_sub:"≈ 2,5 kg Grundnahrungsmittel pro Person, vor dem Eid-Gebet.",persons:"Personen im Haushalt",food_price:"Preis Grundnahrungsmittel / kg",
+fitr_total:"Gesamt fällig",per_person:"Pro Person",fitr_note:"Basis: 2,5 kg des Hauptnahrungsmittels (Reis, Weizen, Datteln, Gerste). Viele Gelehrte erlauben den Geldwert.",
+asnaf_title:"Acht Gruppen (Asnaf)",asnaf_sub:"Koran 9:60 — verteile deine Zakat auf diese Gruppen.",asnaf_1:"Die Armen",asnaf_2:"Die Bedürftigen",asnaf_3:"Zakat-Beamte",asnaf_4:" deren Herzen gewonnen werden sollen",
+asnaf_5:"Befreiung von Gefangenen",asnaf_6:"Verschuldete",asnaf_7:"Auf dem Weg Allahs",asnaf_8:"Der Reisende in Not",
+hawl_title:"Haul-Verfolgung",hawl_note:"Zakat wird fällig, wenn Vermögen ≥ Nisab ein volles Mondjahr (354 Tage) gehalten wird.",
+hawl_start:"Datum des Erreichens des Nisab",hawl_progress:"Haul-Fortschritt",hawl_remaining:"Verbleibende Tage",hawl_due_date:"Fällig (ca.)",hawl_done:"Haul abgeschlossen — Zakat fällig 🌙",
+faq_title:"Fragen & Antworten",faq_sub:"Knappe fiqh-Leitlinien aus den vier sunnitischen Schulen.",
+disc_title:"Hinweis",disc_body:"Dieses Tool liefert Schätzungen auf Grundlage verbreiteter fiqh-Positionen und deckt nicht jede Meinung, lokale Preise oder Steuern ab. Bei größeren Vermögen konsultiere einen qualifizierten Gelehrten. Möge Allah deine Zakat annehmen.",
+footer_note:"Intelligenter Zakat-Rechner · für die Umma",optional:"optional",approx:"ca.",grams:"g",kg:"kg",days:"Tage",computed:"aktueller Wert",est:"Schätzung",
+g_cash:"Geld & Bargeld",g_cash_d:"Bargeld, Bankguthaben, Festgeld, Wallets und Forderungen.",g_metals:"Gold & Silber",g_metals_d:"Schmuck, Barren, Münzen. Gewicht in Gramm; Wert mit Live-Preisen.",
+g_invest:"Investments",g_invest_d:"Aktien, Fonds, Krypto, Sukuk und Altersvorsorge.",g_biz:"Geschäft",g_biz_d:"Warenbestand, Geschäftskasse und Forderungen abzüglich Schulden.",
+g_agri:"Landwirtschaft (Ushr)",g_agri_d:"Ernten: 10 % Regenfeld, 5 % bewässert, Nisab ≈ 653 kg.",g_live:"Vieh",g_live_d:"Kamele, Rinder, Büffel, Schafe und Ziegen nach klassischen Tabellen.",
+g_rikaz:"Schatz (Rikaz)",g_rikaz_d:"Vergrabener Schatz ohne Mühe gefunden — 20 % sofort.",g_debt:"Abziehbare Schulden",g_debt_d:"Innerhalb eines Jahres fällige Schulden werden abgezogen.",
+f_cashHand:"Bargeld",f_bank:"Bankkonten",f_deposit:"Festgeld",f_ewallet:"Digitale Wallets",f_receivable:"Verliehenes Geld",f_otherCash:"Sonstiges Bargeld & Devisen",
+n_receivable:"Nur das eintragen, was du wirklich erwarten kannst.",f_goldJew:"Goldschmuck",f_goldBull:"Goldbarren",f_goldCoin:"Goldmünzen",f_silverJew:"Silberschmuck",f_silverBull:"Silber, Geschirr & Münzen",
+purity:"Feingehalt",n_purity:"Der Feingehalt mindert den Wert: 24k = 99,9 %, 22k = 91,6 %, 21k = 87,5 %, 18k = 75 %.",
+f_stocks:"Aktien",f_funds:"Fonds & ETF",f_crypto:"Kryptowährungen",f_sukuk:"Anleihen & Sukuk",f_retirement:"Altersvorsorge",f_otherInvest:"Weitere Anlagen",
+n_stocks:"Marktwert verwenden; zum Handel gehaltene Titel sind voll zakatpflichtig.",n_crypto:"Bewertet zum Marktpreis.",n_retirement:"Zeitgenössische Räte: verfügbare Konten (2,5 %).",
+f_bizCash:"Geschäftskasse",f_inventory:"Warenbestand",f_bizRec:"Forderungen",f_bizOther:"Weitere Geschäftswerte",f_bizDebts:"Geschäftsschulden (< 1 Jahr)",n_bizDebts:"Mit Geschäftswerten verrechnet.",n_bizRec:"Uneinbringliche Forderungen ausschließen.",
+f_cropQty:"Erntemenge",f_cropPrice:"Marktpreis / kg",f_irrigation:"Bewässerung",opt_rain:"Regenfeld (10 %)",opt_irrigated:"Bewässert (5 %)",opt_mixed:"Gemischt (7,5 %)",
+n_agri:"Nisab der Ernte ca. 653 kg (5 Wasq). Darunter keine Ushr.",
+f_camels:"Kamele",f_cattle:"Rinder",f_buffalo:"Büffel",f_sheep:"Schafe",f_goats:"Ziegen",f_rikaz:"Wert des gefundenen Schatzes",n_rikaz:"20 % sofort — ohne Haul und Nisab.",
+f_debtsDue:"Private Schulden < 1 Jahr",f_ccDue:"Kreditkarten & Raten",f_billsDue:"Rechnungen & Miete",f_taxesDue:"Steuern",f_otherDebts:"Sonstige Schulden",
+n_debtsDue:"Langfristiger Kredit: viele Gelehrte ziehen nur die Raten des nächsten Jahres ab.",
+sub_total:"Zwischensumme",liab_note:"Nur Schulden innerhalb eines Mondjahres sind abziehbar.",extra_due:"Weitere Verpflichtungen",
+due_agri:"Ushr der Ernte (Satz {r})",due_rikaz:"Rikaz 20 %",live_total:"Vieh gesamt",
+an_sheep:"Schaf/Ziege",an_camel1:"1-jährige Stute",an_camel2:"2-jährige Kamelstute",an_camel3:"3-jährige Kamelstute",an_camel4:"4-jährige Kamelstute",an_cow1:"1-jähriger Stier",an_cow2:"2-jährige Kuh",
+live_nisab_note:"Vieh-Nisab: 5 Kamele · 30 Rinder · 40 Schafe/Ziegen.",
+price_fail:"Live-Preise nicht verfügbar — manuell eingeben.",price_live:"Live · {src}",price_manual:"Manuelle Eingabe",price_est:"Richtwert",
+rates_fail:"Offline-Kurse verwendet — jede Währung wählbar."
+};</script>
+<script>window.I18N_PACKS.ru={
+brand:"Нисаб",brand_sub:"Умный расчёт закята",nav_calc:"Калькулятор",nav_tools:"Инструменты",nav_faq:"Фикх: вопросы",nav_lang:"Язык",
+hero_kicker:"Соответствует шариату · мнение 4 мазхабов",hero_title_1:"Рассчитайте свой",hero_title_2:"закят",hero_title_3:"с полной уверенностью",
+hero_sub:"Всеобъемлющий умный калькулятор: наличные, золото и серебро, инвестиции, торговый товар, урожай (ушр), скот, клад (риказ) и вычитаемые долги — в любой валюте, с актуальным нисабом.",
+cta_start:"Начать расчёт",cta_fitr:"Закят аль-фитр",stat_rate_k:"Ставка",stat_ng:"Нисаб золота",stat_ns:"Нисаб серебра",stat_hawl:"Хауль",stat_hawl_v:"1 лунный год",
+live_prices:"Цены металлов в реальном времени",per_gram:"за грамм",refresh:"Обновить",refreshing:"Обновление…",au_manual:"Цена золота (вручную)",ag_manual:"Цена серебра (вручную)",
+price_note:"Цены загружаются онлайн, если доступно, и показаны в вашей валюте. Перед выплатой уточните местный рынок.",hijri:"Дата по хиджре",
+assets_title:"Ваши активы",assets_sub:"Введите суммы в выбранной валюте · поля в граммах остаются в граммах",currency:"Валюта",currency_hint:"Суммы автоматически пересчитываются при смене валюты.",
+choose_lang:"Выберите язык",lang_hint:"Поиск среди 60+ языков · направление интерфейса меняется автоматически",search_lang:"Найти язык…",
+summary:"Итог по закяту",total_assets:"Всего закятного имущества",total_liab:"Вычитаемые долги",net_wealth:"Чистое имущество",nisab_lbl:"Порог нисаба",
+zakat_due:"Закят к выплате (2,5 %)",nisab_std:"Стандарт нисаба",std_gold:"Золото",std_silver:"Серебро",composition:"Состав активов",insights:"Умные подсказки",
+status_above:"Выше нисаба — закят обязателен",status_below:"Ниже нисаба — закята нет",status_above_d:"Условия выполнены: объём и хауль.",status_below_d:"Продолжайте накапливать и пересчитайте при достижении нисаба.",
+ins_no_data:"Введите активы, чтобы получить персональные советы.",
+ins_above:"Ваше имущество превышает нисаб на {x}. Выплатите 2,5 % ({z}) — можно частями.",ins_gold_ok:"Только ваше золото и серебро ({v}) уже выше нисаба.",
+ins_silver_std:"Нисаб по серебру — более осторожный и полезный бедным.",ins_debt:"У вас долгов на {v} — долги на срок до года вычитаются.",
+ins_crypto:"Криптовалюты большинством советов фетв приравнены к деньгам (2,5 %).",ins_agri:"Ушр с урожая выплачивается при сборе: богара 10 %, орошение 5 %.",
+ins_live:"Закят со скота — после года свободного выпаса; торговый скот — 2,5 %.",ins_rikaz:"Закопанный клад (риказ) — 20 % сразу, без хауля.",
+ins_fitr:"Не забудьте закят аль-фитр за каждого члена семьи.",ins_zeroliab:"Долги не введены — при наличии их можно вычесть.",ins_business:"Товар оценивается по текущей цене продажи, а не покупки.",
+save:"Сохранить",saved:"Данные сохранены на этом устройстве.",reset:"Сбросить всё",reset_confirm:"Очистить все поля и начать заново?",print:"Печать / PDF",csv:"Экспорт CSV",
+tools_title:"Дополнительные инструменты",tools_sub:"Закят аль-фитр, восемь категорий получателей и отслеживание хауля",
+fitr_title:"Закят аль-фитр",fitr_sub:"≈ 2,5 кг основного продукта на члена семьи, до праздничного намаза.",persons:"Члены семьи",food_price:"Цена продукта / кг",
+fitr_total:"Итого к выплате",per_person:"На человека",fitr_note:"Основа: 2,5 кг основного продукта (рис, пшеница, финики, ячмень). Многие учёные разрешают денежный эквивалент.",
+asnaf_title:"Восемь категорий",asnaf_sub:"Коран 9:60 — распределите закят между этими категориями.",asnaf_1:"Бедные",asnaf_2:"Нуждающиеся",asnaf_3:"Сборщики закята",asnaf_4:"Те, чьи сердца нужно расположить",
+asnaf_5:"Освобождение рабов",asnaf_6:"Должники",asnaf_7:"На пути Аллаха",asnaf_8:"Путник в нужде",
+hawl_title:"Отслеживание хауля",hawl_note:"Закят обязателен, когда имущество ≥ нисаба находится в собственности полный лунный год (354 дня).",
+hawl_start:"Дата достижения нисаба",hawl_progress:"Прогресс хауля",hawl_remaining:"Осталось дней",hawl_due_date:"Срок (прибл.)",hawl_done:"Хауль завершён — закят обязателен 🌙",
+faq_title:"Вопросы и ответы",faq_sub:"Краткие разъяснения фикха от четырёх суннитских мазхабов.",
+disc_title:"Предупреждение",disc_body:"Инструмент даёт оценки на основе распространённых фикх-позиций и может не учитывать все мнения, местные цены и налоги. Для крупных средств обратитесь к квалифицированному учёному. Да примет Аллах ваш закят.",
+footer_note:"Умный калькулятор закята · для уммы",optional:"необязательно",approx:"ок.",grams:"г",kg:"кг",days:"дней",computed:"текущая стоимость",est:"оценка",
+g_cash:"Деньги и наличные",g_cash_d:"Наличные, счета в банках, депозиты, кошельки и долги вам.",g_metals:"Золото и серебро",g_metals_d:"Украшения, слитки, монеты. Вес в граммах; стоимость по текущей цене.",
+g_invest:"Инвестиции",g_invest_d:"Акции, фонды, крипто, сукук и пенсионные накопления.",g_biz:"Бизнес",g_biz_d:"Товар, касса и дебиторка бизнеса минус его долги.",
+g_agri:"Земледелие (ушр)",g_agri_d:"Урожай: 10 % богара, 5 % орошение, нисаб ≈ 653 кг.",g_live:"Скот",g_live_d:"Верблюды, коровы, буйволы, овцы и козы по классическим таблицам.",
+g_rikaz:"Клад (риказ)",g_rikaz_d:"Закопанный клад, найденный без труда — 20 % сразу.",g_debt:"Вычитаемые долги",g_debt_d:"Долги на срок до года вычитаются из базы.",
+f_cashHand:"Наличные",f_bank:"Банковские счета",f_deposit:"Срочные вклады",f_ewallet:"Электронные кошельки",f_receivable:"Долги вам",f_otherCash:"Прочие наличные и валюта",
+n_receivable:"Учитывайте только то, что реально вернётся.",f_goldJew:"Золотые украшения",f_goldBull:"Золотые слитки",f_goldCoin:"Золотые монеты",f_silverJew:"Серебряные украшения",f_silverBull:"Серебро, посуда, монеты",
+purity:"Проба",n_purity:"Проба снижает рыночную стоимость: 24к = 99,9 %, 22к = 91,6 %, 21к = 87,5 %, 18к = 75 %.",
+f_stocks:"Акции",f_funds:"Фонды и ETF",f_crypto:"Криптовалюты",f_sukuk:"Облигации и сукук",f_retirement:"Пенсионные накопления",f_otherInvest:"Другие вложения",
+n_stocks:"Используйте рыночную стоимость; ценные бумаги для торговли — полностью закятные.",n_crypto:"Оцениваются по рыночной цене.",n_retirement:"Современные советы: включать доступные счета (2,5 %).",
+f_bizCash:"Касса бизнеса",f_inventory:"Товарный запас",f_bizRec:"Дебиторская задолженность",f_bizOther:"Прочие активы бизнеса",f_bizDebts:"Долги бизнеса (< 1 года)",n_bizDebts:"Учитываются против активов бизнеса.",n_bizRec:"Исключите безнадёжные долги.",
+f_cropQty:"Объём урожая",f_cropPrice:"Рыночная цена / кг",f_irrigation:"Способ орошения",opt_rain:"Богара (10 %)",opt_irrigated:"Орошение (5 %)",opt_mixed:"Смешанный (7,5 %)",
+n_agri:"Нисаб урожая ≈ 653 кг (5 васк). Ниже — ушр не обязателен.",
+f_camels:"Верблюды",f_cattle:"Коровы",f_buffalo:"Буйволы",f_sheep:"Овцы",f_goats:"Козы",f_rikaz:"Стоимость найденного клада",n_rikaz:"20 % сразу — без хауля и нисаба.",
+f_debtsDue:"Личные долги до года",f_ccDue:"Кредитные карты и рассрочки",f_billsDue:"Счета и аренда",f_taxesDue:"Налоги",f_otherDebts:"Прочие долги",
+n_debtsDue:"Ипотека: многие учёные вычитают только платежи следующего года.",
+sub_total:"Подытог",liab_note:"Вычитаются только долги в пределах лунного года.",extra_due:"Прочие обязательства",
+due_agri:"Ушр с урожая (ставка {r})",due_rikaz:"Риказ 20 %",live_total:"Итого скот",
+an_sheep:"овец/коз",an_camel1:"однолетняя верблюдица",an_camel2:"двухлетняя верблюдица",an_camel3:"трёхлетняя верблюдица",an_camel4:"четырёхлетняя верблюдица",an_cow1:"однолетний бык",an_cow2:"двухлетняя корова",
+live_nisab_note:"Нисаб скота: 5 верблюдов · 30 коров · 40 овец/коз.",
+price_fail:"Цены онлайн недоступны — введите вручную.",price_live:"Онлайн · {src}",price_manual:"Ручной ввод",price_est:"Ориентировочно",
+rates_fail:"Использованы офлайн-курсы — валюта всё равно доступна."
+};</script>
+<script>window.I18N_PACKS.zh={
+brand:"Nisab 尼萨布",brand_sub:"智能天课计算系统",nav_calc:"计算器",nav_tools:"附加工具",nav_faq:"教法问答",nav_lang:"语言",
+hero_kicker:"符合教法 · 四大教法学派说明",hero_title_1:"放心计算您的",hero_title_2:"天课",hero_title_3:"（扎卡特）",
+hero_sub:"全面智能计算器：现金、金银、投资、商业存货、农产品（乌什尔）、牲畜、窖藏（里卡兹）及可扣除债务——支持所有货币，实时满贯标准。",
+cta_start:"开始计算",cta_fitr:"开斋捐",stat_rate_k:"税率",stat_ng:"黄金满贯",stat_ns:"白银满贯",stat_hawl:"满一年（哈乌勒）",stat_hawl_v:"一个太阴年",
+live_prices:"金属实时价格",per_gram:"每克",refresh:"刷新",refreshing:"更新中…",au_manual:"金价（手动）",ag_manual:"银价（手动）",
+price_note:"可获得时价格会实时获取并以您的货币显示。付款前请核对当地市场。",hijri:"希吉来历",
+assets_title:"您的资产",assets_sub:"以所选货币输入金额 · 以克为单位的栏位保持为克",currency:"货币",currency_hint:"更换货币时金额自动换算。",
+choose_lang:"选择语言",lang_hint:"可搜索 60 多种语言 · 排版方向自动切换",search_lang:"搜索语言…",
+summary:"天课摘要",total_assets:"应课天课资产合计",total_liab:"可扣除债务",net_wealth:"净应课资产",nisab_lbl:"满贯标准",
+zakat_due:"应缴天课（2.5%）",nisab_std:"满贯基准",std_gold:"黄金",std_silver:"白银",composition:"资产构成",insights:"智能提示",
+status_above:"超过满贯——须缴天课",status_below:"未达满贯——无需缴纳",status_above_d:"条件已满足：数额与满一年。",status_below_d:"继续累积，达到满贯后重新计算。",
+ins_no_data:"输入您的资产以获得个性化建议。",
+ins_above:"您的净资产超出满贯 {x}。缴纳 2.5%（{z}），必要时可分期。",ins_gold_ok:"仅您的金银（{v}）已超过满贯。",
+ins_silver_std:"采用白银满贯更为谨慎，也更利于穷人。",ins_debt:"您有 {v} 债务——一年内到期债务可扣除。",
+ins_crypto:"多数教法机构视加密货币为货币（2.5%）。",ins_agri:"农产品乌什尔在收成时缴纳：旱地 10%，灌溉 5%。",
+ins_live:"牲畜放牧满一年须缴天课；商业牲畜按 2.5% 计算。",ins_rikaz:"窖藏宝物（里卡兹）须缴 20%，立即缴纳，无满一年条件。",
+ins_fitr:"别忘了为家中每位成员缴纳开斋捐。",ins_zeroliab:"未填债务——如有可扣除。",ins_business:"商业存货按当前售价估值，而非进价。",
+save:"保存",saved:"您的数据已保存到本设备。",reset:"全部重置",reset_confirm:"清除所有字段并重新开始？",print:"打印 / PDF",csv:"导出 CSV",
+tools_title:"更多天课工具",tools_sub:"开斋捐、八类受助者与满一年追踪",
+fitr_title:"开斋捐",fitr_sub:"每位家庭成员约 2.5 公斤主粮，在会礼前缴纳。",persons:"家庭成员人数",food_price:"主粮价格 / 公斤",
+fitr_total:"应缴总额",per_person:"每人",fitr_note:"以 2.5 公斤主粮（米、麦、椰枣、大麦）为准。许多学者允许折合现金。",
+asnaf_title:"八类受助者",asnaf_sub:"《古兰经》9:60——将天课分配给这些类别。",asnaf_1:"穷人",asnaf_2:"赤贫者",asnaf_3:"天课管理人员",asnaf_4:"心需团结者",
+asnaf_5:"赎取奴隶",asnaf_6:"负债者",asnaf_7:"为主道",asnaf_8:"旅途中断资者",
+hawl_title:"满一年追踪",hawl_note:"资产达到满贯并持有完整太阴年（354 天）后，天课成为义务。",
+hawl_start:"达到满贯的日期",hawl_progress:"满一年进度",hawl_remaining:"剩余天数",hawl_due_date:"预计到期日",hawl_done:"满一年已完成——天课已成为义务 🌙",
+faq_title:"天课问答",faq_sub:"源自四大教法学派的简明指导。",
+disc_title:"教法提示",disc_body:"本工具基于广为流传的教法观点提供估算，可能未涵盖所有主张、本地价格或税务规定。涉及大额资产或特殊资产时，请咨询有资历的学者。愿真主接受您的天课。",
+footer_note:"智能天课计算器 · 服务于稳麦",optional:"选填",approx:"约",grams:"克",kg:"公斤",days:"天",computed:"当前价值",est:"估算",
+g_cash:"现金与存款",g_cash_d:"手持现金、银行余额、定期存款、电子钱包及他人欠款。",g_metals:"金银",g_metals_d:"首饰、金条与钱币，以克输入；价值按实时价格。",
+g_invest:"投资",g_invest_d:"股票、基金、加密货币、债券及退休储蓄。",g_biz:"商业",g_biz_d:"存货、经营现金与应收款，扣除经营债务。",
+g_agri:"农业（乌什尔）",g_agri_d:"收成：旱地 10%，灌溉 5%，满贯约 653 公斤。",g_live:"牲畜",g_live_d:"骆驼、牛、水牛、绵羊与山羊，依经典满贯表。",
+g_rikaz:"窖藏宝物",g_rikaz_d:"无需劳作而发现的窖藏——立即 20%。",g_debt:"可扣除债务",g_debt_d:"一年内到期债务从应课基数中扣除。",
+f_cashHand:"手持现金",f_bank:"银行账户",f_deposit:"定期存款",f_ewallet:"电子钱包",f_receivable:"借给他人之款",f_otherCash:"其他现金与外币",
+n_receivable:"仅填写确实能收回的金额。",f_goldJew:"黄金首饰",f_goldBull:"金条",f_goldCoin:"金币",f_silverJew:"白银首饰",f_silverBull:"银条与银器",
+purity:"成色",n_purity:"成色影响市值：24K = 99.9%，22K = 91.6%，21K = 87.5%，18K = 75%。",
+f_stocks:"股票",f_funds:"基金与 ETF",f_crypto:"加密货币",f_sukuk:"债券与伊斯兰债券",f_retirement:"退休账户",f_otherInvest:"其他投资",
+n_stocks:"使用市场现值；为交易持有的证券全额计课。",n_crypto:"按市场价格估值。",n_retirement:"当代机构：可动用账户须计（2.5%）。",
+f_bizCash:"经营现金",f_inventory:"商业存货",f_bizRec:"可收回应收款",f_bizOther:"其他经营资产",f_bizDebts:"经营债务（一年内）",n_bizDebts:"与经营资产相抵。",n_bizRec:"排除坏账。",
+f_cropQty:"收成数量",f_cropPrice:"每公斤市价",f_irrigation:"灌溉方式",opt_rain:"旱地（10%）",opt_irrigated:"灌溉（5%）",opt_mixed:"混合（7.5%）",
+n_agri:"农产品满贯约 653 公斤（五瓦萨克），低于此无需缴纳。",
+f_camels:"骆驼",f_cattle:"牛",f_buffalo:"水牛",f_sheep:"绵羊",f_goats:"山羊",f_rikaz:"发现宝物价值",n_rikaz:"立即 20%——无满一年与满贯条件。",
+f_debtsDue:"一年内个人债务",f_ccDue:"信用卡与分期",f_billsDue:"账单与房租",f_taxesDue:"应缴税款",f_otherDebts:"其他债务",
+n_debtsDue:"长期贷款：许多学者仅扣除来年应付款项。",
+sub_total:"小计",liab_note:"仅一个太阴年内的债务可扣除。",extra_due:"其他义务",
+due_agri:"农产品乌什尔（税率 {r}）",due_rikaz:"窖藏 20%",live_total:"牲畜合计",
+an_sheep:"只绵羊/山羊",an_camel1:"一岁母驼",an_camel2:"两岁母驼",an_camel3:"三岁母驼",an_camel4:"四岁母驼",an_cow1:"一岁公牛",an_cow2:"两岁母牛",
+live_nisab_note:"牲畜满贯：5 峰驼 · 30 头牛 · 40 只羊。",
+price_fail:"实时价格不可用——请手动输入。",price_live:"实时 · {src}",price_manual:"手动输入",price_est:"参考估算",
+rates_fail:"已使用离线汇率——仍可选择任何货币。"
+};</script>
+<script>window.I18N_PACKS.bn={
+brand:"নিসাব",brand_sub:"স্মার্ট যাকাত ক্যালকুলেটর",nav_calc:"ক্যালকুলেটর",nav_tools:"অতিরিক্ত টুল",nav_faq:"ফিকহ প্রশ্ন",nav_lang:"ভাষা",
+hero_kicker:"শরিয়তসম্মত · চার মাযহাবের নোট",hero_title_1:"আত্মবিশ্বাসের সাথে আপনার",hero_title_2:"যাকাত",hero_title_3:"হিসাব করুন",
+hero_sub:"পূর্ণাঙ্গ স্মার্ট ক্যালকুলেটর: নগদ, সোনা-রূপা, বিনিয়োগ, বাণিজ্যিক পণ্য, কৃষিপণ্য (উশর), পশুসম্পদ, গুপ্তধন (রিকাজ) ও বাদযোগ্য ঋণ — যেকোনো মুদ্রায়, সর্বশেষ নিসাবসহ।",
+cta_start:"হিসাব শুরু করুন",cta_fitr:"যাকাতুল ফিতর",stat_rate_k:"হার",stat_ng:"সোনার নিসাব",stat_ns:"রূপার নিসাব",stat_hawl:"হাওল",stat_hawl_v:"১ চান্দ্র বছর",
+live_prices:"ধাতুর লাইভ দাম",per_gram:"প্রতি গ্রাম",refresh:"রিফ্রেশ",refreshing:"আপডেট হচ্ছে…",au_manual:"সোনার দাম (ম্যানুয়াল)",ag_manual:"রূপার দাম (ম্যানুয়াল)",
+price_note:"সম্ভব হলে দাম লাইভ আনা হয় এবং আপনার মুদ্রায় দেখানো হয়। প্রদানের আগে স্থানীয় বাজার যাচাই করুন।",hijri:"হিজরি তারিখ",
+assets_title:"আপনার সম্পদ",assets_sub:"নির্বাচিত মুদ্রায় পরিমাণ লিখুন · গ্রাম ঘরগুলো গ্রামেই থাকবে",currency:"মুদ্রা",currency_hint:"মুদ্রা বদলালে অঙ্ক স্বয়ংক্রিয়ভাবে রূপান্তরিত হয়।",
+choose_lang:"ভাষা নির্বাচন করুন",lang_hint:"৬০+ ভাষায় খুঁজুন · লেআউট স্বয়ংক্রিয়ভাবে বদলায়",search_lang:"ভাষা খুঁজুন…",
+summary:"যাকাতের সারসংক্ষেপ",total_assets:"মোট যাকাতযোগ্য সম্পদ",total_liab:"বাদযোগ্য ঋণ",net_wealth:"নিট যাকাতযোগ্য সম্পদ",nisab_lbl:"নিসাবের সীমা",
+zakat_due:"প্রদেয় যাকাত (২.৫%)",nisab_std:"নিসাবের ভিত্তি",std_gold:"সোনা",std_silver:"রূপা",composition:"সম্পদের বিন্যাস",insights:"স্মার্ট পরামর্শ",
+status_above:"নিসাবের উপরে — যাকাত ওয়াজিব",status_below:"নিসাবের নিচে — যাকাত নেই",status_above_d:"শর্ত পূর্ণ: পরিমাণ ও হাওল।",status_below_d:"সঞ্চয় চালিয়ে যান; নিসাবে পৌঁছালে আবার হিসাব করুন।",
+ins_no_data:"ব্যক্তিগত পরামর্শের জন্য সম্পদ লিখুন।",ins_above:"আপনার নিট সম্পদ নিসাবের চেয়ে {x} বেশি। ২.৫% ({z}) প্রদান করুন; কিস্তিতেও সম্ভব।",
+ins_gold_ok:"শুধু আপনার সোনা-রূপা ({v}) নিসাব অতিক্রম করেছে।",ins_silver_std:"রূপার নিসাব অধিক সতর্ক ও গরিবদের জন্য উত্তম।",
+ins_debt:"আপনার {v} ঋণ আছে — এক বছরের মধ্যে পরিশোধযোগ্য ঋণ বাদ দেওয়া যায়।",ins_crypto:"অধিকাংশ ফতোয়া বোর্ডে ক্রিপ্টো মুদ্রা হিসেবে (২.৫%)।",
+ins_agri:"ফসলের উশর কাটার সময়: বর্ষানির্ভর ১০%, সেচ ৫%।",ins_live:"পশু এক বছর মুক্ত চারণে থাকলে যাকাত; বাণিজ্যিক পশু ২.৫%।",
+ins_rikaz:"মাটির নিচের গুপ্তধনে ২০%, সাথে সাথে ও বিনা হাওলে।",ins_fitr:"পরিবারের প্রতিজনের জন্য যাকাতুল ফিতর ভুলবেন না।",
+ins_zeroliab:"কোনো ঋণ দেওয়া হয়নি — থাকলে বাদ দিতে পারেন।",ins_business:"বাণিজ্যিক পণ্য বর্তমান বিক্রয়মূল্যে গণনা হয়।",
+save:"সংরক্ষণ",saved:"আপনার তথ্য এই ডিভাইসে সংরক্ষিত হয়েছে।",reset:"সব রিসেট",reset_confirm:"সব ঘর মুছে নতুন করে শুরু করবেন?",print:"প্রিন্ট / PDF",csv:"CSV এক্সপোর্ট",
+tools_title:"অতিরিক্ত যাকাত টুল",tools_sub:"যাকাতুল ফিতর, আট প্রকার প্রাপক ও হাওল ট্র্যাকার",
+fitr_title:"যাকাতুল ফিতর",fitr_sub:"প্রতি সদস্যের জন্য ≈ ২.৫ কেজি প্রধান খাদ্য, ঈদের নামাজের আগে।",persons:"পরিবারের সদস্য",food_price:"খাদ্যের দাম / কেজি",
+fitr_total:"মোট প্রদেয়",per_person:"জনপ্রতি",fitr_note:"২.৫ কেজি প্রধান খাদ্যের ভিত্তিতে (চাল, গম, খেজুর, যব)। অধিকাংশ আলেম নগদ মূল্যে অনুমতি দেন।",
+asnaf_title:"আট প্রকার প্রাপক",asnaf_sub:"কুরআন ৯:৬০ — এই শ্রেণিগুলোতে যাকাত বিতরণ করুন।",asnaf_1:"গরিব",asnaf_2:"দরিদ্র",asnaf_3:"যাকাত সংগ্রাহক",asnaf_4:"অন্তর আকর্ষণযোগ্য",
+asnaf_5:"দাস মুক্তি",asnaf_6:"ঋণগ্রস্ত",asnaf_7:"আল্লাহর পথে",asnaf_8:"মুসাফির",
+hawl_title:"হাওল ট্র্যাকার",hawl_note:"নিসাব পরিমাণ সম্পদ পূর্ণ চান্দ্র বছর (৩৫৪ দিন) থাকলে যাকাত ওয়াজিব।",hawl_start:"নিসাবে পৌঁছার তারিখ",hawl_progress:"হাওলের অগ্রগতি",
+hawl_remaining:"অবশিষ্ট দিন",hawl_due_date:"সম্ভাব্য তারিখ",hawl_done:"হাওল পূর্ণ — যাকাত ওয়াজিব 🌙",
+faq_title:"যাকাত প্রশ্নোত্তর",faq_sub:"চার মাযহাব থেকে সংক্ষিপ্ত ফিকহ নির্দেশনা।",
+disc_title:"শরয়ী সতর্কতা",disc_body:"এই টুল প্রসিদ্ধ ফিকহ মতের ভিত্তিতে আনুমানিক হিসাব দেয়; সব মত, স্থানীয় দাম বা কর বিধি অন্তর্ভুক্ত নাও হতে পারে। বড় সম্পদে যোগ্য আলেমের পরামর্শ নিন। আল্লাহ আপনার যাকাত কবুল করুন।",
+footer_note:"স্মার্ট যাকাত ক্যালকুলেটর · উম্মাহর জন্য",optional:"ঐচ্ছিক",approx:"প্রায়",grams:"গ্রাম",kg:"কেজি",days:"দিন",computed:"বর্তমান মূল্য",est:"আনুমানিক",
+g_cash:"নগদ অর্থ",g_cash_d:"হাতের নগদ, ব্যাংক ব্যালেন্স, জমা, ওয়ালেট ও পাওনা।",g_metals:"সোনা ও রূপা",g_metals_d:"গহনা, বুলিয়ন ও কয়েন; গ্রামে ওজন, লাইভ দামে মূল্য।",
+g_invest:"বিনিয়োগ",g_invest_d:"শেয়ার, ফান্ড, ক্রিপ্টো, সুকুক ও পেনশন।",g_biz:"ব্যবসা",g_biz_d:"পণ্যমাল, ব্যবসার নগদ ও পাওনা, বাদে ব্যবসার ঋণ।",
+g_agri:"কৃষিপণ্য (উশর)",g_agri_d:"ফসল: বর্ষানির্ভর ১০%, সেচ ৫%, নিসাব ≈ ৬৫৩ কেজি।",g_live:"পশুসম্পদ",g_live_d:"উট, গরু, মহিষ, ভেড়া ও ছাগল — ঐতিহ্যবাহী নিসাব তালিকায়।",
+g_rikaz:"গুপ্তধন (রিকাজ)",g_rikaz_d:"পরিশ্রম ছাড়া পাওয়া গুপ্তধন — সাথে সাথে ২০%।",g_debt:"বাদযোগ্য ঋণ",g_debt_d:"এক বছরের মধ্যে পরিশোধযোগ্য ঋণ বাদ যায়।",
+f_cashHand:"হাতের নগদ",f_bank:"ব্যাংক হিসাব",f_deposit:"স্থায়ী জমা",f_ewallet:"ডিজিটাল ওয়ালেট",f_receivable:"অন্যকে দেওয়া অর্থ",f_otherCash:"অন্যান্য নগদ ও বিদেশি মুদ্রা",
+f_goldJew:"সোনার গহনা",f_goldBull:"সোনার বুলিয়ন",f_goldCoin:"সোনার কয়েন",f_silverJew:"রূপার গহনা",f_silverBull:"রূপার বুলিয়ন ও থালা",
+f_stocks:"শেয়ার",f_funds:"মিউচুয়াল ফান্ড",f_crypto:"ক্রিপ্টোকারেন্সি",f_sukuk:"বন্ড ও সুকুক",f_retirement:"পেনশন তহবিল",f_otherInvest:"অন্য বিনিয়োগ",
+f_bizCash:"ব্যবসার নগদ",f_inventory:"পণ্যমাল",f_bizRec:"আদায়যোগ্য পাওনা",f_bizOther:"অন্য ব্যবসায়িক সম্পদ",f_bizDebts:"ব্যবসার ঋণ (এক বছরে)",
+f_cropQty:"ফসলের পরিমাণ",f_cropPrice:"কেজিপ্রতি দাম",f_irrigation:"সেচ পদ্ধতি",opt_rain:"বর্ষানির্ভর (১০%)",opt_irrigated:"সেচ (৫%)",opt_mixed:"মিশ্র (৭.৫%)",
+f_camels:"উট",f_cattle:"গরু",f_buffalo:"মহিষ",f_sheep:"ভেড়া",f_goats:"ছাগল",f_rikaz:"পাওয়া গুপ্তধনের মূল্য",
+f_debtsDue:"এক বছরের ব্যক্তিগত ঋণ",f_ccDue:"ক্রেডিট কার্ড ও কিস্তি",f_billsDue:"বিল ও ভাড়া",f_taxesDue:"কর",f_otherDebts:"অন্য ঋণ",
+sub_total:"উপমোট",extra_due:"অন্যান্য দায়",due_agri:"ফসলের উশর ({r})",due_rikaz:"রিকাজ ২০%",live_total:"পশু মোট",
+an_sheep:"ভেড়া/ছাগল",an_camel1:"১ বছরের উটনী",an_camel2:"২ বছরের উটনী",an_camel3:"৩ বছরের উটনী",an_camel4:"৪ বছরের উটনী",an_cow1:"১ বছরের ষাঁড়",an_cow2:"২ বছরের গাভী",
+purity:"খাঁটিত্ব",persons_hint:"",est:"আনুমানিক"
+};</script>
+<script>window.I18N_PACKS.hi={
+brand:"निसाब",brand_sub:"स्मार्ट ज़कात कैलकुलेटर",nav_calc:"कैलकुलेटर",nav_tools:"अन्य टूल",nav_faq:"फ़िकह प्रश्न",nav_lang:"भाषा",
+hero_kicker:"शरीयत-संगत · चार मज़हबों के नोट",hero_title_1:"पूरे भरोसे के साथ अपनी",hero_title_2:"ज़कात",hero_title_3:"गणना करें",
+hero_sub:"व्यापक स्मार्ट कैलकुलेटर: नकद, सोना-चाँदी, निवेश, व्यापारिक माल, कृषि उपज (उश्र), पशुधन, गुप्त धन (रिकाज़) और कटौती-योग्य क़र्ज़ — हर मुद्रा में, लाइव निसाब के साथ।",
+cta_start:"गणना शुरू करें",cta_fitr:"ज़कातुल फ़ित्र",stat_rate_k:"दर",stat_ng:"सोने का निसाब",stat_ns:"चाँदी का निसाब",stat_hawl:"हौल",stat_hawl_v:"1 चंद्र वर्ष",
+live_prices:"धातुओं के लाइव भाव",per_gram:"प्रति ग्राम",refresh:"रिफ़्रेश",refreshing:"अपडेट हो रहा है…",au_manual:"सोने का भाव (मैन्युअल)",ag_manual:"चाँदी का भाव (मैन्युअल)",
+price_note:"उपलब्ध होने पर भाव लाइव लाए जाते हैं और आपकी मुद्रा में दिखाए जाते हैं। भुगतान से पहले स्थानीय बाज़ार जाँचें।",hijri:"हिजरी तिथि",
+assets_title:"आपकी संपत्ति",assets_sub:"चुनी गई मुद्रा में राशि दर्ज करें · ग्राम वाले फ़ील्ड ग्राम में ही रहेंगे",currency:"मुद्रा",currency_hint:"मुद्रा बदलने पर राशि स्वतः बदलती है।",
+choose_lang:"अपनी भाषा चुनें",lang_hint:"60+ भाषाओं में खोजें · लेआउट स्वतः बदलता है",search_lang:"भाषा खोजें…",
+summary:"ज़कात सारांश",total_assets:"कुल ज़कात-योग्य संपत्ति",total_liab:"कटौती-योग्य क़र्ज़",net_wealth:"शुद्ध ज़काती संपत्ति",nisab_lbl:"निसाब सीमा",
+zakat_due:"देय ज़कात (2.5%)",nisab_std:"निसाब आधार",std_gold:"सोना",std_silver:"चाँदी",composition:"संपत्ति का विभाजन",insights:"स्मार्ट सुझाव",
+status_above:"निसाब से ऊपर — ज़कात वाजिब",status_below:"निसाब से नीचे — ज़कात नहीं",status_above_d:"शर्तें पूरी: राशि और हौल।",status_below_d:"बचत जारी रखें; निसाब पर पहुँचकर फिर गणना करें।",
+ins_no_data:"व्यक्तिगत सुझाव के लिए संपत्ति दर्ज करें।",ins_above:"आपकी शुद्ध संपत्ति निसाब से {x} अधिक है। 2.5% ({z}) अदा करें; क़िस्तों में भी संभव।",
+ins_gold_ok:"केवल आपका सोना-चाँदी ({v}) निसाब पार कर गया है।",ins_silver_std:"चाँदी का निसाब अधिक सतर्क और ग़रीबों के लिए लाभदायक है।",
+ins_debt:"आप पर {v} क़र्ज़ है — एक वर्ष में देय क़र्ज़ काटे जा सकते हैं।",ins_crypto:"अधिकांश फ़तवा बोर्ड क्रिप्टो को मुद्रा मानते हैं (2.5%)।",
+ins_agri:"फ़सल का उश्र कटाई पर: बारानी 10%, सिंचाई 5%।",ins_live:"पशु एक वर्ष खुला चरने पर ज़कात; व्यापारिक पशु 2.5%।",
+ins_rikaz:"दफ़न ख़ज़ाना (रिकाज़) में 20%, तुरंत और बिना हौल।",ins_fitr:"परिवार के हर सदस्य की ज़कातुल फ़ित्र न भूलें।",
+ins_zeroliab:"कोई क़र्ज़ दर्ज नहीं — हो तो काट सकते हैं।",ins_business:"व्यापारिक माल का मूल्यांकन वर्तमान विक्रय मूल्य पर होता है।",
+save:"सहेजें",saved:"आपका डेटा इस डिवाइस पर सहेजा गया।",reset:"सब रीसेट",reset_confirm:"सभी फ़ील्ड साफ़ कर नए सिरे से शुरू करें?",print:"प्रिंट / PDF",csv:"CSV निर्यात",
+tools_title:"अन्य ज़कात टूल",tools_sub:"ज़कातुल फ़ित्र, आठ पात्र वर्ग और हौल ट्रैकर",
+fitr_title:"ज़कातुल फ़ित्र",fitr_sub:"प्रति सदस्य ≈ 2.5 किग्रा मुख्य भोजन, ईद की नमाज़ से पहले।",persons:"घर के सदस्य",food_price:"भोजन का भाव / किग्रा",
+fitr_total:"कुल देय",per_person:"प्रति व्यक्ति",fitr_note:"2.5 किग्रा मुख्य भोजन (चावल, गेहूँ, खजूर, जौ) पर आधारित। अधिकांश उलमा नकद मूल्य की अनुमति देते हैं।",
+asnaf_title:"आठ पात्र वर्ग",asnaf_sub:"क़ुरआन 9:60 — इन वर्गों में ज़कात बाँटें।",asnaf_1:"ग़रीब",asnaf_2:"मिसकीन",asnaf_3:"ज़कात कर्मचारी",asnaf_4:"जिनके दिल आकर्षित करने हों",
+asnaf_5:"ग़ुलामों की आज़ादी",asnaf_6:"क़र्ज़दार",asnaf_7:"अल्लाह के रास्ते में",asnaf_8:"मुसाफ़िर",
+hawl_title:"हौल ट्रैकर",hawl_note:"निसाब जितनी संपत्ति पूरा चंद्र वर्ष (354 दिन) रहे तो ज़कात वाजिब।",hawl_start:"निसाब तक पहुँचने की तारीख़",hawl_progress:"हौल प्रगति",
+hawl_remaining:"शेष दिन",hawl_due_date:"अनुमानित तिथि",hawl_done:"हौल पूरा — ज़कात अब वाजिब 🌙",
+faq_title:"ज़कात प्रश्न-उत्तर",faq_sub:"चार सुन्नी मज़हबों से संक्षिप्त फ़िकह मार्गदर्शन।",
+disc_title:"शरई सूचना",disc_body:"यह टूल प्रसिद्ध फ़िकही मतों पर आधारित अनुमान देता है; हर राय, स्थानीय भाव या कर नियम शामिल नहीं हो सकते। बड़ी संपत्ति के लिए योग्य आलिम से सलाह लें। अल्लाह आपकी ज़कात क़बूल करे।",
+footer_note:"स्मार्ट ज़कात कैलकुलेटर · उम्मत के लिए",optional:"वैकल्पिक",approx:"लगभग",grams:"ग्राम",kg:"किग्रा",days:"दिन",computed:"वर्तमान मूल्य",est:"अनुमानित",
+g_cash:"नकद",g_cash_d:"जेब का नकद, बैंक बैलेंस, जमा, वॉलेट और लेनदारी।",g_metals:"सोना-चाँदी",g_metals_d:"आभूषण, बुलियन व सिक्के; ग्राम में वज़न, लाइव भाव से मूल्य।",
+g_invest:"निवेश",g_invest_d:"शेयर, फंड, क्रिप्टो, सुकूक व पेंशन।",g_biz:"व्यापार",g_biz_d:"माल, व्यापारिक नकद व प्राप्य, घटाकर व्यापारिक क़र्ज़।",
+g_agri:"कृषि उपज (उश्र)",g_agri_d:"फ़सल: बारानी 10%, सिंचाई 5%, निसाब ≈ 653 किग्रा।",g_live:"पशुधन",g_live_d:"ऊँट, गाय, भैंस, भेड़ व बकरी — पारंपरिक निसाब तालिका।",
+g_rikaz:"गुप्त धन (रिकाज़)",g_rikaz_d:"बिना मेहनत मिला दफ़न ख़ज़ाना — तुरंत 20%।",g_debt:"कटौती-योग्य क़र्ज़",g_debt_d:"एक वर्ष में देय क़र्ज़ घटाए जाते हैं।",
+f_cashHand:"नकद",f_bank:"बैंक खाते",f_deposit:"सावधि जमा",f_ewallet:"डिजिटल वॉलेट",f_receivable:"दूसरों को दिया धन",f_otherCash:"अन्य नकद व विदेशी मुद्रा",
+f_goldJew:"सोने के आभूषण",f_goldBull:"सोने की ईंटें",f_goldCoin:"सोने के सिक्के",f_silverJew:"चाँदी के आभूषण",f_silverBull:"चाँदी की ईंटें व बर्तन",
+f_stocks:"शेयर",f_funds:"म्यूचुअल फंड",f_crypto:"क्रिप्टोकरेंसी",f_sukuk:"बॉन्ड व सुकूक",f_retirement:"पेंशन खाता",f_otherInvest:"अन्य निवेश",
+f_bizCash:"व्यापारिक नकद",f_inventory:"व्यापारिक माल",f_bizRec:"प्राप्य राशि",f_bizOther:"अन्य व्यापारिक संपत्ति",f_bizDebts:"व्यापारिक क़र्ज़ (एक वर्ष में)",
+f_cropQty:"फ़सल की मात्रा",f_cropPrice:"प्रति किग्रा भाव",f_irrigation:"सिंचाई विधि",opt_rain:"बारानी (10%)",opt_irrigated:"सिंचाई (5%)",opt_mixed:"मिश्रित (7.5%)",
+f_camels:"ऊँट",f_cattle:"गाय-बैल",f_buffalo:"भैंस",f_sheep:"भेड़",f_goats:"बकरी",f_rikaz:"मिले ख़ज़ाने का मूल्य",
+f_debtsDue:"एक वर्ष में देय निजी क़र्ज़",f_ccDue:"क्रेडिट कार्ड व क़िस्त",f_billsDue:"बिल व किराया",f_taxesDue:"कर",f_otherDebts:"अन्य क़र्ज़",
+sub_total:"उप-योग",extra_due:"अन्य देनदारियाँ",due_agri:"फ़सल का उश्र ({r})",due_rikaz:"रिकाज़ 20%",live_total:"पशु कुल",
+an_sheep:"भेड़/बकरी",an_camel1:"1 वर्षीय ऊँटनी",an_camel2:"2 वर्षीय ऊँटनी",an_camel3:"3 वर्षीय ऊँटनी",an_camel4:"4 वर्षीय ऊँटनी",an_cow1:"1 वर्षीय बैल",an_cow2:"2 वर्षीय गाय",
+purity:"शुद्धता"
+};</script>
+<script>window.I18N_PACKS.pt=Object.assign({},window.I18N_PACKS.es,{
+brand:"Nisab",brand_sub:"Suite inteligente de Zakat",nav_calc:"Calculadora",nav_tools:"Ferramentas",nav_faq:"Fiqh e dúvidas",nav_lang:"Idioma",
+hero_title_1:"Calcule o seu",hero_title_3:"com total confiança",
+hero_sub:"Calculadora completa e inteligente: dinheiro, ouro e prata, investimentos, stocks comerciais, agricultura (ushr), gado, tesouros (rikaz) e dívidas dedutíveis — em qualquer moeda, com nisab em tempo real.",
+assets_title:"Os seus ativos",currency:"Moeda",choose_lang:"Escolha o seu idioma",search_lang:"Procurar idioma…",
+summary:"Resumo da zakat",total_assets:"Total de ativos zakatables",total_liab:"Dívidas dedutíveis",net_wealth:"Património líquido zakatable",nisab_lbl:"Limiar do nisab",
+zakat_due:"Zakat devida (2,5%)",nisab_std:"Referência do nisab",std_gold:"Ouro",std_silver:"Prata",composition:"Composição dos ativos",insights:"Análises inteligentes",
+status_above:"Acima do nisab — zakat devida",status_below:"Abaixo do nisab — sem zakat",
+save:"Guardar",saved:"Dados guardados neste dispositivo.",reset:"Reiniciar tudo",print:"Imprimir / PDF",csv:"Exportar CSV",
+fitr_title:"Zakat al-Fitr",persons:"Pessoas no agregado",food_price:"Preço do alimento / kg",fitr_total:"Total devido",per_person:"Por pessoa",
+asnaf_title:"Oito categorias (asnaf)",asnaf_1:"Os pobres",asnaf_2:"Os necessitados",asnaf_3:"Administradores da zakat",asnaf_4:"Cujos corações se pretendem conquistar",
+asnaf_5:"Libertação de cativos",asnaf_6:"Os endividados",asnaf_7:"Na causa de Allah",asnaf_8:"O viajante desamparado",
+hawl_title:"Acompanhamento do hawl",hawl_start:"Data em que atingiu o nisab",hawl_progress:"Progresso do hawl",hawl_remaining:"Dias restantes",
+faq_title:"Perguntas e respostas",footer_note:"Calculadora inteligente de zakat · ao serviço da Umma",
+optional:"opcional",approx:"aprox.",grams:"g",kg:"kg",days:"dias",computed:"valor atual",
+g_cash:"Dinheiro e numerário",g_metals:"Ouro e prata",g_invest:"Investimentos",g_biz:"Negócio",g_agri:"Agricultura (ushr)",g_live:"Gado",g_rikaz:"Tesouro (rikaz)",g_debt:"Dívidas a deduzir"
+});</script>
+<script>window.I18N_PACKS.sw={
+brand:"Nisab",brand_sub:"Kikokotoo cha Zaka cha Akili",nav_calc:"Kikokotoo",nav_tools:"Zana zingine",nav_faq:"Maswali ya Fiqh",nav_lang:"Lugha",
+hero_kicker:"Inalingana na Sharia · maelezo ya madhehebu 4",hero_title_1:"Hesabu",hero_title_2:"Zaka",hero_title_3:"yako kwa uhakika",
+hero_sub:"Kikokotoo kamili na cha akili: pesa taslimu, dhahabu na fedha, uwekezaji, bidhaa za biashara, mazao (ushr), mifugo, hazina (rikaz) na madeni yanayopunguzwa — kwa sarafu zote, kwa nisab ya sasa.",
+cta_start:"Anza kuhesabu",cta_fitr:"Zaka ya Fitra",stat_rate_k:"Kiwango",stat_ng:"Nisab ya dhahabu",stat_ns:"Nisab ya fedha",stat_hawl:"Hawl",stat_hawl_v:"Mwaka mmoja wa kihilali",
+live_prices:"Bei za metali moja kwa moja",per_gram:"kwa gramu",refresh:"Onyesha upya",refreshing:"Inasasisha…",au_manual:"Bei ya dhahabu (mwongozo)",ag_manual:"Bei ya fedha (mwongozo)",
+price_note:"Bei hupatikana moja kwa moja inapowezekana na kuonyeshwa kwa sarafu yako. Hakikisha soko la karibu kabla ya kulipa.",hijri:"Tarehe ya Hijra",
+assets_title:"Mali yako",assets_sub:"Weka kiasi kwa sarafu uliyochagua · sehemu za gramu zinabaki kwa gramu",currency:"Sarafu",currency_hint:"Viasi hubadilishwa kiotomatiki unapobadilisha sarafu.",
+choose_lang:"Chagua lugha yako",lang_hint:"Tafuta kati ya lugha 60+ · mpangilio unabadilika kiotomatiki",search_lang:"Tafuta lugha…",
+summary:"Muhtasari wa Zaka",total_assets:"Jumla ya mali ya zaka",total_liab:"Madeni yanayopunguzwa",net_wealth:"Mali safi ya zaka",nisab_lbl:"Kikomo cha nisab",
+zakat_due:"Zaka inayopaswa (2.5%)",nisab_std:"Kigezo cha nisab",std_gold:"Dhahabu",std_silver:"Fedha",composition:"Muundo wa mali",insights:"Ushauri wa akili",
+status_above:"Juu ya nisab — zaka inapasa",status_below:"Chini ya nisab — hakuna zaka",status_above_d:"Masharti yametimia: kiasi na hawl.",status_below_d:"Endelea kuokoa; hesabu upya ufikapo nisab.",
+ins_no_data:"Weka mali yako kupata ushauri wa kibinafsi.",ins_above:"Mali yako safi inazidi nisab kwa {x}. Lipa 2.5% ({z}) — inaweza kulipwa kwa awamu.",
+ins_gold_ok:"Dhahabu na fedha yako pekee ({v}) tayari imezidi nisab.",ins_silver_std:"Nisab ya fedha ni makini zaidi na ni bora kwa maskini.",
+ins_debt:"Una madeni ya {v} — madeni ya ndani ya mwaka yanapunguzwa.",ins_crypto:"Sarafu za kidijitali hushughulikiwa kama pesa (2.5%).",
+ins_agri:"Ushr wa mazao hulipwa wakati wa mavuno: mvua 10%, umwagiliaji 5%.",ins_live:"Zaka ya mifugo inapasa baada ya mwaka wa kulishwa mwandani; mifugo ya biashara 2.5%.",
+ins_rikaz:"Hazina iliyozikwa (rikaz) ni 20%, mara moja bila hawl.",ins_fitr:"Usisahau Zaka ya Fitra kwa kila mwanafamilia.",
+ins_zeroliab:"Hakuna madeni yaliyoingizwa — ukiwa nayo unaweza kupunguza.",ins_business:"Bidhaa za biashara hupimwa kwa bei ya sasa ya kuuza.",
+save:"Hifadhi",saved:"Data zako zimehifadhiwa kwenye kifaa hiki.",reset:"Anza upya",reset_confirm:"Ufute sehemu zote uanze upya?",print:"Chapisha / PDF",csv:"Hamisha CSV",
+tools_title:"Zana nyingine za Zaka",tools_sub:"Zaka ya Fitra, makundi manane ya wanaostahiki na kifuatilio cha hawl",
+fitr_title:"Zaka ya Fitra",fitr_sub:"≈ kg 2.5 za chakula cha msingi kwa kila mwanafamilia, kabla ya swala ya Iddi.",persons:"Wanafamilia",food_price:"Bei ya chakula / kg",
+fitr_total:"Jumla inayopasa",per_person:"Kwa kila mtu",fitr_note:"Inatokana na kg 2.5 za chakula kikuu (mchele, ngano, tende, shairi). Wengi wamekuruhusu thamani ya pesa.",
+asnaf_title:"Makundi manane (asnaf)",asnaf_sub:"Kurani 9:60 — gawia zaka yako katika makundi haya.",asnaf_1:"Maskini",asnaf_2:"Wanufaika",asnaf_3:"Wakusanyaji wa zaka",asnaf_4:"Wanaounganisha mioyo",
+asnaf_5:"Kumkomboa mtumwa",asnaf_6:"Waliolazimika",asnaf_7:"Katika njia ya Mwenyezi Mungu",asnaf_8:"Musafiri aliyeumia",
+hawl_title:"Kifuatilio cha hawl",hawl_note:"Zaka inapasa mali ≥ nisab ikishikiliwa mwaka mzima wa kihilali (siku 354).",
+hawl_start:"Tarehe ya kufika nisab",hawl_progress:"Maendeleo ya hawl",hawl_remaining:"Siku zilizobaki",hawl_due_date:"Tarehe (makadirio)",hawl_done:"Hawl imekamilika — zaka yako inapasa 🌙",
+faq_title:"Maswali na majibu",faq_sub:"Mwongozo mfupi wa fiqh kutoka madhehebu manne.",
+disc_title:"Taarifa ya kisheria",disc_body:"Zana hii inatoa makadirio kulingana na maoni mashuhuri ya fiqh na huenda isijumuishe kila raia, bei za eneo lako au kodi. Kwa mali kubwa wasiliana na alimu mwenye uzoefu. Mwenyezi Mungu aikubali zaka yako.",
+footer_note:"Kikokotoo cha zaka cha akili · kwa Umma",optional:"si lazima",approx:"takriban",grams:"g",kg:"kg",days:"siku",computed:"thamani ya sasa",est:"makadirio",
+g_cash:"Pesa na taslimu",g_cash_d:"Pesa mkononi, salio la benki, amana, pochi na madeni ya kupokea.",g_metals:"Dhahabu na fedha",g_metals_d:"Mapambo, bullion na sarafu; uzito kwa gramu, thamani kwa bei ya sasa.",
+g_invest:"Uwekezaji",g_invest_d:"Hisa, fedha za uwekezaji, crypto, sukuk na uwekezaji wa uzee.",g_biz:"Biashara",g_biz_d:"Bidhaa, pesa na madeni ya biashara, punguzwa na deni zake.",
+g_agri:"Kilimo (ushr)",g_agri_d:"Mavuno: mvua 10%, umwagiliaji 5%, nisab ≈ kg 653.",g_live:"Mifugo",g_live_d:"Ngamia, ng'ombe, nyati, kondoo na mbuzi kulingana na majedwali ya kale.",
+g_rikaz:"Hazina (rikaz)",g_rikaz_d:"Hazina iliyozikwa ikipatikana bila jitihada — 20% mara moja.",g_debt:"Madeni yanayopunguzwa",g_debt_d:"Madeni ya ndani ya mwaka yanatolewa kwenye msingi wa zaka.",
+f_cashHand:"Pesa mkononi",f_bank:"Akaunti za benki",f_deposit:"Amana za kudumu",f_ewallet:"Pochi za kidijitali",f_receivable:"Pesa uliyokopa",f_otherCash:"Pesa na sarafu nyingine",
+f_goldJew:"Mapambo ya dhahabu",f_goldBull:"Dhahabu ya bullion",f_goldCoin:"Sarafu za dhahabu",f_silverJew:"Mapambo ya fedha",f_silverBull:"Fedha, vyombo na sarafu",
+f_stocks:"Hisa",f_funds:"Mfuko wa uwekezaji",f_crypto:"Sarafu za kidijitali",f_sukuk:"Bondi na sukuk",f_retirement:"Akiba ya uzee",f_otherInvest:"Uwekezaji mwingine",
+f_bizCash:"Pesa za biashara",f_inventory:"Bidhaa za biashara",f_bizRec:"Madeni ya kupokea",f_bizOther:"Mali nyingine za biashara",f_bizDebts:"Madeni ya biashara (mwaka 1)",
+f_cropQty:"Kiasi cha mavuno",f_cropPrice:"Bei ya soko / kg",f_irrigation:"Njia ya umwagiliaji",opt_rain:"Mvua (10%)",opt_irrigated:"Umwagiliaji (5%)",opt_mixed:"Mchanganyiko (7.5%)",
+f_camels:"Ngamia",f_cattle:"Ng'ombe",f_buffalo:"Nyati",f_sheep:"Kondoo",f_goats:"Mbuzi",f_rikaz:"Thamani ya hazina",
+f_debtsDue:"Madeni ya kibinafsi (mwaka 1)",f_ccDue:"Kadi na mikopo",f_billsDue":"Bili na kodi ya nyumba",f_taxesDue:"Kodi",f_otherDebts:"Madeni mengine",
+sub_total:"Jumla ndogo",extra_due:"Majukumu mengine",due_agri:"Ushr wa mavuno ({r})",due_rikaz:"Rikaz 20%",live_total:"Jumla ya mifugo",
+an_sheep:"kondoo/mbuzi",an_camel1:"ngamia jike wa mwaka 1",an_camel2:"ngamia jike wa mwaka 2",an_camel3:"ngamia jike wa mwaka 3",an_camel4:"ngamia jike wa mwaka 4",an_cow1:"fahali wa mwaka 1",an_cow2:"ng'ombe jike wa mwaka 2",
+purity:"Usafi wa dhahabu"
+};</script>
+<script>window.I18N_PACKS.ha={
+brand:"Nisab",brand_sub:"Zakka ta hankali",nav_calc:"Kwamfutanci",nav_tools:"Kayan aiki",nav_faq:"Tambayoyin Fiqhu",nav_lang:"Harshe",
+hero_kicker:"Yana daidaita da Shari'a · bayanin madahabba 4",hero_title_1:"Ka lissafta",hero_title_2:"Zakka",hero_title_3:"da tabbaci",
+hero_sub:"Kwamfutanci mai cikakken bayani: kuɗi, zinari da azurfa, zuba jari, kaya na kasuwanci, noman gona (ushr), dabbobi, binne (rikaz) da basussukan da ake tsotsewa — da kowane kuɗi, da nisab na yanzu.",
+cta_start:"Fara lissafi",cta_fitr:"Zakkatul fitr",stat_rate_k:"Adadi",stat_ng:"Nisabin zinari",stat_ns:"Nisabin azurfa",stat_hawl:"Hauli",stat_hawl_v:"Shekara 1 ta wata",
+live_prices:"Farashin ƙarfe na yanzu",per_gram:"a kowace gram",refresh:"Sabunta",refreshing:"Ana sabuntawa…",au_manual:"Farashin zinari (da kai)",ag_manual:"Farashin azurfa (da kai)",
+price_note:"Farashi ana samunsa a yanar gizo idan akwai kuma ana nuna shi da kuɗinka. Tabbata da kasuwar gida kafin biya.",hijri:"Ranar Hijira",
+assets_title:"Dukiyarka",assets_sub:"Saka adadi da kuɗin da ka zaɓa · filayen gram suna nan a gram",currency:"Kuɗi",currency_hint:"Adadi yana canzawa da kai lokacin da ka canza kuɗi.",
+choose_lang:"Zaɓi harshenka",lang_hint:"Nemi a cikin harsuna 60+ · tsari yana canzawa da kai",search_lang:"Nemi harshe…",
+summary:"Taƙaitaccen zakka",total_assets:"Jimlar dukiya da zakka ke bi",total_liab:"Basussukan da ake tsotsewa",net_wealth:"Tsarkin dukiya",nisab_lbl:"Iyakar nisab",
+zakat_due:"Zakka da ake bi (2.5%)",nisab_std:"Ma'aunin nisab",std_gold:"Zinari",std_silver:"Azurfa",composition:"Rarraba dukiya",insights:"Shawarwari masu hankali",
+status_above:"Sama da nisab — zakka ta wajaba",status_below:"Ƙasa da nisab — babu zakka",status_above_d:"Sharuɗɗa sun cika: adadi da hauli.",status_below_d:"Ci gaba da adanawa; sake lissafi idan ka kai nisab.",
+ins_no_data:"Saka dukiyarka don samun shawara ta musamman.",ins_above:"Tsarkin dukiyarka ya zarce nisab da {x}. Ka biya 2.5% ({z}) — ana iya rarraba biya.",
+ins_gold_ok:"Zinari da azurfarka kaɗai ({v}) sun zarce nisab.",ins_silver_std:"Amfani da nisabin azurfa ya fi hikima kuma yana taimakon matalauta.",
+ins_debt:"Kana da basussuka na {v} — waɗanda za a biya a shekara ana tsotsewa.",ins_crypto:"An ɗauki kripto a matsayin kuɗi (2.5%) a mafi yawan majalisun fatwa.",
+ins_agri:"Ushr na amfanin gona a lokacin girbi: ruwan sama 10%, ban ruwa 5%.",ins_live:"Zakkatar dabbobi ta wajaba bayan shekara ta kiwo; na kasuwanci 2.5%.",
+ins_rikaz:"Binne (rikaz) yana da 20%, nan take ba tare da hauli ba.",ins_zeroliab:"Ba a shigar da basussuka ba — idan kana da su za ka iya tsotsewa.",
+ins_fitr:"Kada ka manta Zakkatul fitr ga kowane memba na gidanka.",ins_business:"Kaya ana lissafta da farashin sayarwa na yanzu.",
+save:"Ajiye",saved:"Bayananka an ajiye a wannan na'urar.",reset:"Sake farawa",reset_confirm:"A share duka ka sake farawa?",print:"Bugawa / PDF",csv:"Fitar da CSV",
+tools_title:"Karin kayan aikin zakka",tools_sub:"Zakkatul fitr, ƙungiyoyin masu hakkin takwas da biye da hauli",
+fitr_title:"Zakkatul fitr",fitr_sub:"≈ kg 2.5 na abinci ga kowane memba, kafin sallar Idi.",persons:"Mutanen gida",food_price:"Farashin abinci / kg",
+fitr_total:"Jimlar da ake bi",per_person:"Ga kowane",fitr_note:"Dangane da kg 2.5 na abinci na yau da kullum (shinkafa, alkama, dabino, sha'ir).",
+asnaf_title:"Ƙungiyoyi takwas",asnaf_sub:"Alƙur'ani 9:60 — raba zakka tsakanin waɗannan.",asnaf_1:"Matalauta",asnaf_2:"Marasa ƙarfi",asnaf_3:"Ma'aikatan zakka",asnaf_4:"Waɗanda ake neman zuciyarsu",
+asnaf_5:"'Yantar da bayi",asnaf_6:"Masu basussuka",asnaf_7:"A tafarkin Allah",asnaf_8:"Mai tafiya mara ƙarfi",
+hawl_title:"Bin da hauli",hawl_note:"Zakka ta wajaba idan dukiya ≥ nisab ta kasance shekara ɗaya ta wata (kwana 354).",
+hawl_start:"Ranar kaiwa nisab",hawl_progress:"Ci gaban hauli",hawl_remaining:"Kwanaki da suka rage",hawl_due_date:"Ranar biya (kusa)",hawl_done:"Hauli ya cika — zakka ta wajaba 🌙",
+faq_title:"Tambaya da amsa",faq_sub:"Kanƙarata bayanin fikihu daga madahabba huɗu.",
+disc_title:"Gargadi",disc_body:"Wannan kayan yana ba da ƙiyasi bisa ra'ayin fikihu da aka sani, ba zai ƙunshi kowane ra'ayi ko farashin gida ba. Ga dukiya mai girma ka tuntubi mai ilimi. Allah ya karɓi zakarka.",
+footer_note:"Kwamfutancin zakka na zamani · ga Umma",optional:"ba dole ba",approx:"kusan",grams:"g",kg:"kg",days:"kwana",computed:"farashin yanzu",est:"ƙiyasi",
+g_cash:"Kuɗi da hannu",g_cash_d:"Kuɗin hannu, asusun banki, ajiye kuɗi, walati da basussuka a gare ka.",g_metals:"Zinari da azurfa",g_metals_d:"Kayen ado, bullion da kuɗin ƙarfe; nauyi a gram.",
+g_invest:"Zuba jari",g_invest_d:"Hannun jari, asusun, kripto, sukuk da ritaya.",g_biz:"Kasuwanci",g_biz_d:"Kaya, kuɗin kasuwanci da basussuka, faifai da basussukanta.",
+g_agri:"Noma (ushr)",g_agri_d:"Amfanin gona: ruwan sama 10%, ban ruwa 5%, nisab ≈ kg 653.",g_live:"Dabbobi",g_live_d:"Rakumi, shanu, giwa, tumaki da awaki bisa jerin gargajiya.",
+g_rikaz:"Binne (rikaz)",g_rikaz_d:"Dukiya da aka binne aka samu ba tare da wahala ba — 20% nan take.",g_debt:"Basussukan da ake tsotsewa",g_debt_d:"Basussukan da za a biya a shekara ana tsotsewa.",
+f_cashHand:"Kuɗin hannu",f_bank:"Asusun banki",f_deposit:"Kuɗin da aka ajiye",f_ewallet:"Walati na dijital",f_receivable:"Kuɗi da ka ba wa wasu",f_otherCash:"Sauran kuɗi da kuɗin waje",
+f_goldJew:"Kayen ado na zinari",f_goldBull:"Zinari mai ƙarfi",f_goldCoin:"Kuɗin zinari",f_silverJew:"Kayen ado na azurfa",f_silverBull:"Azurfa da tukwane",
+f_stocks:"Hannun jari",f_funds:"Asusun zuba jari",f_crypto:"Kripto",f_sukuk:"Bondi da sukuk",f_retirement:"Asusun ritaya",f_otherInvest:"Sauran zuba jari",
+f_bizCash:"Kuɗin kasuwanci",f_inventory:"Kaya",f_bizRec:"Basussuka masu zuwa",f_bizOther:"Sauran dukiyar kasuwanci",f_bizDebts:"Basussukan kasuwanci (shekara 1)",
+f_cropQty:"Yawan amfanin gona",f_cropPrice:"Farashin kg",f_irrigation:"Hanyar ban ruwa",opt_rain:"Ruwan sama (10%)",opt_irrigated:"Ban ruwa (5%)",opt_mixed:"Gauraye (7.5%)",
+f_camels:"Rakumi",f_cattle:"Shanu",f_buffalo:"Giwa",f_sheep:"Tumaki",f_goats:"Awaki",f_rikaz:"Darajar binne da aka samu",
+f_debtsDue:"Basussukan gida (shekara 1)",f_ccDue":"Kadi da rata",f_billsDue":"Bil da haya",f_taxesDue":"Haraji",f_otherDebts:"Sauran basussuka",
+sub_total:"Jimlar ƙarami",extra_due:"Sauran alhaki",due_agri:"Ushr na gona ({r})",due_rikaz:"Rikaz 20%",live_total:"Jimlar dabbobi",
+an_sheep:"tumaki/awaki",an_camel1:"rakumin mace shekara 1",an_camel2:"rakumin mace shekara 2",an_camel3:"rakumin mace shekara 3",an_camel4:"rakumin mace shekara 4",an_cow1:"saurin shekara 1",an_cow2:"shanu mace shekara 2",
+purity:"Tsabtace zinari"
+};</script>
+<!-- PACKS_END -->
+
+<script>
+/* =========================================================
+   NISAB — Smart Comprehensive Zakat Calculator
+   Single-file app: i18n, dark/light, live prices, full fiqh model
+   ========================================================= */
+const EN = {
+  brand:"Nisab", brand_sub:"Smart Zakat Suite",
+  nav_calc:"Calculator", nav_tools:"Extra Tools", nav_faq:"Fiqh Q&A", nav_lang:"Language",
+  hero_kicker:"Shariah-aligned · 4 Madhhab notes",
+  hero_title_1:"Calculate your", hero_title_2:"Zakat", hero_title_3:"with total confidence",
+  hero_sub:"A comprehensive smart calculator covering cash, gold & silver, investments, business inventory, agriculture (ushr), livestock, rikaz and deductible debts — in any currency, with live nisab thresholds.",
+  cta_start:"Start calculating", cta_fitr:"Zakat al-Fitr tool",
+  stat_rate_k:"Zakat rate", stat_ng:"Gold nisab", stat_ns:"Silver nisab", stat_hawl:"Hawl", stat_hawl_v:"1 lunar year",
+  live_prices:"Live metal prices", per_gram:"per gram", refresh:"Refresh", refreshing:"Updating…",
+  au_manual:"Gold price (manual)", ag_manual:"Silver price (manual)",
+  price_note:"Prices are fetched live when available and shown in your selected currency. Always verify with your local market before paying.",
+  hijri:"Hijri date",
+  assets_title:"Your assets", assets_sub:"Enter amounts in your selected currency · fields marked grams stay in grams",
+  currency:"Currency", currency_hint:"Amounts are converted automatically when you switch currency.",
+  choose_lang:"Choose your language", lang_hint:"Type to search over 60 languages · layout switches automatically (RTL/LTR)", search_lang:"Search language…",
+  summary:"Zakat summary", total_assets:"Total zakatable assets", total_liab:"Deductible liabilities", net_wealth:"Net zakatable wealth",
+  nisab_lbl:"Nisab threshold", zakat_due:"Zakat due (2.5%)", nisab_std:"Nisab standard", std_gold:"Gold", std_silver:"Silver",
+  composition:"Asset composition", insights:"Smart insights",
+  status_above:"Above nisab — zakat is due", status_below:"Below nisab — no zakat due",
+  status_above_d:"Your wealth has completed the conditions: amount and hawl.", status_below_d:"Keep accumulating; recalculate when you reach the nisab.",
+  ins_no_data:"Enter your assets to see personalised guidance.",
+  ins_above:"Your net wealth exceeds the nisab by {x}. Pay 2.5% ({z}) — you may pay in instalments if needed.",
+  ins_gold_ok:"Your gold and silver alone ({v}) already exceed the nisab.",
+  ins_silver_std:"Using the silver nisab is more cautious and benefits the poor more.",
+  ins_debt:"You have {v} in debts — scholars allow deducting debts due within one year.",
+  ins_crypto:"Cryptocurrency is treated as currency (2.5%) by most contemporary fatwa councils.",
+  ins_agri:"Agricultural produce (ushr) is due at harvest time: 10% rain-fed, 5% irrigated.",
+  ins_live:"Livestock zakat is due when animals graze freely for a year; trade livestock follows the 2.5% rule.",
+  ins_rikaz:"Buried treasure (rikaz) carries 20%, due immediately with no hawl.",
+  ins_fitr:"Don't forget Zakat al-Fitr for each member of your household.",
+  ins_zeroliab:"No liabilities entered — if you owe debts you may deduct them.",
+  ins_business:"Business inventory is valued at current selling price, not purchase cost.",
+  save:"Save", saved:"Your data was saved on this device.", reset:"Reset all", reset_confirm:"Clear every field and start over?",
+  print:"Print / PDF", csv:"Export CSV",
+  tools_title:"Extra Zakat tools", tools_sub:"Zakat al-Fitr, the eight categories of recipients, and your hawl tracker",
+  fitr_title:"Zakat al-Fitr", fitr_sub:"≈ 2.5 kg (or 5 lbs) of staple food per household member, paid before the Eid prayer.",
+  persons:"Persons in household", food_price:"Staple food price / kg", fitr_total:"Total due", per_person:"Per person",
+  fitr_note:"Based on 2.5 kg of the dominant staple (rice, wheat, dates, barley). Many scholars allow the cash equivalent.",
+  asnaf_title:"Eight categories (Asnaf)", asnaf_sub:"Qur'an 9:60 — distribute your zakat among these categories.",
+  asnaf_1:"The poor (al-fuqarā')", asnaf_2:"The needy (al-masākīn)", asnaf_3:"Zakat administrators",
+  asnaf_4:"Those whose hearts are to be reconciled", asnaf_5:"Freeing captives and slaves", asnaf_6:"Those in debt (ghārimīn)",
+  asnaf_7:"In the cause of Allah", asnaf_8:"The wayfarer (stranded traveller)",
+  hawl_title:"Hawl tracker", hawl_note:"Zakat becomes obligatory when wealth ≥ nisab is held for a full lunar year (354 days).",
+  hawl_start:"Date wealth reached nisab", hawl_progress:"Hawl progress", hawl_remaining:"Days remaining", hawl_due_date:"Due date (approx.)",
+  hawl_done:"Hawl complete — your zakat is due now. 🌙",
+  faq_title:"Zakat questions & answers", faq_sub:"Concise fiqh guidance drawn from the four Sunni schools.",
+  disc_title:"Scholarly disclaimer",
+  disc_body:"This tool offers estimates based on widely held fiqh positions and may not reflect every scholar's opinion, your local market prices, or tax rules. For significant wealth, unusual asset types, or endowment and inheritance matters, please consult a qualified scholar or your local fatwa council. May Allah accept your zakat and purify your wealth.",
+  footer_note:"Smart Zakat calculator · built for the Ummah",
+  optional:"optional", approx:"approx.", grams:"g", kg:"kg", days:"days", computed:"current value", est:"estimated",
+  g_cash:"Money & cash", g_cash_d:"Cash on hand, bank balances, deposits, wallets and money others owe you.",
+  g_metals:"Gold & silver", g_metals_d:"Jewellery, bullion and coins. Enter weights in grams; values use live prices.",
+  g_invest:"Investments", g_invest_d:"Shares, funds, crypto, sukuk and retirement savings.",
+  g_biz:"Business", g_biz_d:"Trading stock, business cash and receivables, minus business liabilities.",
+  g_agri:"Agriculture (ushr)", g_agri_d:"Crops and grain — 10% rain-fed, 5% irrigated, nisab ≈ 653 kg.",
+  g_live:"Livestock", g_live_d:"Camels, cattle, buffalo, sheep and goats with classical nisab tables.",
+  g_rikaz:"Treasure (rikaz)", g_rikaz_d:"Buried or hidden treasure found without effort — 20% due immediately.",
+  g_debt:"Debts to deduct", g_debt_d:"Liabilities due within one year are deducted from your zakatable base.",
+  f_cashHand:"Cash on hand", f_bank:"Bank accounts", f_deposit:"Fixed deposits & term savings", f_ewallet:"Digital wallets & prepaid cards",
+  f_receivable:"Money lent to others", f_otherCash:"Other cash & foreign currency",
+  n_receivable:"Include only what you realistically expect to get back.",
+  f_goldJew:"Gold jewellery", f_goldBull:"Gold bars & bullion", f_goldCoin:"Gold coins (dinars)",
+  f_silverJew:"Silver jewellery", f_silverBull:"Silver bars, utensils & coins",
+  purity:"Purity", n_purity:"Jewellery purity reduces market value; 24k = 99.9%, 22k = 91.6%, 21k = 87.5%, 18k = 75%.",
+  f_stocks:"Shares & equities", f_funds:"Mutual funds & ETFs", f_crypto:"Cryptocurrency & digital assets", f_sukuk:"Bonds & sukuk",
+  f_retirement:"Pension & retirement account", f_otherInvest:"Other investments",
+  n_stocks:"Use current market value; long-term holdings for trade are fully zakatable.",
+  n_crypto:"Valued at market price in your currency.",
+  n_retirement:"Contemporary councils: include accessible accounts (2.5%). Hanafi: zakat on the accessible portion.",
+  f_bizCash:"Business cash & bank", f_inventory:"Inventory / trading stock", f_bizRec:"Trade receivables (collectible)", f_bizOther:"Other business assets",
+  f_bizDebts:"Business liabilities (due within a year)", n_bizDebts:"Netted against business assets.",
+  n_bizRec:"Exclude amounts you consider bad debt.",
+  f_cropQty:"Harvest quantity", f_cropPrice:"Market price per kg", f_irrigation:"Irrigation method",
+  opt_rain:"Rain-fed (10%)", opt_irrigated:"Irrigated (5%)", opt_mixed:"Mixed (7.5%)",
+  n_agri:"Nisab for crops is about 653 kg (5 wasaq). Below that, no ushr is due.",
+  f_camels:"Camels", f_cattle:"Cattle & oxen", f_buffalo:"Buffalo", f_sheep:"Sheep", f_goats:"Goats",
+  f_rikaz:"Value of treasure found", n_rikaz:"20% immediately — no hawl and no nisab condition.",
+  f_debtsDue:"Personal debts due within a year", f_ccDue:"Credit cards & instalments", f_billsDue:"Bills & rent due", f_taxesDue:"Taxes due", f_otherDebts:"Other liabilities",
+  n_debtsDue:"Long-term mortgage: many scholars deduct the coming year's instalments only.",
+  sub_total:"Group subtotal",
+  liab_note:"Only liabilities due within one lunar year are deductible.",
+  no_data:"—",
+  extra_due:"Other obligations",
+  due_agri:"Ushr on crops (rate {r})", due_live:"Livestock zakat (in animals)", due_rikaz:"Rikaz 20%",
+  live_none:"No livestock zakat due.", live_total:"Livestock total (animals)",
+  live_quote:"{n} {animal} — pay from the same herd, or its market value ({v}).",
+  an_sheep:"sheep/goat(s)", an_camel1:"1-year-old she-camel (bint makhād)", an_camel2:"2-year-old she-camel (bint labūn)",
+  an_camel3:"3-year-old she-camel (hiqqa)", an_camel4:"4-year-old she-camel (jadha'a)", an_cow1:"1-year-old bull/ox (tabī')", an_cow2:"2-year-old cow (baqara)",
+  live_nisab_note:"Livestock nisab: 5 camels · 30 cattle · 40 sheep/goats.",
+  cash_saved:"Saved", copied:"Copied to clipboard", price_fail:"Live prices unavailable — enter prices manually.",
+  price_live:"Live · {src}", price_manual:"Manual entry", price_est:"Indicative estimate",
+  rates_fail:"Offline rates used — you can still pick any currency.",
+  lang_count_full:"{n} languages available",
+  q1:"What is the nisab and which standard should I use?",
+  a1:"The nisab is the minimum wealth threshold. It equals 87.48 g of pure gold or 612.36 g of pure silver (the value, not the weight, is compared with your wealth). The silver nisab gives a lower threshold, so more people become eligible to pay — that is the more cautious opinion and it benefits the poor more. Gold is commonly used for cash-and-gold portfolios.",
+  q2:"Which assets are zakatable?",
+  a2:"All growing, productive wealth: cash, bank balances, receivables you expect to collect, gold and silver (including jewellery in the Hanafi school), trading stock and business inventory, shares held for investment or trade, cryptocurrency, sukuk, and accessible retirement funds. Personal items of normal use — your home, car, clothing, tools — are not zakatable.",
+  q3:"How are debts treated?",
+  a3:"Debts due within one lunar year are deducted from your zakatable base. For long-term mortgages, many scholars deduct only the instalments payable during the coming year. Business liabilities are netted against business assets. Money others owe you is added if you expect to recover it.",
+  q4:"Why 2.5% and when is it due?",
+  a4:"Money, trade goods, gold and silver carry 2.5% once the wealth has met or exceeded the nisab for a full lunar year (the hawl). Agricultural produce (ushr) is different: 10% for rain-fed land, 5% for irrigated land, due at harvest with no hawl. Buried treasure (rikaz) is 20% immediately.",
+  q5:"How is livestock zakat calculated?",
+  a5:"Nisab is 5 camels, 30 cattle (or buffalo), or 40 sheep/goats, provided the animals grazed on pasture most of the year. The due amount is paid in animals from the same herd following the classical tables implemented by this tool (for example 40 sheep = 1 sheep; 30 cattle = one 1-year-old ox; 5 camels = 1 sheep). Livestock kept for trade follows the 2.5% rule instead.",
+  q6:"Can I give my zakat to family?",
+  a6:"You may give to any of the eight Qur'anic categories, except your parents, grandparents, children and spouse, whose support is already your obligation. Brothers, sisters, uncles, aunts, cousins and in-laws may receive zakat if they are eligible — and giving them carries a double reward. Zakat should normally stay within your region unless there is greater need elsewhere."
+};
+window.I18N_PACKS = window.I18N_PACKS || {};
+
+/* ---------------- Language catalogue ---------------- */
+const LANGS = [
+  ["ar","العربية","Arabic","rtl","🇸🇦"],["en","English","English","ltr","🇬🇧"],
+  ["fr","Français","French","ltr","🇫🇷"],["es","Español","Spanish","ltr","🇪🇸"],
+  ["de","Deutsch","German","ltr","🇩🇪"],["pt","Português","Portuguese","ltr","🇵🇹"],
+  ["it","Italiano","Italian","ltr","🇮🇹"],["nl","Nederlands","Dutch","ltr","🇳🇱"],
+  ["ru","Русский","Russian","ltr","🇷🇺"],["tr","Türkçe","Turkish","ltr","🇹🇷"],
+  ["ur","اردو","Urdu","rtl","🇵🇰"],["fa","فارسی","Persian","rtl","🇮🇷"],
+  ["ar-eg","مصرى","Arabic (Egypt)","rtl","🇪🇬"],["ar-ma","المغربية","Arabic (Maghreb)","rtl","🇲🇦"],
+  ["ku","کوردی","Kurdish","rtl","🇮🇶"],["ps","پښتو","Pashto","rtl","🇦🇫"],
+  ["sd","سنڌي","Sindhi","rtl","🇵🇰"],["he","עברית","Hebrew","rtl","🇮🇱"],
+  ["id","Bahasa Indonesia","Indonesian","ltr","🇮🇩"],["ms","Bahasa Melayu","Malay","ltr","🇲🇾"],
+  ["bn","বাংলা","Bengali","ltr","🇧🇩"],["hi","हिन्दी","Hindi","ltr","🇮🇳"],
+  ["ta","தமிழ்","Tamil","ltr","🇮🇳"],["te","తెలుగు","Telugu","ltr","🇮🇳"],
+  ["ml","മലയാളം","Malayalam","ltr","🇮🇳"],["kn","ಕನ್ನಡ","Kannada","ltr","🇮🇳"],
+  ["mr","मराठी","Marathi","ltr","🇮🇳"],["gu","ગુજરાતી","Gujarati","ltr","🇮🇳"],
+  ["pa","ਪੰਜਾਬੀ","Punjabi","ltr","🇮🇳"],["si","සිංහල","Sinhala","ltr","🇱🇰"],
+  ["ne","नेपाली","Nepali","ltr","🇳🇵"],["zh","中文","Chinese","ltr","🇨🇳"],
+  ["ja","日本語","Japanese","ltr","🇯🇵"],["ko","한국어","Korean","ltr","🇰🇷"],
+  ["vi","Tiếng Việt","Vietnamese","ltr","🇻🇳"],["th","ไทย","Thai","ltr","🇹🇭"],
+  ["fil","Filipino","Filipino","ltr","🇵🇭"],["km","ខ្មែរ","Khmer","ltr","🇰🇭"],
+  ["my","မြန်မာ","Burmese","ltr","🇲🇲"],["lo","ລາວ","Lao","ltr","🇱🇦"],
+  ["sw","Kiswahili","Swahili","ltr","🇰🇪"],["ha","Hausa","Hausa","ltr","🇳🇬"],
+  ["yo","Yorùbá","Yoruba","ltr","🇳🇬"],["ig","Igbo","Igbo","ltr","🇳🇬"],
+  ["am","አማርኛ","Amharic","ltr","🇪🇹"],["so","Soomaali","Somali","ltr","🇸🇴"],
+  ["wo","Wolof","Wolof","ltr","🇸🇳"],["ff","Fulfulde","Fula","ltr","🇬🇳"],
+  ["bm","Bamanankan","Bambara","ltr","🇲🇱"],["ber","ⵜⴰⵎⴰⵣⵉⵖⵜ","Tamazight","ltr","🇩🇿"],
+  ["pl","Polski","Polish","ltr","🇵🇱"],["uk","Українська","Ukrainian","ltr","🇺🇦"],
+  ["cs","Čeština","Czech","ltr","🇨🇿"],["sk","Slovenčina","Slovak","ltr","🇸🇰"],
+  ["hu","Magyar","Hungarian","ltr","🇭🇺"],["ro","Română","Romanian","ltr","🇷🇴"],
+  ["bg","Български","Bulgarian","ltr","🇧🇬"],["el","Ελληνικά","Greek","ltr","🇬🇷"],
+  ["sv","Svenska","Swedish","ltr","🇸🇪"],["no","Norsk","Norwegian","ltr","🇳🇴"],
+  ["da","Dansk","Danish","ltr","🇩🇰"],["fi","Suomi","Finnish","ltr","🇫🇮"],
+  ["et","Eesti","Estonian","ltr","🇪🇪"],["lv","Latviešu","Latvian","ltr","🇱🇻"],
+  ["lt","Lietuvių","Lithuanian","ltr","🇱🇹"],["sr","Српски","Serbian","ltr","🇷🇸"],
+  ["hr","Hrvatski","Croatian","ltr","🇭🇷"],["bs","Bosanski","Bosnian","ltr","🇧🇦"],
+  ["sl","Slovenščina","Slovenian","ltr","🇸🇮"],["mk","Македонски","Macedonian","ltr","🇲🇰"],
+  ["sq","Shqip","Albanian","ltr","🇦🇱"],["az","Azərbaycan","Azerbaijani","ltr","🇦🇿"],
+  ["kk","Қазақша","Kazakh","ltr","🇰🇿"],["ky","Кыргызча","Kyrgyz","ltr","🇰🇬"],
+  ["uz","Oʻzbek","Uzbek","ltr","🇺🇿"],["tk","Türkmençe","Turkmen","ltr","🇹🇲"],
+  ["tg","Тоҷикӣ","Tajik","ltr","🇹🇯"],["mn","Монгол","Mongolian","ltr","🇲🇳"],
+  ["hy","Հայերեն","Armenian","ltr","🇦🇲"],["ka","ქართული","Georgian","ltr","🇬🇪"],
+  ["ca","Català","Catalan","ltr","🏴"],["eu","Euskara","Basque","ltr","🇪🇸"],
+  ["gl","Galego","Galician","ltr","🇪🇸"],["cy","Cymraeg","Welsh","ltr","🏴"],
+  ["ga","Gaeilge","Irish","ltr","🇮🇪"],["is","Íslenska","Icelandic","ltr","🇮🇸"],
+  ["mt","Malti","Maltese","ltr","🇲🇹"],["lb","Lëtzebuergesch","Luxembourgish","ltr","🇱🇺"],
+  ["af","Afrikaans","Afrikaans","ltr","🇿🇦"],["zu","isiZulu","Zulu","ltr","🇿🇦"],
+  ["xh","isiXhosa","Xhosa","ltr","🇿🇦"],["st","Sesotho","Sesotho","ltr","🇱🇸"],
+  ["sn","ChiShona","Shona","ltr","🇿🇼"],["ny","Chichewa","Chichewa","ltr","🇲🇼"],
+  ["mg","Malagasy","Malagasy","ltr","🇲🇬"],["ti","ትግርኛ","Tigrinya","ltr","🇪🇷"],
+  ["om","Afaan Oromoo","Oromo","ltr","🇪🇹"],["rw","Kinyarwanda","Kinyarwanda","ltr","🇷🇼"],
+  ["ln","Lingala","Lingala","ltr","🇨🇩"],["su","Basa Sunda","Sundanese","ltr","🇮🇩"],
+  ["jv","Basa Jawa","Javanese","ltr","🇮🇩"],["ceb","Cebuano","Cebuano","ltr","🇵🇭"],
+  ["ilo","Ilocano","Ilocano","ltr","🇵🇭"],["ms-bn","Bahasa Melayu Brunei","Malay (Brunei)","ltr","🇧🇳"]
+];
+const RTL = new Set(["ar","ar-eg","ar-ma","ur","fa","ps","sd","he","ku","ug","ur-in","sd-pk","bal","dv"]);
+
+/* ---------------- Currencies ---------------- */
+const CUR = {
+  USD:["US Dollar","$"],EUR:["Euro","€"],GBP:["British Pound","£"],SAR:["Saudi Riyal","﷼"],AED:["UAE Dirham","د.إ"],
+  QAR:["Qatari Riyal","ر.ق"],KWD:["Kuwaiti Dinar","د.ك"],BHD:["Bahraini Dinar",".د.ب"],OMR:["Omani Rial","ر.ع."],
+  JOD:["Jordanian Dinar","د.ا"],EGP:["Egyptian Pound","ج.م"],LYD:["Libyan Dinar","ل.د"],TND:["Tunisian Dinar","د.ت"],
+  DZD:["Algerian Dinar","د.ج"],MAD:["Moroccan Dirham","د.م"],MRU:["Mauritanian Ouguiya","UM"],SDG:["Sudanese Pound","ج.س"],
+  SYP:["Syrian Pound","£S"],YER:["Yemeni Rial","﷼"],IQD:["Iraqi Dinar","ع.د"],TRY:["Turkish Lira","₺"],
+  PKR:["Pakistani Rupee","₨"],INR:["Indian Rupee","₹"],BDT:["Bangladeshi Taka","৳"],NPR:["Nepalese Rupee","रू"],
+  LKR:["Sri Lankan Rupee","Rs"],AFN:["Afghan Afghani","؋"],IRR:["Iranian Rial","﷼"],IDR:["Indonesian Rupiah","Rp"],
+  MYR:["Malaysian Ringgit","RM"],SGD:["Singapore Dollar","S$"],BND:["Brunei Dollar","B$"],THB:["Thai Baht","฿"],
+  PHP:["Philippine Peso","₱"],VND:["Vietnamese Dong","₫"],CNY:["Chinese Yuan","¥"],JPY:["Japanese Yen","¥"],
+  KRW:["South Korean Won","₩"],NGN:["Nigerian Naira","₦"],GHS:["Ghanaian Cedi","₵"],KES:["Kenyan Shilling","KSh"],
+  TZS:["Tanzanian Shilling","TSh"],UGX:["Ugandan Shilling","USh"],RWF:["Rwandan Franc","FRw"],BIF:["Burundian Franc","FBu"],
+  ETB:["Ethiopian Birr","Br"],SOS:["Somali Shilling","Sh"],DJF:["Djiboutian Franc","Fdj"],KMF:["Comorian Franc","CF"],
+  ZAR:["South African Rand","R"],ZMW:["Zambian Kwacha","ZK"],MWK:["Malawian Kwacha","MK"],MZN:["Mozambican Metical","MT"],
+  BWP:["Botswana Pula","P"],NAD:["Namibian Dollar","N$"],XOF:["West African CFA","CFA"],XAF:["Central African CFA","FCFA"],
+  GMD:["Gambian Dalasi","D"],GNF:["Guinean Franc","FG"],SLE:["Sierra Leonean Leone","Le"],LRD:["Liberian Dollar","L$"],
+  CDF:["Congolese Franc","FC"],AOA:["Angolan Kwanza","Kz"],CAD:["Canadian Dollar","C$"],AUD:["Australian Dollar","A$"],
+  NZD:["New Zealand Dollar","NZ$"],CHF:["Swiss Franc","Fr"],SEK:["Swedish Krona","kr"],NOK:["Norwegian Krone","kr"],
+  DKK:["Danish Krone","kr"],ISK:["Icelandic Króna","kr"],PLN:["Polish Złoty","zł"],CZK:["Czech Koruna","Kč"],
+  HUF:["Hungarian Forint","Ft"],RON:["Romanian Leu","lei"],BGN:["Bulgarian Lev","лв"],UAH:["Ukrainian Hryvnia","₴"],
+  RUB:["Russian Ruble","₽"],UZS:["Uzbek Som","so'm"],KZT:["Kazakhstani Tenge","₸"],KGS:["Kyrgyzstani Som","с"],
+  TJS:["Tajikistani Somoni","SM"],TMT:["Turkmen Manat","m"],AZN:["Azerbaijani Manat","₼"],GEL:["Georgian Lari","₾"],
+  AMD:["Armenian Dram","֏"],MDL:["Moldovan Leu","L"],BRL:["Brazilian Real","R$"],MXN:["Mexican Peso","$"],
+  ARS:["Argentine Peso","$"],CLP:["Chilean Peso","$"],COP:["Colombian Peso","$"],PEN:["Peruvian Sol","S/"],
+  HKD:["Hong Kong Dollar","HK$"],TWD:["New Taiwan Dollar","NT$"],MMK:["Myanmar Kyat","K"],KHR:["Cambodian Riel","៛"],
+  LAK:["Lao Kip","₭"],MVR:["Maldivian Rufiyaa","Rf"],BTN:["Bhutanese Ngultrum","Nu"],MNT:["Mongolian Tögrög","₮"]
+};
+const FALLBACK_FX = {USD:1,EUR:.92,GBP:.79,SAR:3.75,AED:3.67,QAR:3.64,KWD:.31,BHD:.38,OMR:.38,JOD:.71,EGP:48.5,LYD:4.85,TND:3.1,DZD:134,MAD:9.9,MRU:39.8,SDG:601,SYP:13000,YER:250,IQD:1310,TRY:34.5,PKR:278,INR:84,BDT:119,NPR:135,LKR:292,AFN:68,IRR:42000,IDR:15800,MYR:4.45,SGD:1.34,BND:1.34,THB:34,PHP:58,VND:25400,CNY:7.15,JPY:152,KRW:1370,NGN:1650,GHS:15.5,KES:129,TZS:2680,UGX:3680,RWF:1350,BIF:2950,ETB:122,SOS:571,DJF:178,KMF:452,ZAR:17.6,ZMW:26,MWK:1735,MZN:63.9,BWP:13.5,NAD:17.6,XOF:604,XAF:604,GMD:71,GNF:8600,SLE:22.7,LRD:192,CDF:2850,AOA:920,CAD:1.37,AUD:1.51,NZD:1.66,CHF:.87,SEK:10.4,NOK:10.8,DKK:6.85,ISK:138,PLN:3.95,CZK:23.1,HUF:363,RON:4.58,BGN:1.8,UAH:41,RUB:96,UZS:12700,KZT:480,KGS:86,TJS:10.6,TMT:3.5,AZN:1.7,GEL:2.7,AMD:388,MDL:17.7,BRL:5.8,MXN:19.8,ARS:1000,CLP:950,COP:4300,PEN:3.8,HKD:7.8,TWD:32,MMK:2100,KHR:4080,LAK:21800,MVR:15.4,BTN:84,MNT:3420};
+const FX = Object.assign({}, FALLBACK_FX);
+
+/* ---------------- Asset model ---------------- */
+const F=(id,type,label,extra={})=>Object.assign({id,type,label},extra);
+const GROUPS=[
+ {id:"cash",icon:"💵",title:"g_cash",desc:"g_cash_d",fields:[
+   F("cashHand","money","f_cashHand"),F("bank","money","f_bank"),F("deposit","money","f_deposit"),
+   F("ewallet","money","f_ewallet"),F("receivable","money","f_receivable",{note:"n_receivable"}),F("otherCash","money","f_otherCash")]},
+ {id:"metals",icon:"🪙",title:"g_metals",desc:"g_metals_d",metal:true,fields:[
+   F("goldJew","grams","f_goldJew",{metal:"AU",purity:.9167}),F("goldBull","grams","f_goldBull",{metal:"AU",purity:1}),
+   F("goldCoin","grams","f_goldCoin",{metal:"AU",purity:.9167}),F("silverJew","grams","f_silverJew",{metal:"AG",purity:.925}),
+   F("silverBull","grams","f_silverBull",{metal:"AG",purity:1})]},
+ {id:"invest",icon:"📈",title:"g_invest",desc:"g_invest_d",fields:[
+   F("stocks","money","f_stocks",{note:"n_stocks"}),F("funds","money","f_funds"),F("crypto","money","f_crypto",{note:"n_crypto"}),
+   F("sukuk","money","f_sukuk"),F("retirement","money","f_retirement",{note:"n_retirement",toggle:"retirement"}),F("otherInvest","money","f_otherInvest")]},
+ {id:"biz",icon:"🏪",title:"g_biz",desc:"g_biz_d",fields:[
+   F("bizCash","money","f_bizCash"),F("inventory","money","f_inventory"),F("bizRec","money","f_bizRec",{note:"n_bizRec"}),
+   F("bizOther","money","f_bizOther"),F("bizDebts","money","f_bizDebts",{note:"n_bizDebts",minus:true})]},
+ {id:"agri",icon:"🌾",title:"g_agri",desc:"g_agri_d",agri:true,fields:[
+   F("cropQty","number","f_cropQty",{suffix:"kg"}),F("cropPrice","money","f_cropPrice"),
+   F("irrigation","select","f_irrigation",{options:[["opt_rain",.10],["opt_irrigated",.05],["opt_mixed",.075]]})]},
+ {id:"live",icon:"🐐",title:"g_live",desc:"g_live_d",live:true,fields:[
+   F("camels","number","f_camels"),F("cattle","number","f_cattle"),F("buffalo","number","f_buffalo"),
+   F("sheep","number","f_sheep"),F("goats","number","f_goats")]},
+ {id:"rikaz",icon:"🏺",title:"g_rikaz",desc:"g_rikaz_d",rikaz:true,fields:[F("rikaz","money","f_rikaz",{note:"n_rikaz"})]},
+ {id:"debt",icon:"🧾",title:"g_debt",desc:"g_debt_d",deduction:true,fields:[
+   F("debtsDue","money","f_debtsDue",{note:"n_debtsDue"}),F("ccDue","money","f_ccDue"),F("billsDue","money","f_billsDue"),
+   F("taxesDue","money","f_taxesDue"),F("otherDebts","money","f_otherDebts")]}
+];
+const MONEY_IDS=["cashHand","bank","deposit","ewallet","receivable","otherCash","stocks","funds","crypto","sukuk","retirement","otherInvest","bizCash","inventory","bizRec","bizOther","bizDebts","cropPrice","rikaz","debtsDue","ccDue","billsDue","taxesDue","otherDebts"];
+const GRAM_IDS=["goldJew","goldBull","goldCoin","silverJew","silverBull"];
+const NUM_IDS=["cropQty","camels","cattle","buffalo","sheep","goats"];
+const ASNAF=[["asnaf_1",20],["asnaf_2",20],["asnaf_3",10],["asnaf_4",7.5],["asnaf_5",7.5],["asnaf_6",10],["asnaf_7",15],["asnaf_8",10]];
+
+/* ---------------- State ---------------- */
+const DEF_STATE={
+  lang:"en",theme:"dark",currency:"USD",std:"silver",v:{},purity:{},fitrPersons:"4",fitrPrice:"",hawlDate:"",
+  au:null,ag:null,src:"—",retirement:false
+};
+let S=JSON.parse(JSON.stringify(DEF_STATE));
+GROUPS.forEach(g=>g.fields.forEach(f=>{S.v[f.id]="";if(f.purity)S.purity[f.id]=f.purity;}));
+const LS="nisab.v1";
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(LS)||"{}");Object.assign(S,d);
+    GROUPS.forEach(g=>g.fields.forEach(f=>{if(!(f.id in S.v))S.v[f.id]="";if(f.purity&&!(f.id in S.purity))S.purity[f.id]=f.purity;}));
+  }catch(e){}
+}
+function save(silent){try{localStorage.setItem(LS,JSON.stringify(S));if(!silent)toast(t("saved"))}catch(e){}}
+const saveSoft=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
+
+/* ---------------- i18n runtime ---------------- */
+const I18N=Object.assign({en:EN},window.I18N_PACKS||{});
+function t(k){const p=I18N[S.lang]||{};return (p[k]!==undefined&&p[k]!==null&&p[k]!=="")?p[k]:(EN[k]||k)}
+function locale(){const m={"zh":"zh-CN","pt":"pt-PT","ber":"fr","fil":"fil-PH","ar-eg":"ar-EG","ar-ma":"ar-MA","ms-bn":"ms-BN","ku":"ckb"};return m[S.lang]||S.lang}
+function dir(){return RTL.has(S.lang)?"rtl":"ltr"}
+function num(v,dp=2){try{return new Intl.NumberFormat(locale(),{maximumFractionDigits:dp,minimumFractionDigits:0}).format(v||0)}catch(e){return String(Math.round(v*100)/100)}}
+function money(v,dp){v=v||0;
+  try{return new Intl.NumberFormat(locale(),{style:"currency",currency:S.currency,minimumFractionDigits:dp??0,maximumFractionDigits:dp??0}).format(v)}
+  catch(e){return (CUR[S.currency]||["",""])[1]+" "+num(v)}}
+function curName(c){return (CUR[c]||[c,""])[0]}
+function rate(c){return FX[c||S.currency]||1}
+
+/* ---------------- helpers ---------------- */
+const LAST={grand:0,due:0};
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+function parseNum(s){if(s===null||s===undefined)return 0;if(typeof s==="number")return s;
+  s=String(s).replace(/[^\d.,-]/g,"").replace(/,/g,".");const parts=s.split(".");
+  if(parts.length>2)s=parts.slice(0,-1).join("")+"."+parts[parts.length-1];
+  const n=parseFloat(s);return isFinite(n)?n:0}
+function toast(msg){const d=document.createElement("div");d.textContent=msg;$("#toast").appendChild(d);
+  setTimeout(()=>{d.style.transition=".4s";d.style.opacity="0";d.style.transform="translateY(14px)";setTimeout(()=>d.remove(),400)},2600)}
+function counters(el,val,txt){ // animated numeric swap
+  el.textContent=txt;
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function renderTabs(){
+  const bar=$("#tabbar");bar.innerHTML="";
+  GROUPS.forEach((g,i)=>{
+    const b=document.createElement("button");
+    b.className="tab"+(i===0?" active":"");b.dataset.g=g.id;
+    b.innerHTML=`<span class="text-base">${g.icon}</span><span>${t(g.title)}</span>`;
+    b.onclick=()=>{ $$(".tab",bar).forEach(x=>x.classList.remove("active"));b.classList.add("active");
+      $$(".panel").forEach(p=>p.classList.toggle("hidden",p.dataset.g!==g.id));
+      calc(); };
+    bar.appendChild(b);
+  });
+}
+function renderPanels(){
+  const wrap=$("#panels");wrap.innerHTML="";
+  GROUPS.forEach((g,i)=>{
+    const p=document.createElement("div");
+    p.className="panel"+(i===0?"":" hidden");p.dataset.g=g.id;
+    let h=`<div class="flex items-start gap-3 mb-4">
+      <div class="w-10 h-10 rounded-xl grid place-items-center text-lg shrink-0" style="background:var(--goldDim);border:1px solid var(--border)">${g.icon}</div>
+      <div><div class="font-extrabold">${t(g.title)}</div><p class="note">${t(g.desc)}</p></div>
+      <div class="ms-auto text-end shrink-0"><div class="text-[.65rem] uppercase font-bold" style="color:var(--txt3)">${t(g.deduction?"total_liab":"sub_total")}</div>
+      <div class="font-extrabold num" id="sub_${g.id}" style="color:var(--gold2)">—</div></div></div>
+      <div class="grid sm:grid-cols-2 gap-x-4 gap-y-3">`;
+    g.fields.forEach(f=>{
+      const id="in_"+f.id;
+      h+=`<div class="${f.type==="select"?"sm:col-span-2":""}">
+        <label class="lbl" for="${id}"><span>${t(f.label)}${f.minus?` <span style="color:var(--red)">−</span>`:""}</span>${f.note?`<span class="note" style="margin:0">${t("optional")}</span>`:""}</label>`;
+      if(f.type==="select"){
+        h+=`<select id="${id}" class="input" data-f="${f.id}" data-type="select">`+
+          f.options.map(o=>`<option value="${o[1]}">${t(o[0])} (${(o[1]*100).toFixed(1)}%)</option>`).join("")+`</select>`;
+      }else{
+        const suf=f.type==="grams"?"g":(f.suffix??"");
+        h+=`<div class="field-row">
+          ${f.type==="grams"?`<select class="input" style="width:104px;padding:.72rem .5rem;font-size:.78rem" data-purity="${f.id}">`+
+            [[1,"24k"],[.9583,"23k"],[.9167,"22k"],[.875,"21k"],[.75,"18k"],[.585,"14k"]].map(p=>`<option value="${p[0]}" ${Math.abs(p[0]-S.purity[f.id])<.001?"selected":""}>${p[1]}</option>`).join("")+`</select>`:""}
+          <input id="${id}" class="input" inputmode="decimal" data-f="${f.id}" data-type="${f.type}" value="${S.v[f.id]||""}" placeholder="0">
+          <span class="suffix">${suf||curSymbol()}</span></div>`;
+      }
+      if(f.note)h+=`<p class="note">${t(f.note)}</p>`;
+      if(f.type==="grams")h+=`<p class="note"><span style="color:var(--txt3)">${t("computed")}: </span><b class="num" id="val_${f.id}" style="color:var(--em2)">—</b></p>`;
+      h+=`</div>`;
+    });
+    h+=`</div>`;
+    if(g.metal){
+      h+=`<div class="mt-4 rounded-2xl p-4" style="background:var(--panel2);border:1px solid var(--border)">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-1">
+          <span class="text-[.8rem] font-bold">⚖️ ${t("nisab_lbl")}</span>
+          <span class="chip num" id="metalNisab">—</span></div>
+        <p class="note">${t("n_purity")}</p></div>`;
+    }
+    if(g.agri)h+=`<p class="note mt-3">${t("n_agri")}</p>`;
+    if(g.live)h+=`<div id="liveOut" class="mt-4 space-y-2"></div>`;
+    p.innerHTML=h;wrap.appendChild(p);
+  });
+  // events
+  $$("#panels [data-f]").forEach(el=>{
+    const f=el.dataset.f;
+    if(el.dataset.type==="select"){el.value=S.v[f]||el.options[0].value;el.onchange=()=>{S.v[f]=el.value;saveSoft();calc()};}
+    else el.oninput=()=>{S.v[f]=el.value;saveSoft();calc()};
+  });
+  $$("#panels [data-purity]").forEach(el=>{
+    el.onchange=()=>{S.purity[el.dataset.purity]=parseFloat(el.value);saveSoft();calc()};
+  });
+}
+function curSymbol(){return (CUR[S.currency]||["",""])[1]}
+function renderCurrencies(){
+  const html=Object.keys(CUR).map(c=>`<option value="${c}">${c} — ${curName(c)}</option>`).join("");
+  ["#curTop","#curMain"].forEach(s=>{const el=$(s);if(!el)return;el.innerHTML=html;el.value=S.currency;
+    el.onchange=()=>switchCurrency(el.value)});
+}
+function renderLangGrid(filter=""){
+  const q=filter.trim().toLowerCase();
+  const grid=$("#langGrid");grid.innerHTML="";
+  const list=LANGS.filter(l=>!q||l[1].toLowerCase().includes(q)||l[2].toLowerCase().includes(q)||l[0].toLowerCase().includes(q));
+  list.forEach(l=>{
+    const full=!!(I18N[l[0]]&&Object.keys(I18N[l[0]]).length>40);
+    const d=document.createElement("div");
+    d.className="lang-item"+(l[0]===S.lang?" active":"");
+    d.innerHTML=`<span class="text-lg">${l[4]}</span><div class="flex-1 min-w-0"><b class="block truncate">${l[1]}</b><span>${l[2]}${full?"":" · EN fallback"}</span></div>${l[3]==="rtl"?'<span class="chip">RTL</span>':""}`;
+    d.onclick=()=>setLang(l[0]);
+    grid.appendChild(d);
+  });
+  if(!list.length)grid.innerHTML=`<p class="note p-4">—</p>`;
+}
+function setLang(code){
+  S.lang=code;saveSoft();
+  document.documentElement.lang=code==="ber"?"fr":code;
+  document.documentElement.dir=dir();
+  document.documentElement.style.setProperty("--font",RTL.has(code)
+    ?"'Cairo','Noto Sans Arabic','Noto Naskh Arabic',system-ui,sans-serif"
+    :code==="ja"?"'Inter','Hiragino Sans',system-ui,sans-serif":"'Inter','Cairo',system-ui,sans-serif");
+  $("#langLabel").textContent=(LANGS.find(l=>l[0]===code)||["","","English"])[1];
+  applyI18n();renderTabs();renderPanels();renderAsnaf();renderFaq();
+  $("#langModal").classList.remove("open");
+  calc();toast((I18N[code]&&I18N[code].saved)?t("saved"):"✓");
+}
+function applyI18n(){
+  $$("[data-i18n]").forEach(e=>e.textContent=t(e.dataset.i18n));
+  $$("[data-i18n-ph]").forEach(e=>e.placeholder=t(e.dataset.i18nPh));
+  const cnt=LANGS.filter(l=>I18N[l[0]]&&Object.keys(I18N[l[0]]).length>40).length;
+  $("#langCount").textContent=LANGS.length+"+ languages";
+  $("#curCount").textContent=Object.keys(CUR).length+" currencies";
+  $("#auUnit").textContent="/g · "+S.currency;$("#agUnit").textContent="/g · "+S.currency;
+  $("#fitrCur").textContent=S.currency;
+  $("#yr").textContent=new Date().getFullYear();
+}
+
+/* =========================================================
+   FIQH ENGINE
+   ========================================================= */
+function metalPrice(m){const p=m==="AU"?S.au:S.ag;return (p||0)*rate()}
+function metalsDetail(){
+  const out=[];let total=0,auEq=0,agEq=0;
+  GROUPS.find(g=>g.id==="metals").fields.forEach(f=>{
+    const grams=parseNum(S.v[f.id]);if(!grams)return 0;
+    const price=metalPrice(f.metal),pur=f.metal==="AU"?(S.purity[f.id]??1):(S.purity[f.id]??1);
+    const val=grams*price*pur;total+=val;
+    if(f.metal==="AU")auEq+=grams*pur;else agEq+=grams*pur;
+    out.push({id:f.id,label:t(f.label),grams,val,metal:f.metal});
+    const el=$("#val_"+f.id);if(el)el.textContent=money(val);
+  });
+  return {out,total,auEq,agEq};
+}
+function livestockZakat(){
+  const cam=parseNum(S.v.camels),cat=parseNum(S.v.cattle)+parseNum(S.v.buffalo),sh=parseNum(S.v.sheep)+parseNum(S.v.goats);
+  const res=[];
+  // camels
+  if(cam>=5){
+    const q=[],sheep=n=>q.push({n:n,a:t("an_sheep")});
+    if(cam<=24)sheep(Math.floor(cam/5));
+    else if(cam<=35)q.push({n:1,a:t("an_camel1")});
+    else if(cam<=45)q.push({n:1,a:t("an_camel2")});
+    else if(cam<=60)q.push({n:1,a:t("an_camel3")});
+    else if(cam<=75)q.push({n:1,a:t("an_camel4")});
+    else if(cam<=90)q.push({n:2,a:t("an_camel2")});
+    else if(cam<=120)q.push({n:2,a:t("an_camel3")});
+    else{
+      let rest=cam,best=null;
+      for(let f=0;f*40<=rest;f++){                 // each 40 -> bint labun (2-yr)
+        const rem=rest-f*40,h=Math.floor(rem/50);  // each 50 -> hiqqa (3-yr)
+        const left=rem-h*50,tot=f+h;
+        if(!best||left<best.left||(left===best.left&&tot<best.tot))best={f,h,left};
+      }
+      if(best.f)q.push({n:best.f,a:t("an_camel2")});
+      if(best.h)q.push({n:best.h,a:t("an_camel3")});
+      const L=best.left;
+      if(L>=91)q.push({n:2,a:t("an_camel3")});
+      else if(L>=76)q.push({n:2,a:t("an_camel2")});
+      else if(L>=61)q.push({n:1,a:t("an_camel4")});
+      else if(L>=46)q.push({n:1,a:t("an_camel3")});
+      else if(L>=36)q.push({n:1,a:t("an_camel2")});
+      else if(L>=25)q.push({n:1,a:t("an_camel1")});
+      else if(L>=5)sheep(Math.floor(L/5));
+    }
+    res.push({kind:t("f_camels"),count:cam,dues:q});
+  }
+  // cattle & buffalo (each 40 -> baqara 2-yr, each 30 -> tabi' 1-yr)
+  if(cat>=30){
+    const q=[],r0=cat;let best=null;
+    for(let f=0;f*40<=r0;f++){
+      const rem=r0-f*40,h=Math.floor(rem/30),cov=f*40+h*30,left=r0-cov;
+      if(!best||left<best.left)best={f,h,left};
+    }
+    if(best.f)q.push({n:best.f,a:t("an_cow2")});
+    if(best.h)q.push({n:best.h,a:t("an_cow1")});
+    res.push({kind:t("f_cattle"),count:cat,dues:q});
+  }
+  // sheep / goats
+  if(sh>=40){
+    let q;
+    if(sh<=120)q=[{n:1,a:t("an_sheep")}];
+    else if(sh<=200)q=[{n:2,a:t("an_sheep")}];
+    else if(sh<=399)q=[{n:3,a:t("an_sheep")}];
+    else q=[{n:Math.floor(sh/100),a:t("an_sheep")}];
+    res.push({kind:t("f_sheep"),count:sh,dues:q});
+  }
+  return res;
+}
+function livestockText(){
+  const rows=livestockZakat();
+  if(!rows.length)return "";
+  return rows.map(r=>{
+    const parts=r.dues.map(d=>`${d.n} × ${d.a}`).join(" · ");
+    return `<div class="rounded-xl p-3" style="background:var(--panel2);border:1px solid var(--border)">
+      <div class="flex justify-between text-[.8rem]"><b>${r.kind}</b><span class="num" style="color:var(--txt3)">${num(r.count,0)}</span></div>
+      <div class="text-[.8rem] mt-1" style="color:var(--em2)">→ ${parts}</div></div>`}).join("")+
+    `<p class="note">${t("live_nisab_note")}</p>`;
+}
+function calc(){
+  const fx=rate();
+  /* metals */
+  const M=metalsDetail();
+  const auG=metalPrice("AU"),agG=metalPrice("AG");
+  /* toggles */
+  const incRet=S.retirement;
+  /* asset groups (in selected currency) */
+  const cashIds=["cashHand","bank","deposit","ewallet","receivable","otherCash"];
+  const invIds=["stocks","funds","crypto","sukuk","otherInvest"].concat(incRet?["retirement"]:[]);
+  const bizGrossIds=["bizCash","inventory","bizRec","bizOther"];
+  const sum=ids=>ids.reduce((a,k)=>a+parseNum(S.v[k]),0);
+  const cash=sum(cashIds), inv=sum(invIds), bizGross=sum(bizGrossIds), bizDebts=parseNum(S.v.bizDebts);
+  const bizNet=Math.max(0,bizGross-bizDebts);
+  const metals=M.total;
+  const zakatable=cash+inv+bizNet+metals;
+  const liabIds=["debtsDue","ccDue","billsDue","taxesDue","otherDebts"];
+  const liab=sum(liabIds);
+  const net=Math.max(0,zakatable-liab);
+  /* nisab */
+  const nisabVal=S.std==="gold"?87.48*auG:612.36*agG;
+  const nisabGrams=S.std==="gold"?87.48:612.36;
+  const due=net>=nisabVal&&net>0?net*.025:0;
+  /* other obligations */
+  const qty=parseNum(S.v.cropQty),price=parseNum(S.v.cropPrice),irr=parseFloat(S.v.irrigation||.10);
+  const ushr=qty>=653?qty*price*irr:0;
+  const rikaz=parseNum(S.v.rikaz)*.20;
+  const live=livestockZakat();
+  const liveCount=live.reduce((a,r)=>a+r.dues.reduce((x,d)=>x+d.n,0),0);
+  /* paint panels */
+  GROUPS.forEach(g=>{
+    const ids=g.fields.filter(f=>f.type==="money").map(f=>f.id);
+    const s=g.id==="metals"?metals:(g.id==="invest"?inv:(g.id==="biz"?bizNet:(g.id==="cash"?cash:sum(ids))));
+    const el=$("#sub_"+g.id);if(el)el.textContent=g.deduction?"−"+money(s):money(s);
+  });
+  $("#rAssets").textContent=money(zakatable);
+  $("#rLiab").textContent="−"+money(liab);
+  $("#rNet").textContent=money(net);
+  $("#rNisab").innerHTML=money(nisabVal)+" <span style=\"color:var(--txt3);font-size:.72rem\">· "+num(nisabGrams,2)+" g "+(S.std==="gold"?"Au":"Ag")+"</span>";
+  const above=net>=nisabVal&&net>0;
+  $("#rZakat").textContent=money(due);
+  const st=$("#rStatus");
+  st.textContent=above?t("status_above"):t("status_below");
+  st.style.background=above?"rgba(16,185,129,.14)":"var(--panel2)";
+  st.style.color=above?"var(--em2)":"var(--txt3)";
+  st.style.border="1px solid "+(above?"rgba(16,185,129,.4)":"var(--border2)");
+  $("#nisabNote").textContent=above?t("status_above_d"):t("status_below_d");
+  // donut
+  const segs=[
+    {l:t("g_cash"),v:cash,c:"var(--gold)"},
+    {l:t("g_metals"),v:metals,c:"var(--em2)"},
+    {l:t("g_invest"),v:inv,c:"var(--blue)"},
+    {l:t("g_biz"),v:bizNet,c:"var(--violet)"}
+  ].filter(s=>s.v>0);
+  drawDonut(segs);
+  // extra dues
+  const ex=$("#extraDues");ex.innerHTML="";
+  const addItem=(label,val,sub)=>{const d=document.createElement("div");
+    d.className="ledger-row";d.innerHTML=`<span style="color:var(--txt2)">${label}</span><b class="num" style="color:var(--gold2)">${val}</b>`;
+    ex.appendChild(d);if(sub){const s=document.createElement("p");s.className="note";s.textContent=sub;ex.appendChild(s)}};
+  if(ushr>0)addItem(t("due_agri").replace("{r}",(irr*100).toFixed(1)),money(ushr));
+  if(rikaz>0)addItem(t("due_rikaz"),money(rikaz));
+  if(liveCount>0)addItem(t("live_total"),num(liveCount,0)+" 🐐",livestockText());
+  const grand=due+ushr+rikaz;
+  LAST.grand=grand;LAST.due=due;
+  if(grand!==due){const d=document.createElement("div");
+    d.className="ledger-row";d.style.borderTop="1px solid var(--border)";d.style.marginTop=".35rem";d.style.paddingTop=".6rem";
+    d.innerHTML=`<span class="font-bold">${t("zakat_due")}</span><b class="num grad-text" style="font-size:1.05rem">${money(grand)}</b>`;ex.appendChild(d)}
+  updateAsnaf();
+  // insights
+  const ins=[];
+  const add=ic=>ins.push(ic);
+  if(zakatable===0&&metals===0)add("🔎 "+t("ins_no_data"));
+  if(above)add("✅ "+t("ins_above").replace("{x}",money(net-nisabVal)).replace("{z}",money(due)));
+  else if(zakatable>0)add("⏳ "+t("status_below_d"));
+  if(metals>=nisabVal&&metals>0)add("🪙 "+t("ins_gold_ok").replace("{v}",money(metals)));
+  if(S.std==="gold")add("🥈 "+t("ins_silver_std"));
+  if(liab>0)add("🧾 "+t("ins_debt").replace("{v}",money(liab)));
+  else if(zakatable>0)add("🧾 "+t("ins_zeroliab"));
+  if(parseNum(S.v.crypto)>0)add("₿ "+t("ins_crypto"));
+  if(qty>0)add("🌾 "+t("ins_agri"));
+  if(liveCount>0)add("🐐 "+t("ins_live"));
+  if(parseNum(S.v.rikaz)>0)add("🏺 "+t("ins_rikaz"));
+  if(parseNum(S.v.inventory)>0)add("🏪 "+t("ins_business"));
+  if(zakatable>0)add("🌾 "+t("ins_fitr"));
+  $("#insights").innerHTML=ins.map(i=>`<li class="flex gap-2 leading-snug"><span class="shrink-0">${i.slice(0,2)}</span><span>${i.slice(2)}</span></li>`).join("");
+  const mEl=$("#metalNisab");if(mEl)mEl.textContent=`${num(nisabGrams,2)} g ${S.std==="gold"?"Au":"Ag"} = ${money(nisabVal)}`;
+  const lo=$("#liveOut");if(lo)lo.innerHTML=livestockText();
+  updateFitr();updateHawl();
+}
+function drawDonut(segs){
+  const svg=$("#donut"),total=segs.reduce((a,s)=>a+s.v,0);
+  const R=46,C=2*Math.PI*R;let off=0,h="";
+  if(!total){svg.innerHTML=`<circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--border2)" stroke-width="16"/><text x="60" y="64" text-anchor="middle" font-size="11" fill="var(--txt3)">0</text>`;$("#legend").innerHTML="";return}
+  segs.forEach(s=>{
+    const len=s.v/total*C;
+    h+=`<circle class="donut-seg" cx="60" cy="60" r="${R}" fill="none" stroke="${s.c}" stroke-width="16" stroke-linecap="butt"
+      stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"/>`;
+    off+=len;
+  });
+  h+=`<text x="60" y="57" text-anchor="middle" font-size="9.5" fill="var(--txt3)" font-weight="700">${t("total_assets")}</text>
+      <text x="60" y="70" text-anchor="middle" font-size="11" font-weight="800" fill="var(--txt)">${total>=1000?num(total/1000,1)+"k":num(total,0)}</text>`;
+  svg.innerHTML=h;
+  $("#legend").innerHTML=segs.map(s=>`<div class="flex items-center gap-2"><i style="width:9px;height:9px;border-radius:3px;background:${s.c};display:block"></i>
+    <span class="flex-1 truncate" style="color:var(--txt2)">${s.l}</span><b class="num">${Math.round(s.v/total*100)}%</b></div>`).join("");
+}
+/* ---------------- Fitr / Asnaf / Hawl ---------------- */
+function updateFitr(){
+  const n=Math.max(1,parseNum(S.fitrPersons)||1),p=parseNum(S.fitrPrice);
+  const per=2.5*p;
+  $("#fitrPer").textContent=money(per);
+  $("#fitrTotal").textContent=money(per*n);
+  $("#fitrPersons").value=S.fitrPersons;$("#fitrPrice").value=S.fitrPrice;
+}
+function renderAsnaf(){
+  const list=$("#asnafList");list.innerHTML="";
+  ASNAF.forEach((a,i)=>{
+    const row=document.createElement("div");
+    row.className="rounded-xl p-2.5 transition";
+    row.style.background="var(--panel2)";
+    row.style.border="1px solid var(--border2)";
+    row.innerHTML=`<div class="flex items-center gap-2 text-[.78rem]">
+        <span class="w-5 h-5 shrink-0 grid place-items-center rounded-lg text-[.65rem] font-bold" style="background:var(--goldDim);color:var(--gold)">${i+1}</span>
+        <span class="flex-1 min-w-0 truncate font-semibold" title="${t(a[0])}">${t(a[0])}</span>
+        <b class="num shrink-0" style="color:var(--gold2)">${a[1]}%</b></div>
+      <div class="prog mt-2" style="height:4px"><i data-bar style="width:${a[1]*4}%"></i></div>
+      <div class="num mt-1 text-[.7rem]" style="color:var(--txt3)" data-amt>—</div>`;
+    list.appendChild(row);
+  });
+}
+function updateAsnaf(){
+  const rows=$$("#asnafList > div");
+  const base=LAST.due||0;
+  rows.forEach((row,i)=>{
+    const share=ASNAF[i]?ASNAF[i][1]:0;
+    const amt=row.querySelector("[data-amt]"),bar=row.querySelector("[data-bar]");
+    if(amt)amt.textContent=money(base*share/100);
+    if(bar)bar.style.width=Math.min(100,share*4)+"%";
+  });
+}
+function renderFaq(){
+  const qs=[
+    ["q1","a1"],["q2","a2"],["q3","a3"],["q4","a4"],["q5","a5"],["q6","a6"]
+  ];
+  const list=$("#faqList");list.innerHTML="";
+  qs.forEach((q,i)=>{
+    const d=document.createElement("div");d.className="card p-4 reveal in";
+    d.innerHTML=`<button class="w-full flex items-center gap-3 text-start font-bold">
+      <span class="chip">${i+1}</span><span class="flex-1">${t(q[0])}</span><span class="acc-ico transition" style="color:var(--gold)">+</span></button>
+      <div class="acc-body"><p class="note pt-3 text-[.85rem]" style="color:var(--txt2)">${t(q[1])}</p></div>`;
+    const btn=d.querySelector("button"),body=d.querySelector(".acc-body"),ico=d.querySelector(".acc-ico");
+    btn.onclick=()=>{const open=body.style.maxHeight&&body.style.maxHeight!=="0px";
+      body.style.maxHeight=open?"0px":body.scrollHeight+24+"px";ico.style.transform=open?"":"rotate(45deg)"};
+    list.appendChild(d);
+  });
+}
+function updateHawl(){
+  const el=$("#hawlDate");el.value=S.hawlDate||"";
+  const out=$("#hawlLeft"),bar=$("#hawlBar"),pct=$("#hawlPct"),due=$("#hawlDue"),hj=$("#hawlHijri");
+  if(!S.hawlDate){out.textContent="—";bar.style.width="0%";pct.textContent="0%";due.textContent="—";hj.textContent="—";return}
+  const start=new Date(S.hawlDate+"T00:00:00");
+  const days=Math.floor((Date.now()-start.getTime())/864e5);
+  const HAWL=354;
+  const left=Math.max(0,HAWL-days);
+  out.textContent=left>0?num(left,0)+" "+t("days"):t("hawl_done");
+  out.style.color=left>0?"var(--txt)":"var(--em2)";
+  const p=Math.min(100,Math.max(0,days/HAWL*100));
+  bar.style.width=p+"%";pct.textContent=Math.round(p)+"%";
+  const d2=new Date(start.getTime()+HAWL*864e5);
+  due.textContent=d2.toLocaleDateString(locale()==="ber"?"en":locale(),{day:"2-digit",month:"short",year:"numeric"});
+  try{hj.textContent=new Intl.DateTimeFormat(locale()+"-u-ca-islamic-umalqura",{day:"numeric",month:"long",year:"numeric"}).format(new Date())}catch(e){hj.textContent="—"}
+}
+function hijriToday(){
+  try{return new Intl.DateTimeFormat(locale()+"-u-ca-islamic-umalqura",{day:"numeric",month:"short",year:"numeric"}).format(new Date())}catch(e){return "—"}
+}
+
+/* =========================================================
+   PRICES & FX
+   ========================================================= */
+async function fetchPrices(){
+  const b=$("#btnRefresh"),ico=$("#refIco");
+  b.disabled=true;if(ico)ico.classList.add("spin");
+  let ok=false;
+  try{
+    const r=await fetch("https://api.gold-api.com/price/XAU",{cache:"no-store"});
+    if(r.ok){const j=await r.json();if(j&&j.price){S.au=+j.price/31.1034768;ok=true}}
+  }catch(e){}
+  if(ok){try{
+      const r2=await fetch("https://api.gold-api.com/price/XAG",{cache:"no-store"});
+      if(r2.ok){const j=await r2.json();if(j&&j.price)S.ag=+j.price/31.1034768}
+    }catch(e){}}
+  if(!ok){S.au=S.au||2600/31.1034768;S.ag=S.ag||31/31.1034768;S.src="est";toast(t("price_fail"))}
+  else S.src="live";
+  b.disabled=false;if(ico)ico.classList.remove("spin");
+  paintPrices();saveSoft();calc();
+}
+async function fetchFX(){
+  try{
+    const r=await fetch("https://open.er-api.com/v6/latest/USD",{cache:"no-store"});
+    if(r.ok){const j=await r.json();if(j&&j.rates){Object.assign(FX,j.rates);return true}}
+  }catch(e){}
+  toast(t("rates_fail"));return false;
+}
+function paintPrices(){
+  $("#auPrice").textContent=S.au?money(S.au,2):"—";
+  $("#agPrice").textContent=S.ag?money(S.ag,2):"—";
+  $("#hijriDate").textContent=hijriToday();
+  const src=$("#priceSrc");
+  src.textContent=S.src==="live"?t("price_live").replace("{src}","gold-api.com"):(S.src==="est"?t("price_est"):t("price_manual"));
+  if(!$("#auIn").matches(":focus"))$("#auIn").value=S.au?num(S.au,3):"";
+  if(!$("#agIn").matches(":focus"))$("#agIn").value=S.ag?num(S.ag,3):"";
+}
+
+/* ---------------- currency switch ---------------- */
+function switchCurrency(c){
+  const old=rate(S.currency)||1,nw=rate(c)||1,k=nw/old;
+  ["au","ag"].forEach(m=>{if(S[m])S[m]=S[m]*k});
+  MONEY_IDS.forEach(id=>{if(S.v[id]!==""&&S.v[id]!==undefined)S.v[id]=String(Math.round(parseNum(S.v[id])*k*100)/100)});
+  S.fitrPrice=S.fitrPrice!==""?String(Math.round(parseNum(S.fitrPrice)*k*100)/100):"";
+  S.currency=c;saveSoft();renderCurrencies();applyI18n();renderPanels();paintPrices();calc();
+  toast("✓ "+curName(c)+" ("+c+")");
+}
+/* ---------------- theme ---------------- */
+function setTheme(th){
+  S.theme=th;document.documentElement.dataset.theme=th;saveSoft();
+  $("#btnTheme").innerHTML=th==="dark"
+    ?`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8Z"/></svg>`
+    :`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`;
+  calc();
+}
+/* ---------------- std buttons ---------------- */
+function paintStd(){
+  $$(".std-btn").forEach(b=>b.classList.toggle("btn-gold",b.dataset.std===S.std));
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function init(){
+  load();
+  // browser language detection on first run
+  if(!localStorage.getItem(LS)){
+    const nav=(navigator.language||"en").toLowerCase();
+    const exact=LANGS.find(l=>l[0].toLowerCase()===nav);
+    const base=LANGS.find(l=>nav.startsWith(l[0].toLowerCase()+"-")||nav.startsWith(l[0].toLowerCase()));
+    S.lang=(exact||base||["en"])[0];
+  }
+  setTheme(S.theme||"dark");
+  document.documentElement.dir=dir();
+  document.documentElement.lang=S.lang;
+  $("#langLabel").textContent=(LANGS.find(l=>l[0]===S.lang)||["","","English"])[1];
+  renderCurrencies();applyI18n();renderTabs();renderPanels();renderAsnaf();renderFaq();
+  paintStd();
+  // events
+  $("#btnTheme").onclick=()=>setTheme(S.theme==="dark"?"light":"dark");
+  $("#btnLang").onclick=()=>{renderLangGrid();$("#langModal").classList.add("open");setTimeout(()=>$("#langSearch").focus(),80)};
+  $("#footLang").onclick=()=>$("#btnLang").click();
+  $("#langClose").onclick=()=>$("#langModal").classList.remove("open");
+  $("#langModal").onclick=e=>{if(e.target.id==="langModal")$("#langModal").classList.remove("open")};
+  $("#langSearch").oninput=e=>renderLangGrid(e.target.value);
+  document.addEventListener("keydown",e=>{
+    if(e.key==="/"&&!/input|select|textarea/i.test(document.activeElement.tagName)){e.preventDefault();$("#btnLang").click()}
+    if(e.key==="Escape")$("#langModal").classList.remove("open");
+  });
+  $("#btnRefresh").onclick=fetchPrices;
+  $("#auIn").oninput=e=>{S.au=parseNum(e.target.value)/rate();S.src="manual";paintPrices();calc()};
+  $("#agIn").oninput=e=>{S.ag=parseNum(e.target.value)/rate();S.src="manual";paintPrices();calc()};
+  $$(".std-btn").forEach(b=>b.onclick=()=>{S.std=b.dataset.std;saveSoft();paintStd();calc()});
+  $("#fitrPersons").oninput=e=>{S.fitrPersons=e.target.value;saveSoft();updateFitr()};
+  $("#fitrPrice").oninput=e=>{S.fitrPrice=e.target.value;saveSoft();updateFitr()};
+  $("#hawlDate").onchange=e=>{S.hawlDate=e.target.value;saveSoft();updateHawl()};
+  $("#btnSave").onclick=()=>save();
+  $("#btnPrint").onclick=()=>window.print();
+  $("#btnReset").onclick=()=>{if(!confirm(t("reset_confirm")))return;
+    const keep={lang:S.lang,theme:S.theme,au:S.au,ag:S.ag,src:S.src};
+    S=JSON.parse(JSON.stringify(DEF_STATE));Object.assign(S,keep);
+    GROUPS.forEach(g=>g.fields.forEach(f=>{S.v[f.id]="";if(f.purity)S.purity[f.id]=f.purity}));
+    saveSoft();renderPanels();paintPrices();calc();toast("✓")};
+  $("#btnCsv").onclick=()=>{
+    const rows=[["Field","Value","Unit/Currency"],["Currency",S.currency,""],
+      ...GROUPS.flatMap(g=>g.fields.map(f=>[t(f.label),S.v[f.id]||"0",f.type==="grams"?"g":(f.suffix==="kg"?"kg":S.currency)])),
+      ["Total zakatable assets",$("#rAssets").textContent,S.currency],["Nisab",$("#rNisab").textContent,S.currency],
+      ["Zakat due (2.5%)",$("#rZakat").textContent,S.currency]];
+    const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}));
+    a.download="zakat-report-"+new Date().toISOString().slice(0,10)+".csv";a.click();toast("✓ "+t("csv"))};
+  // reveal on scroll
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
+  $$(".reveal").forEach(e=>io.observe(e));
+  // data
+  fetchFX().then(ok=>{if(ok){renderCurrencies();calc()}});
+  fetchPrices().then(()=>{renderCurrencies();calc()});
+  calc();
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
