@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#0c1415" />
+    <title>Ayah — Quran & Tafsir</title>
+    <!-- Tailwind CSS v4 compiled and embedded for a self-contained single-file UI. -->
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="antialiased selection:bg-emerald-800 selection:text-white">
+    <div class="app min-h-screen">
+      <aside class="sidebar" id="sidebar">
+        <a
+          href="#"
+          class="brand"
+          aria-label="Ayah home"
+          onclick="
+            goHome();
+            return false;
+          "
+          ><svg class="brand-symbol" viewBox="0 0 48 48">
+            <path
+              d="M24 2 31 10 42 6 40 18 47 24 39 31 42 42 30 40 24 47 17 39 6 42 8 30 1 24 9 17 6 6 18 8Z"
+            />
+            <path d="m24 10 14 14-14 14L10 24Z" />
+            <path d="M18 27v-9l6 3 6-3v9l-6 3Z M24 21v9" />
+          </svg>
+          <div>
+            <div class="brand-name">
+              ayah<span style="color: var(--green)">.</span>
+            </div>
+            <div class="brand-sub">QURAN & TAFSIR</div>
+            <div class="brand-motto">
+              <span data-i18n="hero1">فهم أعمق.</span>
+              <span data-i18n="hero2">بكل لغة.</span>
+            </div>
+          </div></a
+        >
+        <div class="nav-label" data-i18n="discover">DISCOVER</div>
+        <nav>
+          <button class="nav-item active" id="nav-read" onclick="goHome()">
+            <i data-icon="book"></i
+            ><span data-i18n="quranTafsir">Quran & Tafsir</span></button
+          ><button class="nav-item" onclick="openListen()">
+            <i data-icon="play"></i
+            ><span data-i18n="listenQuran">استمع للقرآن</span></button
+          ><button class="nav-item" onclick="openLanguages()">
+            <i data-icon="globe"></i
+            ><span data-i18n="translations">Translations</span></button
+          ><button class="nav-item" onclick="openLibrary()">
+            <i data-icon="library"></i
+            ><span data-i18n="library">Tafsir library</span>
+          </button>
+        </nav>
+        <div class="nav-label" data-i18n="personal">YOUR SPACE</div>
+        <nav>
+          <button class="nav-item" onclick="showBookmarks()">
+            <i data-icon="bookmark"></i
+            ><span data-i18n="bookmarks">Bookmarks</span
+            ><span class="pill" id="bookmark-count">0</span></button
+          ><button class="nav-item" onclick="openProgress()">
+            <i data-icon="chart"></i
+            ><span data-i18n="mySpace">صفحتي وأورادي</span></button
+          ><button class="nav-item" onclick="openSettings()">
+            <i data-icon="settings"></i
+            ><span data-i18n="settings">Settings</span>
+          </button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="reflection">
+            <i data-icon="spark"></i>
+            <p data-i18n="quote">“Indeed, with hardship<br />comes ease.”</p>
+            <small data-i18n="quoteRef">Quran · Ash-Sharh 94:6</small>
+          </div>
+          <div class="side-footer">
+            <button onclick="openAbout()" data-i18n="about">About Ayah</button
+            ><span data-i18n="withCare">صُنع بعناية</span>
+          </div>
+        </div>
+      </aside>
+      <div class="workspace">
+        <header class="topbar">
+          <button
+            class="icon-btn mobile-menu"
+            onclick="
+              document.getElementById('sidebar').classList.toggle('open')
+            "
+            aria-label="Toggle navigation"
+          >
+            <i data-icon="menu"></i>
+          </button>
+          <div class="breadcrumb">
+            <i data-icon="home"></i><span>/</span
+            ><span data-i18n="discoverTitle">Discover</span><span>/</span
+            ><span data-i18n="quranTafsir">Quran & Tafsir</span>
+          </div>
+          <div class="top-actions flex items-center">
+            <button class="lang-button" onclick="openLanguages()">
+              <i data-icon="globe"></i><span id="current-lang">English</span
+              ><i data-icon="chevron"></i>
+            </button>
+            <div class="divider"></div>
+            <button
+              class="icon-btn"
+              onclick="toggleTheme()"
+              id="theme-button"
+              aria-label="Toggle light or dark theme"
+            >
+              <i data-icon="sun"></i></button
+            ><button
+              class="avatar"
+              onclick="openProgress()"
+              aria-label="Your reading space"
+            >
+              A
+            </button>
+          </div>
+        </header>
+        <main class="content w-full">
+          <section class="welcome">
+            <div>
+              <div class="eyebrow" data-i18n="eyebrow">اقرأ. تدبّر. افهم.</div>
+              <h1 data-i18n="holyQuran">القرآن الكريم</h1>
+              <p data-i18n="easyIntro">
+                اختر سورتك، واقرأ أو استمع بالوتيرة التي تناسبك.
+              </p>
+            </div>
+            <div
+              class="welcome-calligraphy notranslate"
+              translate="no"
+              lang="ar"
+              aria-hidden="true"
+            >
+              وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا
+            </div>
+          </section>
+          <div class="quick-actions">
+            <button class="quick-action" onclick="continueReading()">
+              <span class="quick-icon"><i data-icon="book"></i></span
+              ><span
+                ><strong data-i18n="continueReading">متابعة القراءة</strong
+                ><small id="continue-label">الفاتحة · ١:١</small></span
+              ><i data-icon="left"></i></button
+            ><button class="quick-action" onclick="openListen()">
+              <span class="quick-icon"><i data-icon="play"></i></span
+              ><span
+                ><strong data-i18n="listenQuran">استمع للقرآن</strong
+                ><small data-i18n="chooseReaderRange"
+                  >القارئ، التكرار، ونطاق الاستماع</small
+                ></span
+              ><i data-icon="left"></i></button
+            ><button class="quick-action" onclick="openProgress()">
+              <span class="quick-icon gold"><i data-icon="chart"></i></span
+              ><span
+                ><strong data-i18n="dailyWird">وردي اليومي</strong
+                ><small data-i18n="smallConsistent"
+                  >قليل دائم، وأثر جميل</small
+                ></span
+              ><i data-icon="left"></i>
+            </button>
+          </div>
+          <form class="search-bar" onsubmit="runSearch(event)">
+            <i data-icon="search"></i
+            ><input
+              id="global-search"
+              data-placeholder="search"
+              placeholder="Search a surah, verse reference, or keyword…"
+              aria-label="Search Quran"
+            /><kbd>⌘ K</kbd
+            ><button type="submit" data-i18n="searchBtn">Search</button>
+          </form>
+          <div class="reader-layout">
+            <section>
+              <div class="tabs">
+                <button
+                  class="tab active"
+                  id="reading-tab"
+                  onclick="setView('reading')"
+                >
+                  <i data-icon="book"></i
+                  ><span data-i18n="reading">Reading</span></button
+                ><button
+                  class="tab"
+                  id="tafsir-tab"
+                  onclick="setView('tafsir')"
+                >
+                  <i data-icon="library"></i
+                  ><span data-i18n="tafsir">Tafsir</span></button
+                ><span class="right" id="verse-total">7 verses</span>
+              </div>
+              <div class="chapter-controls">
+                <div class="field">
+                  <label data-i18n="surah">Surah</label
+                  ><select
+                    id="surah-select"
+                    onchange="loadSurah(+this.value)"
+                    aria-label="Select Surah"
+                  ></select>
+                </div>
+                <div class="field">
+                  <label data-i18n="verse">Verse</label
+                  ><select
+                    id="verse-select"
+                    onchange="jumpToVerse(+this.value)"
+                    aria-label="Select verse"
+                  ></select>
+                </div>
+                <div class="control-end">
+                  <button
+                    class="icon-btn"
+                    onclick="loadSurah(Math.max(1, currentSurah - 1))"
+                    aria-label="Previous surah"
+                  >
+                    <i data-icon="left"></i></button
+                  ><button
+                    class="icon-btn"
+                    onclick="loadSurah(Math.min(114, currentSurah + 1))"
+                    aria-label="Next surah"
+                  >
+                    <i data-icon="right"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="chapter-banner">
+                <div>
+                  <h2 id="chapter-title">Al-Fatihah</h2>
+                  <p>
+                    <span id="chapter-meaning" style="margin: 0; color: inherit"
+                      >The Opening</span
+                    ><span>•</span
+                    ><span id="chapter-type" style="margin: 0; color: inherit"
+                      >Meccan</span
+                    ><span>•</span
+                    ><span id="chapter-count" style="margin: 0; color: inherit"
+                      >7 verses</span
+                    >
+                  </p>
+                </div>
+                <div class="arabic-title" id="chapter-arabic" lang="ar">
+                  الفَاتِحَة
+                </div>
+              </div>
+              <div class="reader-tools">
+                <div class="translation-label">
+                  <span class="dot"></span
+                  ><span id="edition-label"
+                    >English · Saheeh International</span
+                  >
+                </div>
+                <div style="display: flex; gap: 15px">
+                  <button onclick="openLanguages()">
+                    <i data-icon="sliders"></i
+                    ><span data-i18n="change">Change</span></button
+                  ><button onclick="openListen()">
+                    <i data-icon="play"></i
+                    ><span data-i18n="listen">Listen</span></button
+                  ><button
+                    onclick="openSettings()"
+                    aria-label="Reader settings"
+                  >
+                    <i data-icon="settings"></i>
+                  </button>
+                </div>
+              </div>
+              <div id="verses"></div>
+              <button
+                class="primary hidden"
+                id="load-more"
+                onclick="renderMore()"
+                data-i18n="loadMore"
+              >
+                Load more verses
+              </button>
+            </section>
+            <aside class="right-sidebar">
+              <div class="aside-heading">
+                <h3 data-i18n="explore">Explore the Quran</h3>
+                <i data-icon="compass"></i>
+              </div>
+              <div class="explore-panel">
+                <div class="segmented">
+                  <button
+                    class="active"
+                    id="surahs-segment"
+                    onclick="switchExplorer('surahs')"
+                    data-i18n="surahs"
+                  >
+                    Surahs</button
+                  ><button
+                    id="juz-segment"
+                    onclick="switchExplorer('juz')"
+                    data-i18n="juz"
+                  >
+                    Juz
+                  </button>
+                </div>
+                <div class="mini-search">
+                  <i data-icon="search"></i
+                  ><input
+                    id="surah-search"
+                    data-placeholder="findSurah"
+                    placeholder="Find a surah…"
+                    oninput="renderExplorer(this.value)"
+                    aria-label="Find a surah"
+                  />
+                </div>
+                <div class="chapter-list" id="chapter-list"></div>
+                <button class="all-surahs" onclick="openAllSurahs()">
+                  <span data-i18n="allSurahs">View all 114 surahs</span
+                  ><i data-icon="right"></i>
+                </button>
+              </div>
+              <div class="journey">
+                <div class="eyebrow" data-i18n="little">
+                  A LITTLE, EVERY DAY
+                </div>
+                <h3 data-i18n="journey">Your journey, one ayah at a time.</h3>
+                <p data-i18n="journeyText">
+                  Make room for reflection. Bookmark the verses that speak to
+                  your heart.
+                </p>
+                <button onclick="showBookmarks()">
+                  <span data-i18n="myBookmarks">My bookmarks</span
+                  ><i data-icon="right"></i>
+                </button>
+              </div>
+              <div class="trust">
+                <i data-icon="shield"></i
+                ><span data-i18n="trust"
+                  >Rooted in authentic sources.<br />Built for thoughtful
+                  exploration.</span
+                >
+              </div>
+            </aside>
+          </div>
+          <footer class="bottom-note">
+            <span data-i18n="footer"
+              >The words are timeless. The journey is yours.</span
+            ><span
+              >Quran text · AlQuran Cloud &nbsp; / &nbsp; Tafsir ·
+              Quran.com</span
+            >
+          </footer>
+        </main>
+      </div>
+    </div>
+    <div id="modal-root"></div>
+    <div id="toast" class="toast hidden" role="status"></div>
+    <div
+      id="player"
+      class="player hidden"
+      role="region"
+      aria-label="Quran audio player"
+    >
+      <button
+        class="icon-btn"
+        id="play-pause"
+        onclick="toggleAudio()"
+        aria-label="Play or pause"
+      >
+        <i data-icon="pause"></i>
+      </button>
+      <div style="flex: 1">
+        <strong id="playing-title"></strong
+        ><small id="playing-reader">Mishary Rashid Alafasy</small
+        ><small id="playing-repeat" style="display: block"></small>
+      </div>
+      <button class="icon-btn" onclick="nextTrack()" aria-label="Next verse">
+        <i data-icon="right"></i></button
+      ><button
+        class="icon-btn"
+        onclick="openListen()"
+        aria-label="Audio settings"
+      >
+        <i data-icon="sliders"></i></button
+      ><button class="icon-btn" onclick="stopAudio()" aria-label="Close audio">
+        <i data-icon="close"></i>
+      </button>
+    </div>
+    <audio id="audio" preload="none"></audio>
+    <nav class="bottom-nav" aria-label="التنقل السريع">
+      <button onclick="focusReading()">
+        <i data-icon="book"></i><span data-i18n="reading">القراءة</span></button
+      ><button onclick="openListen()">
+        <i data-icon="play"></i><span data-i18n="listen">الاستماع</span></button
+      ><button onclick="openProgress()">
+        <i data-icon="chart"></i><span data-i18n="mySpace">صفحتي</span></button
+      ><button onclick="showBookmarks()">
+        <i data-icon="bookmark"></i><span data-i18n="bookmarks">المحفوظات</span>
+      </button>
+    </nav>
+    <script src="app.js"></script>
+  </body>
+</html>
