@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nisab · Smart Zakat Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#d4af37; --gold-soft:#f0d98a; --emerald:#0f766e;
+  }
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Noto Sans Arabic',system-ui,sans-serif;}
+  [dir="rtl"] body, [dir="rtl"]{font-family:'Noto Sans Arabic','Amiri',system-ui,sans-serif;}
+  .glass{background:rgba(255,255,255,.04);backdrop-filter:blur(14px);border:1px solid rgba(212,175,55,.18)}
+  .dark .glass{background:rgba(12,20,20,.55)}
+  .gold-text{background:linear-gradient(120deg,#f7e7a6,#d4af37,#b8860b,#f0d98a);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .pattern{background-image:radial-gradient(circle at 25px 25px, rgba(212,175,55,.07) 2px, transparent 0),radial-gradient(circle at 75px 75px, rgba(15,118,110,.08) 2px, transparent 0);background-size:100px 100px}
+  .arch{border-top-left-radius:9999px;border-top-right-radius:9999px}
+  .fade-up{opacity:0;transform:translateY(24px);transition:all .7s cubic-bezier(.16,1,.3,1)}
+  .fade-up.in{opacity:1;transform:none}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield}
+  .field{background:rgba(255,255,255,.05);border:1px solid rgba(212,175,55,.2);transition:.25s}
+  .field:focus{outline:none;border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.15);background:rgba(255,255,255,.08)}
+  .tab-active{background:linear-gradient(135deg,#d4af37,#b8860b);color:#08110f;box-shadow:0 8px 24px -8px rgba(212,175,55,.7)}
+  .shimmer{background:linear-gradient(90deg,transparent,rgba(212,175,55,.15),transparent);background-size:200% 100%;animation:sh 2.5s infinite}
+  @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#d4af3766;border-radius:9px}
+  ::-webkit-scrollbar-track{background:transparent}
+  .lang-menu{max-height:380px;overflow:auto}
+  .counter{font-variant-numeric:tabular-nums}
+  .glow{box-shadow:0 0 60px -18px rgba(212,175,55,.5)}
+  details summary::-webkit-details-marker{display:none}
+</style>
+</head>
+<body class="bg-[#f6f7f5] dark:bg-[#070d0c] text-slate-800 dark:text-slate-100 transition-colors duration-500 pattern">
+
+<!-- NAV -->
+<header class="sticky top-0 z-50 glass border-b border-amber-500/20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-3">
+    <div class="flex items-center gap-2.5 me-auto">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-300 to-amber-700 grid place-items-center text-[#08110f] font-black text-lg shadow-lg">☾</div>
+      <div class="leading-tight">
+        <div class="font-extrabold tracking-tight text-lg gold-text">NISAB</div>
+        <div class="text-[10px] uppercase tracking-[.2em] text-slate-500 dark:text-slate-400" data-i18n="brandSub">Zakat Engine</div>
+      </div>
+    </div>
+    <nav class="hidden lg:flex items-center gap-1 text-sm">
+      <a href="#calculator" class="px-3 py-2 rounded-lg hover:bg-amber-500/10 transition" data-i18n="navCalc">Calculator</a>
+      <a href="#nisab" class="px-3 py-2 rounded-lg hover:bg-amber-500/10 transition" data-i18n="navNisab">Nisab</a>
+      <a href="#types" class="px-3 py-2 rounded-lg hover:bg-amber-500/10 transition" data-i18n="navTypes">Assets</a>
+      <a href="#faq" class="px-3 py-2 rounded-lg hover:bg-amber-500/10 transition" data-i18n="navFaq">FAQ</a>
+    </nav>
+    <div class="relative">
+      <button id="langBtn" class="flex items-center gap-2 px-3 py-2 rounded-lg field text-sm font-medium">
+        <span id="langFlag">🌐</span><span id="langName" class="hidden sm:inline">English</span>
+        <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div id="langMenu" class="hidden absolute end-0 mt-2 w-64 rounded-xl glass shadow-2xl p-2 lang-menu">
+        <input id="langSearch" class="w-full field rounded-lg px-3 py-2 text-sm mb-2" placeholder="Search language…">
+        <div id="langList" class="space-y-0.5"></div>
+      </div>
+    </div>
+    <button id="themeBtn" class="w-10 h-10 grid place-items-center rounded-lg field" title="Theme">
+      <span id="themeIcon">🌙</span>
+    </button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="relative overflow-hidden">
+  <div class="absolute -top-40 start-1/4 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl"></div>
+  <div class="absolute top-20 end-0 w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-3xl"></div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 relative grid lg:grid-cols-2 gap-12 items-center">
+    <div class="fade-up">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-300 border border-amber-500/30" data-i18n="heroBadge">Shariah-compliant · 150+ currencies</span>
+      <h1 class="mt-5 text-4xl sm:text-6xl font-extrabold leading-[1.08] tracking-tight">
+        <span data-i18n="heroTitle1">Calculate your</span> <span class="gold-text" data-i18n="heroTitle2">Zakat</span><br>
+        <span data-i18n="heroTitle3">with precision & serenity</span>
+      </h1>
+      <p class="mt-5 text-lg text-slate-600 dark:text-slate-400 max-w-xl" data-i18n="heroDesc">A comprehensive smart calculator covering gold, silver, cash, stocks, crypto, trade goods, livestock and crops — in every world currency, in your own language.</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#calculator" class="px-6 py-3.5 rounded-xl font-semibold bg-gradient-to-r from-amber-300 to-amber-600 text-[#08110f] hover:scale-[1.03] active:scale-95 transition glow" data-i18n="ctaStart">Start Calculating</a>
+        <a href="#types" class="px-6 py-3.5 rounded-xl font-semibold field hover:border-amber-500 transition" data-i18n="ctaLearn">Learn the rules</a>
+      </div>
+      <div class="mt-10 grid grid-cols-3 gap-4 max-w-lg">
+        <div><div class="text-2xl font-extrabold gold-text">2.5%</div><div class="text-xs text-slate-500" data-i18n="statRate">Zakat rate</div></div>
+        <div><div class="text-2xl font-extrabold gold-text">85g</div><div class="text-xs text-slate-500" data-i18n="statGold">Gold nisab</div></div>
+        <div><div class="text-2xl font-extrabold gold-text">150+</div><div class="text-xs text-slate-500" data-i18n="statCur">Currencies</div></div>
+      </div>
+    </div>
+    <div class="fade-up relative">
+      <div class="glass rounded-3xl p-8 arch glow">
+        <div class="text-center">
+          <div class="text-5xl mb-3">🕌</div>
+          <p class="font-['Amiri'] text-2xl leading-loose text-amber-500/90 dark:text-amber-300" dir="rtl">وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ</p>
+          <p class="mt-3 text-sm text-slate-500 dark:text-slate-400" data-i18n="ayah">"And establish prayer and give zakat" — Al-Baqarah 2:43</p>
+        </div>
+        <div class="mt-8 grid grid-cols-2 gap-3 text-sm">
+          <div class="rounded-xl p-4 field"><div class="text-slate-500 text-xs" data-i18n="liveGold">Gold / gram</div><div class="font-bold text-lg" id="heroGold">—</div></div>
+          <div class="rounded-xl p-4 field"><div class="text-slate-500 text-xs" data-i18n="liveSilver">Silver / gram</div><div class="font-bold text-lg" id="heroSilver">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section id="calculator" class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+  <div class="text-center mb-10 fade-up">
+    <h2 class="text-3xl sm:text-4xl font-extrabold" data-i18n="calcTitle">Smart Zakat Calculator</h2>
+    <p class="mt-3 text-slate-500 dark:text-slate-400" data-i18n="calcSub">Fill only what applies to you. Everything is computed instantly and locally in your browser.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-[1fr_380px] gap-6 items-start">
+    <div class="glass rounded-2xl p-5 sm:p-7 fade-up">
+      <!-- settings row -->
+      <div class="grid sm:grid-cols-3 gap-4 mb-6">
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fCurrency">Currency</label>
+          <select id="currency" class="mt-1.5 w-full field rounded-xl px-3 py-2.5 text-sm dark:bg-[#0c1514]"></select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fGoldPrice">Gold price / gram</label>
+          <input id="goldPrice" type="number" step="0.01" class="mt-1.5 w-full field rounded-xl px-3 py-2.5 text-sm">
+        </div>
+        <div>
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500" data-i18n="fSilverPrice">Silver price / gram</label>
+          <input id="silverPrice" type="number" step="0.01" class="mt-1.5 w-full field rounded-xl px-3 py-2.5 text-sm">
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 mb-6 text-sm">
+        <span class="text-slate-500" data-i18n="nisabBase">Nisab standard:</span>
+        <div class="flex rounded-xl overflow-hidden field p-1 gap-1">
+          <button data-nisab="silver" class="nisab-tab px-4 py-1.5 rounded-lg font-medium tab-active" data-i18n="silverStd">Silver (595g)</button>
+          <button data-nisab="gold" class="nisab-tab px-4 py-1.5 rounded-lg font-medium" data-i18n="goldStd">Gold (85g)</button>
+        </div>
+      </div>
+
+      <!-- tabs -->
+      <div id="tabs" class="flex flex-wrap gap-2 mb-6"></div>
+      <div id="panels"></div>
+    </div>
+
+    <!-- RESULT -->
+    <aside class="lg:sticky lg:top-24 glass rounded-2xl p-6 fade-up glow">
+      <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><span>📊</span><span data-i18n="resTitle">Your Zakat Summary</span></h3>
+      <div class="space-y-2 text-sm" id="breakdown"></div>
+      <div class="my-4 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent"></div>
+      <div class="flex justify-between text-sm"><span class="text-slate-500" data-i18n="resAssets">Total assets</span><span id="rAssets" class="font-semibold counter">—</span></div>
+      <div class="flex justify-between text-sm mt-1"><span class="text-slate-500" data-i18n="resLiab">Deductible liabilities</span><span id="rLiab" class="font-semibold counter text-rose-400">—</span></div>
+      <div class="flex justify-between text-sm mt-1"><span class="text-slate-500" data-i18n="resNet">Net zakatable wealth</span><span id="rNet" class="font-semibold counter">—</span></div>
+      <div class="flex justify-between text-sm mt-1"><span class="text-slate-500" data-i18n="resNisab">Nisab threshold</span><span id="rNisab" class="font-semibold counter">—</span></div>
+      <div id="statusBox" class="mt-4 rounded-xl p-3 text-sm text-center font-medium bg-slate-500/10"></div>
+      <div class="mt-4 rounded-2xl p-5 text-center bg-gradient-to-br from-amber-400/20 to-amber-700/10 border border-amber-500/30">
+        <div class="text-xs uppercase tracking-[.2em] text-amber-600 dark:text-amber-300" data-i18n="resDue">Zakat due</div>
+        <div id="rDue" class="text-3xl sm:text-4xl font-extrabold gold-text mt-1 counter">0</div>
+        <div id="rDueAlt" class="text-xs text-slate-500 mt-1"></div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-2">
+        <button id="printBtn" class="py-2.5 rounded-xl field text-sm font-semibold hover:border-amber-500 transition" data-i18n="btnPrint">Print</button>
+        <button id="resetBtn" class="py-2.5 rounded-xl field text-sm font-semibold hover:border-rose-500 transition" data-i18n="btnReset">Reset</button>
+      </div>
+      <p class="mt-4 text-[11px] leading-relaxed text-slate-500" data-i18n="disclaimer">Estimates for guidance only. Consult a qualified scholar for your specific case.</p>
+    </aside>
+  </div>
+</section>
+
+<!-- NISAB / TYPES -->
+<section id="nisab" class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+  <div class="grid md:grid-cols-3 gap-5">
+    <div class="glass rounded-2xl p-6 fade-up"><div class="text-3xl">⚖️</div><h3 class="font-bold mt-3" data-i18n="n1t">What is Nisab?</h3><p class="text-sm text-slate-500 dark:text-slate-400 mt-2" data-i18n="n1d">The minimum wealth a Muslim must hold before Zakat becomes obligatory: 85g of gold or 595g of silver.</p></div>
+    <div class="glass rounded-2xl p-6 fade-up"><div class="text-3xl">🗓️</div><h3 class="font-bold mt-3" data-i18n="n2t">The Hawl (lunar year)</h3><p class="text-sm text-slate-500 dark:text-slate-400 mt-2" data-i18n="n2d">Wealth must remain above nisab for one full lunar year (354 days) before Zakat is paid on it.</p></div>
+    <div class="glass rounded-2xl p-6 fade-up"><div class="text-3xl">🤲</div><h3 class="font-bold mt-3" data-i18n="n3t">The eight categories</h3><p class="text-sm text-slate-500 dark:text-slate-400 mt-2" data-i18n="n3d">Zakat is distributed to the poor, the needy, its collectors, reconciled hearts, freeing captives, debtors, in Allah's cause, and travellers.</p></div>
+  </div>
+</section>
+
+<section id="types" class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+  <h2 class="text-3xl font-extrabold text-center mb-8 fade-up" data-i18n="typesTitle">Zakatable Assets</h2>
+  <div id="typeGrid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+  <h2 class="text-3xl font-extrabold text-center mb-8 fade-up" data-i18n="faqTitle">Frequently Asked Questions</h2>
+  <div id="faqList" class="space-y-3"></div>
+</section>
+
+<footer class="border-t border-amber-500/15 mt-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10 text-center text-sm text-slate-500">
+    <div class="text-2xl mb-2">☾</div>
+    <p data-i18n="footer">Nisab — Comprehensive Smart Zakat Calculator. Built with care for the Ummah.</p>
+    <p class="mt-2 text-xs">© <span id="year"></span> Nisab</p>
+  </div>
+</footer>
+
+<script>
+/* ---------------- LANGUAGES ---------------- */
+const LANGS=[
+ {c:'en',n:'English',f:'🇬🇧',rtl:0},{c:'ar',n:'العربية',f:'🇸🇦',rtl:1},{c:'fr',n:'Français',f:'🇫🇷',rtl:0},
+ {c:'es',n:'Español',f:'🇪🇸',rtl:0},{c:'de',n:'Deutsch',f:'🇩🇪',rtl:0},{c:'tr',n:'Türkçe',f:'🇹🇷',rtl:0},
+ {c:'ur',n:'اردو',f:'🇵🇰',rtl:1},{c:'id',n:'Bahasa Indonesia',f:'🇮🇩',rtl:0},{c:'ms',n:'Bahasa Melayu',f:'🇲🇾',rtl:0},
+ {c:'fa',n:'فارسی',f:'🇮🇷',rtl:1},{c:'bn',n:'বাংলা',f:'🇧🇩',rtl:0},{c:'hi',n:'हिन्दी',f:'🇮🇳',rtl:0},
+ {c:'ru',n:'Русский',f:'🇷🇺',rtl:0},{c:'zh',n:'中文',f:'🇨🇳',rtl:0},{c:'ja',n:'日本語',f:'🇯🇵',rtl:0},
+ {c:'ko',n:'한국어',f:'🇰🇷',rtl:0},{c:'pt',n:'Português',f:'🇵🇹',rtl:0},{c:'it',n:'Italiano',f:'🇮🇹',rtl:0},
+ {c:'nl',n:'Nederlands',f:'🇳🇱',rtl:0},{c:'sw',n:'Kiswahili',f:'🇰🇪',rtl:0},{c:'ha',n:'Hausa',f:'🇳🇬',rtl:0},
+ {c:'so',n:'Soomaali',f:'🇸🇴',rtl:0},{c:'ps',n:'پښتو',f:'🇦🇫',rtl:1},{c:'he',n:'עברית',f:'🇮🇱',rtl:1},
+ {c:'th',n:'ไทย',f:'🇹🇭',rtl:0},{c:'vi',n:'Tiếng Việt',f:'🇻🇳',rtl:0},{c:'pl',n:'Polski',f:'🇵🇱',rtl:0},
+ {c:'uk',n:'Українська',f:'🇺🇦',rtl:0},{c:'az',n:'Azərbaycan',f:'🇦🇿',rtl:0},{c:'uz',n:"Oʻzbek",f:'🇺🇿',rtl:0},
+ {c:'kk',n:'Қазақша',f:'🇰🇿',rtl:0},{c:'sv',n:'Svenska',f:'🇸🇪',rtl:0},{c:'no',n:'Norsk',f:'🇳🇴',rtl:0},
+ {c:'fi',n:'Suomi',f:'🇫🇮',rtl:0},{c:'da',n:'Dansk',f:'🇩🇰',rtl:0},{c:'el',n:'Ελληνικά',f:'🇬🇷',rtl:0},
+ {c:'ro',n:'Română',f:'🇷🇴',rtl:0},{c:'hu',n:'Magyar',f:'🇭🇺',rtl:0},{c:'cs',n:'Čeština',f:'🇨🇿',rtl:0},
+ {c:'bs',n:'Bosanski',f:'🇧🇦',rtl:0},{c:'sq',n:'Shqip',f:'🇦🇱',rtl:0},{c:'ta',n:'தமிழ்',f:'🇱🇰',rtl:0},
+ {c:'ml',n:'മലയാളം',f:'🇮🇳',rtl:0},{c:'am',n:'አማርኛ',f:'🇪🇹',rtl:0},{c:'fil',n:'Filipino',f:'🇵🇭',rtl:0},
+ {c:'ku',n:'Kurdî',f:'🏳️',rtl:0},{c:'sr',n:'Српски',f:'🇷🇸',rtl:0},{c:'bg',n:'Български',f:'🇧🇬',rtl:0}
+];
+
+const EN={brandSub:"Zakat Engine",navCalc:"Calculator",navNisab:"Nisab",navTypes:"Assets",navFaq:"FAQ",
+heroBadge:"Shariah-compliant · 150+ currencies",heroTitle1:"Calculate your",heroTitle2:"Zakat",heroTitle3:"with precision & serenity",
+heroDesc:"A comprehensive smart calculator covering gold, silver, cash, stocks, crypto, trade goods, livestock and crops — in every world currency, in your own language.",
+ctaStart:"Start Calculating",ctaLearn:"Learn the rules",statRate:"Zakat rate",statGold:"Gold nisab",statCur:"Currencies",
+ayah:'"And establish prayer and give zakat" — Al-Baqarah 2:43',liveGold:"Gold / gram",liveSilver:"Silver / gram",
+calcTitle:"Smart Zakat Calculator",calcSub:"Fill only what applies to you. Everything is computed instantly and locally in your browser.",
+fCurrency:"Currency",fGoldPrice:"Gold price / gram",fSilverPrice:"Silver price / gram",nisabBase:"Nisab standard:",
+silverStd:"Silver (595g)",goldStd:"Gold (85g)",resTitle:"Your Zakat Summary",resAssets:"Total assets",resLiab:"Deductible liabilities",
+resNet:"Net zakatable wealth",resNisab:"Nisab threshold",resDue:"Zakat due",btnPrint:"Print",btnReset:"Reset",
+disclaimer:"Estimates for guidance only. Consult a qualified scholar for your specific case.",
+aboveNisab:"✓ Your wealth exceeds the nisab — Zakat is due.",belowNisab:"Your wealth is below the nisab — no Zakat is due.",
+n1t:"What is Nisab?",n1d:"The minimum wealth a Muslim must hold before Zakat becomes obligatory: 85g of gold or 595g of silver.",
+n2t:"The Hawl (lunar year)",n2d:"Wealth must remain above nisab for one full lunar year (354 days) before Zakat is paid on it.",
+n3t:"The eight categories",n3d:"Zakat is distributed to the poor, the needy, its collectors, reconciled hearts, freeing captives, debtors, in Allah's cause, and travellers.",
+typesTitle:"Zakatable Assets",faqTitle:"Frequently Asked Questions",footer:"Nisab — Comprehensive Smart Zakat Calculator. Built with care for the Ummah.",
+tCash:"Cash & Savings",tGold:"Gold & Silver",tInvest:"Investments",tBusiness:"Business",tAgri:"Agriculture & Livestock",tDebt:"Liabilities",
+lCashHand:"Cash in hand",lBank:"Bank accounts / savings",lDigital:"Digital wallets",lLoanGiven:"Loans you expect back",lOther:"Other cash assets",
+lGold24:"Gold 24K (grams)",lGold22:"Gold 22K (grams)",lGold18:"Gold 18K (grams)",lSilverG:"Silver (grams)",lJewelValue:"Jewellery valued in money",
+lStocks:"Stocks (zakatable portion)",lFunds:"Mutual funds / ETFs",lCrypto:"Cryptocurrency value",lPension:"Accessible pension / retirement",lBonds:"Sukuk & other holdings",
+lInventory:"Trade inventory (market value)",lReceivable:"Business receivables",lCashBiz:"Business cash",lRentIncome:"Saved rental income",
+lCropIrr:"Irrigated crops value (5%)",lCropRain:"Rain-fed crops value (10%)",lCamels:"Camels (count)",lCattle:"Cattle (count)",lSheep:"Sheep & goats (count)",
+lDebtShort:"Short-term debts due",lBills:"Outstanding bills",lRentDue:"Rent / mortgage due",lWages:"Salaries payable",
+hintGoldKarat:"Purity is applied automatically (22K ×0.9167, 18K ×0.75).",hintLivestock:"Livestock zakat is paid in animals; counts shown as guidance.",
+hintAgri:"Crop zakat has no hawl — it is due at harvest.",
+sumCash:"Cash",sumMetals:"Precious metals",sumInvest:"Investments",sumBiz:"Business",sumAgri:"Agriculture",sumLive:"Livestock note",
+faq:[["When is Zakat due?","Zakat is due once your zakatable wealth has stayed at or above the nisab for one full lunar year (hawl). Crops are an exception — they are due at harvest."],
+["Which nisab should I use — gold or silver?","Most contemporary scholars recommend the silver nisab because it is lower, which benefits the poor and makes more people eligible to give."],
+["Is jewellery I wear zakatable?","Scholars differ. The Hanafi school holds that all gold and silver jewellery is zakatable; others exempt jewellery in regular personal use."],
+["Do I pay Zakat on my house or car?","No. Personal-use assets such as your home, car, furniture and clothing are exempt. Property bought for resale is zakatable."],
+["How is Zakat on shares calculated?","If you trade shares actively, pay 2.5% of market value. If you hold them long-term, pay on the zakatable assets portion of the company plus dividends."],
+["Is cryptocurrency zakatable?","Yes — most contemporary scholars treat crypto as a monetary asset. Pay 2.5% of its market value on your zakat date."],
+["Can debts be deducted?","Yes, immediate liabilities due within the year — bills, rent, short-term loans — may be deducted from your zakatable wealth."],
+["Who can receive Zakat?","The eight categories in Surah At-Tawbah 9:60: the poor, the needy, zakat administrators, those whose hearts are reconciled, freeing captives, debtors, in the cause of Allah, and the wayfarer."]]
+};
+
+/* Compact translations for major languages; others fall back to English gracefully */
+const T={en:EN};
+T.ar={brandSub:"محرك الزكاة",navCalc:"الحاسبة",navNisab:"النصاب",navTypes:"الأصول",navFaq:"الأسئلة",
+heroBadge:"موافق للشريعة · أكثر من ١٥٠ عملة",heroTitle1:"احسب",heroTitle2:"زكاتك",heroTitle3:"بدقة وطمأنينة",
+heroDesc:"حاسبة ذكية شاملة تغطي الذهب والفضة والنقود والأسهم والعملات الرقمية وعروض التجارة والأنعام والزروع — بكل عملات العالم وبلغتك.",
+ctaStart:"ابدأ الحساب",ctaLearn:"تعرّف على الأحكام",statRate:"نسبة الزكاة",statGold:"نصاب الذهب",statCur:"عملة",
+ayah:"سورة البقرة ٤٣",liveGold:"الذهب / غرام",liveSilver:"الفضة / غرام",
+calcTitle:"حاسبة الزكاة الذكية",calcSub:"املأ ما ينطبق عليك فقط. يتم الحساب فورًا داخل متصفحك.",
+fCurrency:"العملة",fGoldPrice:"سعر غرام الذهب",fSilverPrice:"سعر غرام الفضة",nisabBase:"معيار النصاب:",
+silverStd:"الفضة (٥٩٥غ)",goldStd:"الذهب (٨٥غ)",resTitle:"ملخص زكاتك",resAssets:"إجمالي الأصول",resLiab:"الخصوم القابلة للخصم",
+resNet:"صافي المال الزكوي",resNisab:"حد النصاب",resDue:"الزكاة المستحقة",btnPrint:"طباعة",btnReset:"إعادة",
+disclaimer:"النتائج تقديرية للاسترشاد. يُرجى استشارة أهل العلم في حالتك الخاصة.",
+aboveNisab:"✓ مالك بلغ النصاب — تجب الزكاة.",belowNisab:"مالك دون النصاب — لا تجب الزكاة.",
+n1t:"ما هو النصاب؟",n1d:"أقل قدر من المال تجب فيه الزكاة: ٨٥ غرامًا من الذهب أو ٥٩٥ غرامًا من الفضة.",
+n2t:"الحول",n2d:"يجب أن يبقى المال بالغًا النصاب سنة قمرية كاملة (٣٥٤ يومًا) قبل إخراج الزكاة.",
+n3t:"مصارف الزكاة الثمانية",n3d:"الفقراء والمساكين والعاملين عليها والمؤلفة قلوبهم وفي الرقاب والغارمين وفي سبيل الله وابن السبيل.",
+typesTitle:"الأموال الزكوية",faqTitle:"الأسئلة الشائعة",footer:"نصاب — حاسبة الزكاة الذكية الشاملة. صُنعت بعناية لخدمة الأمة.",
+tCash:"النقود والمدخرات",tGold:"الذهب والفضة",tInvest:"الاستثمارات",tBusiness:"التجارة",tAgri:"الزروع والأنعام",tDebt:"الخصوم",
+lCashHand:"النقد في اليد",lBank:"الحسابات البنكية والمدخرات",lDigital:"المحافظ الرقمية",lLoanGiven:"ديون لك مرجوة السداد",lOther:"أصول نقدية أخرى",
+lGold24:"ذهب عيار ٢٤ (غرام)",lGold22:"ذهب عيار ٢٢ (غرام)",lGold18:"ذهب عيار ١٨ (غرام)",lSilverG:"فضة (غرام)",lJewelValue:"حلي مقوّمة بالمال",
+lStocks:"الأسهم (الجزء الزكوي)",lFunds:"الصناديق الاستثمارية",lCrypto:"قيمة العملات الرقمية",lPension:"معاشات متاحة السحب",lBonds:"صكوك وأصول أخرى",
+lInventory:"بضاعة التجارة (قيمة السوق)",lReceivable:"ذمم مدينة تجارية",lCashBiz:"نقدية النشاط التجاري",lRentIncome:"إيرادات إيجار مدخرة",
+lCropIrr:"زروع تُسقى بمؤونة (٥٪)",lCropRain:"زروع بعلية (١٠٪)",lCamels:"الإبل (عدد)",lCattle:"البقر (عدد)",lSheep:"الغنم (عدد)",
+lDebtShort:"ديون قصيرة الأجل",lBills:"فواتير مستحقة",lRentDue:"إيجار / قسط عقاري",lWages:"رواتب مستحقة",
+hintGoldKarat:"تُطبَّق نسبة النقاء تلقائيًا (٢٢ ×٠٫٩١٦٧، ١٨ ×٠٫٧٥).",hintLivestock:"زكاة الأنعام تُخرج من جنسها؛ الأعداد للاسترشاد.",
+hintAgri:"لا حول في زكاة الزروع، تجب يوم الحصاد.",
+sumCash:"النقود",sumMetals:"المعادن الثمينة",sumInvest:"الاستثمارات",sumBiz:"التجارة",sumAgri:"الزروع",sumLive:"ملاحظة الأنعام",
+faq:[["متى تجب الزكاة؟","تجب إذا بلغ المال النصاب وحال عليه الحول القمري. والزروع تُستثنى فتجب يوم حصادها."],
+["أي نصاب أختار: الذهب أم الفضة؟","يرجّح كثير من المعاصرين نصاب الفضة لأنه أقل، وفيه نفع للفقراء."],
+["هل في حلي المرأة المستعمل زكاة؟","اختلف العلماء؛ الحنفية يوجبونها مطلقًا، وغيرهم يعفي الحلي المستعمل."],
+["هل أزكي بيتي وسيارتي؟","لا، أموال القنية للاستعمال الشخصي لا زكاة فيها، أما ما أُعدّ للبيع فتجب فيه."],
+["كيف تحسب زكاة الأسهم؟","إن كانت للمتاجرة فـ٢٫٥٪ من قيمتها السوقية، وإن كانت للاستثمار فعلى الموجودات الزكوية والأرباح."],
+["هل في العملات الرقمية زكاة؟","نعم، يعاملها أكثر المعاصرين معاملة النقود، فتُزكّى بـ٢٫٥٪ من قيمتها."],
+["هل تُخصم الديون؟","نعم، الديون الحالّة خلال العام كالفواتير والإيجار تُخصم من الوعاء الزكوي."],
+["من يستحق الزكاة؟","الأصناف الثمانية في سورة التوبة ٦٠."]]};
+
+T.fr={navCalc:"Calculatrice",navNisab:"Nisab",navTypes:"Actifs",navFaq:"FAQ",heroTitle1:"Calculez votre",heroTitle2:"Zakat",heroTitle3:"avec précision et sérénité",
+heroDesc:"Une calculatrice intelligente couvrant l'or, l'argent, les liquidités, les actions, les cryptos, les marchandises, le bétail et les récoltes — dans toutes les devises.",
+ctaStart:"Commencer",ctaLearn:"Les règles",calcTitle:"Calculatrice de Zakat intelligente",fCurrency:"Devise",fGoldPrice:"Prix de l'or / gramme",fSilverPrice:"Prix de l'argent / gramme",
+resTitle:"Résumé de votre Zakat",resAssets:"Total des actifs",resLiab:"Passifs déductibles",resNet:"Patrimoine net imposable",resNisab:"Seuil du Nisab",resDue:"Zakat due",btnPrint:"Imprimer",btnReset:"Réinitialiser",
+tCash:"Liquidités",tGold:"Or & Argent",tInvest:"Investissements",tBusiness:"Commerce",tAgri:"Agriculture & Bétail",tDebt:"Dettes",typesTitle:"Actifs soumis à la Zakat",faqTitle:"Questions fréquentes",
+aboveNisab:"✓ Votre patrimoine dépasse le nisab — la Zakat est due.",belowNisab:"Votre patrimoine est en dessous du nisab."};
+T.es={navCalc:"Calculadora",navTypes:"Activos",heroTitle1:"Calcula tu",heroTitle2:"Zakat",heroTitle3:"con precisión y serenidad",ctaStart:"Empezar",calcTitle:"Calculadora inteligente de Zakat",
+fCurrency:"Moneda",fGoldPrice:"Precio del oro / gramo",fSilverPrice:"Precio de la plata / gramo",resTitle:"Resumen de tu Zakat",resAssets:"Activos totales",resLiab:"Pasivos deducibles",resNet:"Patrimonio neto",resNisab:"Umbral del Nisab",resDue:"Zakat a pagar",
+tCash:"Efectivo y ahorros",tGold:"Oro y plata",tInvest:"Inversiones",tBusiness:"Negocio",tAgri:"Agricultura y ganado",tDebt:"Deudas",btnPrint:"Imprimir",btnReset:"Reiniciar",typesTitle:"Activos zakatables",faqTitle:"Preguntas frecuentes"};
+T.tr={navCalc:"Hesaplayıcı",navNisab:"Nisap",navTypes:"Varlıklar",heroTitle1:"Zekâtınızı",heroTitle2:"hesaplayın",heroTitle3:"hassasiyet ve huzurla",ctaStart:"Hesaplamaya başla",
+calcTitle:"Akıllı Zekât Hesaplayıcı",fCurrency:"Para birimi",fGoldPrice:"Altın fiyatı / gram",fSilverPrice:"Gümüş fiyatı / gram",resTitle:"Zekât Özetiniz",resAssets:"Toplam varlık",resLiab:"Düşülebilir borçlar",resNet:"Net zekâta tabi servet",resNisab:"Nisap eşiği",resDue:"Ödenecek zekât",
+tCash:"Nakit ve birikim",tGold:"Altın ve gümüş",tInvest:"Yatırımlar",tBusiness:"Ticaret",tAgri:"Tarım ve hayvancılık",tDebt:"Borçlar",btnPrint:"Yazdır",btnReset:"Sıfırla",typesTitle:"Zekâta tabi varlıklar",faqTitle:"Sıkça sorulan sorular"};
+T.ur={brandSub:"زکوٰۃ انجن",navCalc:"کیلکولیٹر",navNisab:"نصاب",navTypes:"اثاثے",navFaq:"سوالات",heroTitle1:"اپنی",heroTitle2:"زکوٰۃ",heroTitle3:"درستگی اور سکون سے شمار کریں",
+ctaStart:"حساب شروع کریں",calcTitle:"سمارٹ زکوٰۃ کیلکولیٹر",fCurrency:"کرنسی",fGoldPrice:"سونے کی قیمت / گرام",fSilverPrice:"چاندی کی قیمت / گرام",
+resTitle:"آپ کی زکوٰۃ کا خلاصہ",resAssets:"کل اثاثے",resLiab:"قابلِ کٹوتی واجبات",resNet:"خالص مالِ زکوٰۃ",resNisab:"نصاب کی حد",resDue:"واجب زکوٰۃ",
+tCash:"نقدی و بچت",tGold:"سونا و چاندی",tInvest:"سرمایہ کاری",tBusiness:"کاروبار",tAgri:"زراعت و مویشی",tDebt:"واجبات",btnPrint:"پرنٹ",btnReset:"ری سیٹ",typesTitle:"زکوٰۃ کے اثاثے",faqTitle:"عام سوالات",
+aboveNisab:"✓ آپ کا مال نصاب سے زیادہ ہے — زکوٰۃ واجب ہے۔",belowNisab:"آپ کا مال نصاب سے کم ہے۔"};
+T.id={navCalc:"Kalkulator",navTypes:"Aset",heroTitle1:"Hitung",heroTitle2:"Zakat",heroTitle3:"Anda dengan tepat dan tenang",ctaStart:"Mulai menghitung",calcTitle:"Kalkulator Zakat Cerdas",
+fCurrency:"Mata uang",fGoldPrice:"Harga emas / gram",fSilverPrice:"Harga perak / gram",resTitle:"Ringkasan Zakat Anda",resAssets:"Total aset",resLiab:"Kewajiban",resNet:"Harta bersih wajib zakat",resNisab:"Ambang nisab",resDue:"Zakat terutang",
+tCash:"Uang tunai & tabungan",tGold:"Emas & perak",tInvest:"Investasi",tBusiness:"Perniagaan",tAgri:"Pertanian & ternak",tDebt:"Utang",btnPrint:"Cetak",btnReset:"Atur ulang",typesTitle:"Aset wajib zakat",faqTitle:"Pertanyaan umum"};
+T.de={navCalc:"Rechner",navTypes:"Vermögen",heroTitle1:"Berechnen Sie Ihre",heroTitle2:"Zakat",heroTitle3:"präzise und in Ruhe",ctaStart:"Jetzt berechnen",calcTitle:"Intelligenter Zakat-Rechner",
+fCurrency:"Währung",fGoldPrice:"Goldpreis / Gramm",fSilverPrice:"Silberpreis / Gramm",resTitle:"Ihre Zakat-Übersicht",resAssets:"Gesamtvermögen",resLiab:"Abzugsfähige Schulden",resNet:"Netto-Zakatvermögen",resNisab:"Nisab-Schwelle",resDue:"Fällige Zakat",
+tCash:"Bargeld & Ersparnisse",tGold:"Gold & Silber",tInvest:"Investitionen",tBusiness:"Geschäft",tAgri:"Landwirtschaft & Vieh",tDebt:"Verbindlichkeiten",btnPrint:"Drucken",btnReset:"Zurücksetzen",typesTitle:"Zakatpflichtiges Vermögen",faqTitle:"Häufige Fragen"};
+T.ru={navCalc:"Калькулятор",navTypes:"Активы",heroTitle1:"Рассчитайте свой",heroTitle2:"Закят",heroTitle3:"точно и спокойно",ctaStart:"Начать расчёт",calcTitle:"Умный калькулятор закята",
+fCurrency:"Валюта",fGoldPrice:"Цена золота / грамм",fSilverPrice:"Цена серебра / грамм",resTitle:"Ваш итог по закяту",resAssets:"Всего активов",resLiab:"Вычитаемые долги",resNet:"Чистое имущество",resNisab:"Порог нисаба",resDue:"Закят к выплате",
+tCash:"Наличные и сбережения",tGold:"Золото и серебро",tInvest:"Инвестиции",tBusiness:"Бизнес",tAgri:"Сельское хозяйство и скот",tDebt:"Обязательства",btnPrint:"Печать",btnReset:"Сброс",typesTitle:"Облагаемые активы",faqTitle:"Частые вопросы"};
+T.bn={navCalc:"ক্যালকুলেটর",navTypes:"সম্পদ",heroTitle1:"আপনার",heroTitle2:"যাকাত",heroTitle3:"নির্ভুলভাবে হিসাব করুন",ctaStart:"হিসাব শুরু করুন",calcTitle:"স্মার্ট যাকাত ক্যালকুলেটর",
+fCurrency:"মুদ্রা",fGoldPrice:"স্বর্ণের দাম / গ্রাম",fSilverPrice:"রূপার দাম / গ্রাম",resTitle:"আপনার যাকাতের সারসংক্ষেপ",resAssets:"মোট সম্পদ",resLiab:"বাদযোগ্য দায়",resNet:"নিট যাকাতযোগ্য সম্পদ",resNisab:"নিসাব সীমা",resDue:"প্রদেয় যাকাত",
+tCash:"নগদ ও সঞ্চয়",tGold:"স্বর্ণ ও রূপা",tInvest:"বিনিয়োগ",tBusiness:"ব্যবসা",tAgri:"কৃষি ও পশু",tDebt:"দায়",btnPrint:"প্রিন্ট",btnReset:"রিসেট",typesTitle:"যাকাতযোগ্য সম্পদ",faqTitle:"সাধারণ প্রশ্ন"};
+T.fa={brandSub:"موتور زکات",navCalc:"ماشین‌حساب",navNisab:"نصاب",navTypes:"دارایی‌ها",heroTitle1:"زکات خود را",heroTitle2:"محاسبه",heroTitle3:"با دقت و آرامش کنید",ctaStart:"شروع محاسبه",
+calcTitle:"ماشین‌حساب هوشمند زکات",fCurrency:"ارز",fGoldPrice:"قیمت طلا / گرم",fSilverPrice:"قیمت نقره / گرم",resTitle:"خلاصه زکات شما",resAssets:"مجموع دارایی",resLiab:"بدهی‌های کسرشدنی",resNet:"دارایی خالص",resNisab:"آستانه نصاب",resDue:"زکات واجب",
+tCash:"نقد و پس‌انداز",tGold:"طلا و نقره",tInvest:"سرمایه‌گذاری",tBusiness:"تجارت",tAgri:"کشاورزی و دام",tDebt:"بدهی‌ها",btnPrint:"چاپ",btnReset:"بازنشانی",typesTitle:"دارایی‌های مشمول زکات",faqTitle:"پرسش‌های متداول"};
+T.ms=T.id; 
+T.zh={navCalc:"计算器",navTypes:"资产",heroTitle1:"精准计算您的",heroTitle2:"天课",heroTitle3:"安心而准确",ctaStart:"开始计算",calcTitle:"智能天课计算器",fCurrency:"货币",fGoldPrice:"黄金价格 / 克",fSilverPrice:"白银价格 / 克",
+resTitle:"您的天课摘要",resAssets:"总资产",resLiab:"可扣除负债",resNet:"净应课财富",resNisab:"起征点",resDue:"应缴天课",tCash:"现金与储蓄",tGold:"黄金与白银",tInvest:"投资",tBusiness:"商业",tAgri:"农业与牲畜",tDebt:"负债",btnPrint:"打印",btnReset:"重置",typesTitle:"应课资产",faqTitle:"常见问题"};
+
+/* ---------------- CURRENCIES (rate per 1 USD) ---------------- */
+const CUR={USD:1,EUR:.92,GBP:.79,SAR:3.75,AED:3.67,QAR:3.64,KWD:.307,BHD:.376,OMR:.385,JOD:.709,EGP:48.5,
+MAD:9.9,DZD:134,TND:3.13,LYD:4.85,SDG:601,IQD:1310,LBP:89500,SYP:13000,YER:250,
+TRY:34.2,PKR:278,INR:83.4,BDT:120,IDR:15700,MYR:4.45,BND:1.34,SGD:1.34,THB:34.5,VND:25400,PHP:57.5,
+NGN:1580,KES:129,TZS:2700,UGX:3700,GHS:15.6,ZAR:18.1,XOF:604,XAF:604,SOS:571,ETB:120,DJF:178,MRU:39.8,
+CNY:7.24,JPY:152,KRW:1370,HKD:7.8,TWD:32.3,AUD:1.52,NZD:1.66,CAD:1.38,CHF:.88,SEK:10.6,NOK:10.9,DKK:6.86,
+PLN:3.98,CZK:23.3,HUF:363,RON:4.58,BGN:1.8,RSD:108,BAM:1.8,ALL:92,MKD:56.7,UAH:41.3,RUB:97,KZT:490,UZS:12800,
+AZN:1.7,GEL:2.72,AMD:388,TMT:3.5,KGS:86,TJS:10.9,AFN:68,IRR:42000,ILS:3.72,BRL:5.75,MXN:20.1,ARS:1010,
+CLP:960,COP:4300,PEN:3.78,UYU:42,BOB:6.9,VES:45,DOP:60,CRC:510,GTQ:7.7,JMD:157,TTD:6.8,
+MVR:15.4,LKR:293,NPR:134,MMK:2100,KHR:4050,LAK:21900,MNT:3400,BTN:83.4,
+ISK:137,CUP:24,QRS:1};
+const SYM={USD:"$",EUR:"€",GBP:"£",JPY:"¥",CNY:"¥",INR:"₹",SAR:"﷼",AED:"د.إ",TRY:"₺",KRW:"₩",RUB:"₽",NGN:"₦",PKR:"₨",BDT:"৳"};
+const GOLD_USD=85, SILVER_USD=1.0; // per gram baseline
+
+/* ---------------- FIELDS ---------------- */
+const GROUPS=[
+ {id:'cash',icon:'💵',t:'tCash',fields:[['cashHand','lCashHand'],['bank','lBank'],['digital','lDigital'],['loanGiven','lLoanGiven'],['otherCash','lOther']]},
+ {id:'gold',icon:'🥇',t:'tGold',hint:'hintGoldKarat',fields:[['g24','lGold24','g'],['g22','lGold22','g'],['g18','lGold18','g'],['silverG','lSilverG','g'],['jewelValue','lJewelValue']]},
+ {id:'invest',icon:'📈',t:'tInvest',fields:[['stocks','lStocks'],['funds','lFunds'],['crypto','lCrypto'],['pension','lPension'],['bonds','lBonds']]},
+ {id:'business',icon:'🏪',t:'tBusiness',fields:[['inventory','lInventory'],['receivable','lReceivable'],['cashBiz','lCashBiz'],['rentIncome','lRentIncome']]},
+ {id:'agri',icon:'🌾',t:'tAgri',hint:'hintAgri',fields:[['cropIrr','lCropIrr'],['cropRain','lCropRain'],['camels','lCamels','#'],['cattle','lCattle','#'],['sheep','lSheep','#']]},
+ {id:'debt',icon:'📉',t:'tDebt',fields:[['debtShort','lDebtShort'],['bills','lBills'],['rentDue','lRentDue'],['wages','lWages']]}
+];
+
+let lang='en', nisabBase='silver', cur='USD';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const t=k=>{const L=T[lang]||{};return L[k]!==undefined?L[k]:EN[k];};
+
+/* build language menu */
+function buildLangs(filter=''){
+  const l=$('#langList'); l.innerHTML='';
+  LANGS.filter(x=>x.n.toLowerCase().includes(filter.toLowerCase())||x.c.includes(filter.toLowerCase())).forEach(x=>{
+    const b=document.createElement('button');
+    b.className='w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-amber-500/15 transition text-start'+(x.c===lang?' bg-amber-500/20 font-semibold':'');
+    b.innerHTML=`<span>${x.f}</span><span class="flex-1 text-start">${x.n}</span>${T[x.c]?'<span class="text-[10px] text-emerald-400">●</span>':''}`;
+    b.onclick=()=>{setLang(x.c);$('#langMenu').classList.add('hidden');};
+    l.appendChild(b);
+  });
+}
+function setLang(c){
+  lang=c; const L=LANGS.find(x=>x.c===c)||LANGS[0];
+  document.documentElement.lang=c; document.documentElement.dir=L.rtl?'rtl':'ltr';
+  $('#langFlag').textContent=L.f; $('#langName').textContent=L.n;
+  localStorage.setItem('nisab_lang',c);
+  $$('[data-i18n]').forEach(e=>{const k=e.dataset.i18n; const v=t(k); if(v)e.textContent=v;});
+  buildLangs($('#langSearch').value||''); buildTabs(); buildFaq(); buildTypes(); compute();
+}
+
+/* build currency select */
+function buildCur(){
+  const s=$('#currency');
+  s.innerHTML=Object.keys(CUR).sort().map(c=>`<option value="${c}">${c}</option>`).join('');
+  s.value=cur;
+}
+function fmt(n){
+  try{return new Intl.NumberFormat(lang,{style:'currency',currency:cur,maximumFractionDigits:2}).format(n||0);}
+  catch(e){return (SYM[cur]||cur+' ')+(n||0).toLocaleString(undefined,{maximumFractionDigits:2});}
+}
+
+/* build tabs & panels */
+let active='cash';
+function buildTabs(){
+  $('#tabs').innerHTML=GROUPS.map(g=>`<button data-g="${g.id}" class="gtab px-4 py-2.5 rounded-xl text-sm font-semibold field transition ${g.id===active?'tab-active':''}">${g.icon} ${t(g.t)}</button>`).join('');
+  $('#panels').innerHTML=GROUPS.map(g=>`
+    <div class="gpanel ${g.id===active?'':'hidden'}" data-p="${g.id}">
+      ${g.hint?`<p class="text-xs mb-4 px-3 py-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-300">💡 ${t(g.hint)}</p>`:''}
+      <div class="grid sm:grid-cols-2 gap-4">
+        ${g.fields.map(f=>`<div>
+          <label class="text-xs font-semibold text-slate-500">${t(f[1])}</label>
+          <div class="relative mt-1.5">
+            <input data-k="${f[0]}" type="number" min="0" step="any" placeholder="0" class="zin w-full field rounded-xl px-3 py-2.5 text-sm pe-14">
+            <span class="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">${f[2]==='g'?'g':f[2]==='#'?'#':cur}</span>
+          </div></div>`).join('')}
+      </div>
+    </div>`).join('');
+  $$('.gtab').forEach(b=>b.onclick=()=>{active=b.dataset.g;$$('.gtab').forEach(x=>x.classList.toggle('tab-active',x.dataset.g===active));$$('.gpanel').forEach(p=>p.classList.toggle('hidden',p.dataset.p!==active));});
+  $$('.zin').forEach(i=>{i.value=vals[i.dataset.k]||'';i.addEventListener('input',()=>{vals[i.dataset.k]=parseFloat(i.value)||0;save();compute();});});
+}
+let vals=JSON.parse(localStorage.getItem('nisab_vals')||'{}');
+function save(){localStorage.setItem('nisab_vals',JSON.stringify(vals));}
+const v=k=>vals[k]||0;
+
+/* prices */
+function refreshPrices(){
+  const r=CUR[cur]||1;
+  $('#goldPrice').value=(GOLD_USD*r).toFixed(2);
+  $('#silverPrice').value=(SILVER_USD*r).toFixed(2);
+  $('#heroGold').textContent=fmt(GOLD_USD*r);
+  $('#heroSilver').textContent=fmt(SILVER_USD*r);
+}
+
+function compute(){
+  const gp=parseFloat($('#goldPrice').value)||0, sp=parseFloat($('#silverPrice').value)||0;
+  const cash=v('cashHand')+v('bank')+v('digital')+v('loanGiven')+v('otherCash');
+  const metals=(v('g24')+v('g22')*0.9167+v('g18')*0.75)*gp + v('silverG')*sp + v('jewelValue');
+  const invest=v('stocks')+v('funds')+v('crypto')+v('pension')+v('bonds');
+  const biz=v('inventory')+v('receivable')+v('cashBiz')+v('rentIncome');
+  const liab=v('debtShort')+v('bills')+v('rentDue')+v('wages');
+  const assets=cash+metals+invest+biz;
+  const net=Math.max(0,assets-liab);
+  const nisab=nisabBase==='gold'?85*gp:595*sp;
+  const due=net>=nisab?net*0.025:0;
+  const agriDue=v('cropIrr')*0.05+v('cropRain')*0.10;
+  const total=due+agriDue;
+
+  const rows=[['sumCash',cash],['sumMetals',metals],['sumInvest',invest],['sumBiz',biz],['sumAgri',v('cropIrr')+v('cropRain')]];
+  $('#breakdown').innerHTML=rows.filter(r=>r[1]>0).map(r=>`<div class="flex justify-between"><span class="text-slate-500">${t(r[0])}</span><span class="font-medium counter">${fmt(r[1])}</span></div>`).join('')||`<div class="text-slate-500 text-xs text-center py-2">—</div>`;
+  $('#rAssets').textContent=fmt(assets);$('#rLiab').textContent=fmt(liab);$('#rNet').textContent=fmt(net);$('#rNisab').textContent=fmt(nisab);
+  const sb=$('#statusBox');
+  if(net>=nisab){sb.textContent=t('aboveNisab');sb.className='mt-4 rounded-xl p-3 text-sm text-center font-medium bg-emerald-500/15 text-emerald-500';}
+  else{sb.textContent=t('belowNisab');sb.className='mt-4 rounded-xl p-3 text-sm text-center font-medium bg-slate-500/10 text-slate-400';}
+  animate($('#rDue'),total);
+  const animals=[];
+  if(v('camels')>=5)animals.push('🐪 '+Math.floor(v('camels')/5)+' sheep/5 camels');
+  if(v('cattle')>=30)animals.push('🐄 '+Math.floor(v('cattle')/30)+'× 1-yr calf');
+  if(v('sheep')>=40)animals.push('🐑 '+(v('sheep')<121?1:v('sheep')<201?2:3)+' sheep');
+  $('#rDueAlt').innerHTML=(agriDue>0?`🌾 ${fmt(agriDue)} · `:'')+(animals.length?animals.join(' · '):'2.5%');
+}
+let anim;
+function animate(el,to){
+  const from=parseFloat(el.dataset.v||0);cancelAnimationFrame(anim);const st=performance.now();
+  const step=n=>{const p=Math.min(1,(n-st)/600);const e=1-Math.pow(1-p,3);el.textContent=fmt(from+(to-from)*e);if(p<1)anim=requestAnimationFrame(step);else el.dataset.v=to;};
+  anim=requestAnimationFrame(step);
+}
+
+function buildTypes(){
+  const items=[['💵','tCash','2.5%'],['🥇','tGold','2.5%'],['📈','tInvest','2.5%'],['🏪','tBusiness','2.5%'],['🌾','tAgri','5% / 10%'],['🐑','lSheep','—'],['₿','lCrypto','2.5%'],['🏠','lRentIncome','2.5%']];
+  $('#typeGrid').innerHTML=items.map(i=>`<div class="glass rounded-2xl p-5 fade-up in hover:-translate-y-1 transition duration-300"><div class="text-3xl">${i[0]}</div><h4 class="font-bold mt-2 text-sm">${t(i[1])}</h4><div class="mt-1 text-xs text-amber-500 font-semibold">${i[2]}</div></div>`).join('');
+}
+function buildFaq(){
+  const f=(T[lang]&&T[lang].faq)||EN.faq;
+  $('#faqList').innerHTML=f.map((q,i)=>`<details class="glass rounded-xl p-4 group"${i===0?' open':''}>
+    <summary class="cursor-pointer font-semibold flex items-center justify-between gap-3 text-sm sm:text-base list-none">${q[0]}<span class="text-amber-500 group-open:rotate-45 transition-transform text-xl">+</span></summary>
+    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">${q[1]}</p></details>`).join('');
+}
+
+/* events */
+$('#langBtn').onclick=e=>{e.stopPropagation();$('#langMenu').classList.toggle('hidden');$('#langSearch').focus();};
+document.addEventListener('click',e=>{if(!e.target.closest('#langMenu')&&!e.target.closest('#langBtn'))$('#langMenu').classList.add('hidden');});
+$('#langSearch').oninput=e=>buildLangs(e.target.value);
+$('#currency').onchange=e=>{cur=e.target.value;localStorage.setItem('nisab_cur',cur);refreshPrices();buildTabs();compute();};
+$('#goldPrice').oninput=compute;$('#silverPrice').oninput=compute;
+$$('.nisab-tab').forEach(b=>b.onclick=()=>{nisabBase=b.dataset.nisab;$$('.nisab-tab').forEach(x=>x.classList.toggle('tab-active',x===b));compute();});
+$('#resetBtn').onclick=()=>{vals={};save();$$('.zin').forEach(i=>i.value='');compute();};
+$('#printBtn').onclick=()=>window.print();
+$('#themeBtn').onclick=()=>{const d=document.documentElement.classList.toggle('dark');$('#themeIcon').textContent=d?'🌙':'☀️';localStorage.setItem('nisab_theme',d?'dark':'light');};
+
+/* init */
+(function(){
+  if(localStorage.getItem('nisab_theme')==='light'){document.documentElement.classList.remove('dark');$('#themeIcon').textContent='☀️';}
+  cur=localStorage.getItem('nisab_cur')||'USD';
+  buildCur();refreshPrices();
+  const saved=localStorage.getItem('nisab_lang');
+  const auto=(navigator.language||'en').split('-')[0];
+  setLang(saved||(LANGS.some(l=>l.c===auto)?auto:'en'));
+  $('#year').textContent=new Date().getFullYear();
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.1});
+  $$('.fade-up').forEach(e=>io.observe(e));
+  compute();
+})();
+</script>
+</body>
+</html>
