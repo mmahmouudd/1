@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zakaty — Comprehensive Smart Zakat Calculator for All Currencies & Assets</title>
+<meta name="description" content="The world's most comprehensive smart Zakat calculator. 160+ currencies, 100+ languages, all assets: cash, gold, silver, stocks, crypto, business, agriculture, livestock.">
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Marcellus&family=Amiri+Quran&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700;800;900&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style type="text/tailwindcss">
+@custom-variant dark (&:where(.dark, .dark *));
+</style>
+<style>
+:root{
+  --gold:#D4AF37; --gold-light:#E9CE6F; --gold-deep:#9C7C1E;
+  --emerald:#10B981; --ink:#070B16;
+}
+*{ -webkit-tap-highlight-color:transparent; }
+body{ font-family:'Inter','Cairo','Noto Naskh Arabic',system-ui,sans-serif; background:#070B16; overflow-x:hidden; }
+html:not(.dark) body{ background:#F7F4EC; }
+.font-display{ font-family:'Marcellus','Aref Ruqaa',serif; }
+.font-arabic{ font-family:'Amiri Quran','Aref Ruqaa','Noto Naskh Arabic',serif; }
+.font-ruqaa{ font-family:'Aref Ruqaa',serif; }
+.gold-text{ background:linear-gradient(120deg,#F6E27A 0%,#D4AF37 35%,#FFF3B0 50%,#D4AF37 65%,#F6E27A 100%); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; animation:shine 5s linear infinite; }
+@keyframes shine{ to{ background-position:200% center; } }
+.glass{ background:rgba(255,255,255,.04); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid rgba(212,175,55,.14); }
+html:not(.dark) .glass{ background:rgba(255,255,255,.75); border:1px solid rgba(156,124,30,.18); box-shadow:0 20px 50px -20px rgba(120,90,10,.18); }
+.gold-border{ border:1px solid rgba(212,175,55,.28); }
+.gold-glow{ box-shadow:0 0 40px -8px rgba(212,175,55,.45), 0 20px 60px -20px rgba(0,0,0,.6); }
+.islamic-pattern{
+  background-image:url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-opacity='0.13' stroke-width='1'%3E%3Cpath d='M60 10 L70 50 L110 60 L70 70 L60 110 L50 70 L10 60 L50 50 Z'/%3E%3Ccircle cx='60' cy='60' r='14'/%3E%3Ccircle cx='60' cy='60' r='34'/%3E%3Cpath d='M0 0h120v120H0z' stroke-opacity='0.05'/%3E%3C/g%3E%3C/svg%3E");
+}
+.islamic-pattern-dense{
+  background-image:url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D4AF37' stroke-opacity='0.18'%3E%3Crect x='18' y='18' width='28' height='28'/%3E%3Crect x='18' y='18' width='28' height='28' transform='rotate(45 32 32)'/%3E%3Ccircle cx='32' cy='32' r='4'/%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-grid{ background-image:linear-gradient(rgba(212,175,55,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.06) 1px,transparent 1px); background-size:56px 56px; mask-image:radial-gradient(ellipse 80% 70% at 50% 40%,black 40%,transparent 75%); }
+.orb{ position:absolute; border-radius:9999px; filter:blur(90px); opacity:.5; pointer-events:none; }
+.divider-star{ display:flex; align-items:center; gap:14px; justify-content:center; }
+.divider-star::before,.divider-star::after{ content:''; height:1px; width:90px; background:linear-gradient(90deg,transparent,rgba(212,175,55,.7),transparent); }
+.reveal{ opacity:0; transform:translateY(28px); transition:all .8s cubic-bezier(.16,1,.3,1); }
+.reveal.visible{ opacity:1; transform:none; }
+.reveal-d1{ transition-delay:.1s } .reveal-d2{ transition-delay:.2s } .reveal-d3{ transition-delay:.3s }
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
+input[type=number]{ -moz-appearance:textfield; appearance:textfield; }
+.field{ width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(212,175,55,.18); border-radius:14px; padding:12px 14px 12px 44px; color:#fff; font-weight:600; outline:none; transition:.25s; font-size:15px; }
+html:not(.dark) .field{ background:#fff; color:#1a1a1a; border-color:rgba(0,0,0,.12); }
+.field:focus{ border-color:#D4AF37; box-shadow:0 0 0 3px rgba(212,175,55,.18); background:rgba(212,175,55,.06); }
+html:not(.dark) .field:focus{ background:#FFFEF6; }
+.field::placeholder{ color:rgba(255,255,255,.28); font-weight:400; }
+html:not(.dark) .field::placeholder{ color:rgba(0,0,0,.35); }
+select.field{ padding-left:14px; }
+select.field option{ background:#0F172A; color:#fff; }
+.tab-btn{ transition:.3s cubic-bezier(.16,1,.3,1); }
+.tab-btn.active{ background:linear-gradient(135deg,#D4AF37,#9C7C1E); color:#0A0A0A !important; box-shadow:0 10px 30px -8px rgba(212,175,55,.6); border-color:transparent !important; }
+.faq-answer{ max-height:0; overflow:hidden; transition:max-height .5s cubic-bezier(.16,1,.3,1); }
+.faq-item.open .faq-answer{ max-height:400px; }
+.faq-item.open .faq-chevron{ transform:rotate(180deg); }
+.faq-chevron{ transition:.35s; }
+@keyframes floaty{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-14px) } }
+.floaty{ animation:floaty 6s ease-in-out infinite; }
+@keyframes floaty2{ 0%,100%{ transform:translateY(0) rotate(-2deg)} 50%{ transform:translateY(-10px) rotate(2deg)} }
+.floaty2{ animation:floaty2 7s ease-in-out infinite; }
+@keyframes marquee{ from{ transform:translateX(0)} to{ transform:translateX(-50%)} }
+[dir="rtl"] .marquee-track{ animation-direction:reverse; }
+.marquee-track{ animation:marquee 32s linear infinite; }
+.marquee-track:hover{ animation-play-state:paused; }
+@keyframes pulse-ring{ 0%{ box-shadow:0 0 0 0 rgba(16,185,129,.5)} 70%{ box-shadow:0 0 0 14px rgba(16,185,129,0)} 100%{ box-shadow:0 0 0 0 rgba(16,185,129,0)} }
+.pulse-live{ animation:pulse-ring 2s infinite; }
+@keyframes crescentGlow{ 0%,100%{ filter:drop-shadow(0 0 12px rgba(212,175,55,.6))} 50%{ filter:drop-shadow(0 0 28px rgba(212,175,55,.9))} }
+.crescent-glow{ animation:crescentGlow 4s ease-in-out infinite; }
+.btn-gold{ background:linear-gradient(135deg,#F6E27A 0%,#D4AF37 40%,#B8912B 70%,#E9CE6F 100%); background-size:200% auto; color:#131000; font-weight:800; transition:.35s; }
+.btn-gold:hover{ background-position:right center; transform:translateY(-2px); box-shadow:0 18px 40px -10px rgba(212,175,55,.55); }
+.btn-gold:active{ transform:translateY(0) scale(.98); }
+.btn-ghost{ border:1px solid rgba(212,175,55,.35); transition:.3s; }
+.btn-ghost:hover{ background:rgba(212,175,55,.12); border-color:#D4AF37; transform:translateY(-2px); }
+.card-hover{ transition:.4s cubic-bezier(.16,1,.3,1); }
+.card-hover:hover{ transform:translateY(-8px); border-color:rgba(212,175,55,.55) !important; box-shadow:0 30px 60px -20px rgba(212,175,55,.25); }
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-track{ background:#0A0F1E; }
+html:not(.dark) ::-webkit-scrollbar-track{ background:#EDE8D8; }
+::-webkit-scrollbar-thumb{ background:linear-gradient(#D4AF37,#7A5E14); border-radius:8px; }
+.modal-bg{ background:rgba(3,6,14,.8); backdrop-filter:blur(8px); }
+.lang-opt{ transition:.25s; cursor:pointer; }
+.lang-opt:hover{ background:rgba(212,175,55,.12); border-color:rgba(212,175,55,.5) !important; transform:translateY(-2px); }
+.step-dot{ transition:.35s; }
+.toast-in{ animation:toastIn .45s cubic-bezier(.16,1,.3,1); }
+@keyframes toastIn{ from{ opacity:0; transform:translateY(20px) scale(.95)} to{ opacity:1; transform:none} }
+@keyframes spinSlow{ to{ transform:rotate(360deg)} }
+.spin-slow{ animation:spinSlow 22s linear infinite; }
+#particles{ position:absolute; inset:0; pointer-events:none; }
+.num-badge{ font-variant-numeric:tabular-nums; }
+@media print{ .no-print{ display:none !important; } .print-only{ display:block !important; } body{ background:#fff !important; } }
+.print-only{ display:none; }
+.shimmer{ position:relative; overflow:hidden; }
+.shimmer::after{ content:''; position:absolute; inset:0; background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.12) 50%,transparent 70%); animation:shimmerMove 2.6s infinite; }
+@keyframes shimmerMove{ from{ transform:translateX(-100%)} to{ transform:translateX(100%)} }
+.toggle-pill{ transition:.3s; }
+input:checked + .toggle-pill{ background:linear-gradient(135deg,#10B981,#059669); }
+input:checked + .toggle-pill .toggle-dot{ transform:translateX(26px); }
+[dir="rtl"] input:checked + .toggle-pill .toggle-dot{ transform:translateX(-26px); }
+.toggle-dot{ transition:.3s; }
+/* ---------- LIGHT MODE REFINEMENTS (dark is default) ---------- */
+html:not(.dark) body{ color:#2A2A28; }
+html:not(.dark) .text-white{ color:#17130A !important; }
+html:not(.dark) .text-slate-100{ color:#2A2415 !important; }
+html:not(.dark) .text-slate-200{ color:#33302A !important; }
+html:not(.dark) .text-slate-300{ color:#4A463C !important; }
+html:not(.dark) .text-slate-400{ color:#6B665A !important; }
+html:not(.dark) .text-slate-500{ color:#7A7567 !important; }
+html:not(.dark) .islamic-pattern{ background-image:url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%239C7C1E' stroke-opacity='0.16' stroke-width='1'%3E%3Cpath d='M60 10 L70 50 L110 60 L70 70 L60 110 L50 70 L10 60 L50 50 Z'/%3E%3Ccircle cx='60' cy='60' r='14'/%3E%3Ccircle cx='60' cy='60' r='34'/%3E%3C/g%3E%3C/svg%3E"); }
+html:not(.dark) .hero-grid{ background-image:linear-gradient(rgba(156,124,30,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(156,124,30,.10) 1px,transparent 1px); }
+html:not(.dark) #resultCard, html:not(.dark) #resultCard .text-white{ color:#fff !important; }
+html:not(.dark) #resultCard .text-slate-400{ color:#B9C0D4 !important; }
+html:not(.dark) #resultCard .text-slate-300{ color:#D6DCEC !important; }
+html:not(.dark) #resultCard .text-slate-500{ color:#8A93AD !important; }
+html:not(.dark) section.bg-\[\#05080F\]\/60{ background:rgba(212,175,55,.07) !important; }
+html:not(.dark) .bg-\[\#05080F\]\/70{ background:rgba(255,255,255,.8) !important; }
+html:not(.dark) footer{ background:#131000 !important; }
+html:not(.dark) footer .text-slate-400{ color:#B8B2A4 !important; }
+html:not(.dark) footer .text-slate-500{ color:#8F8A7C !important; }
+html:not(.dark) footer .text-white{ color:#fff !important; }
+</style>
+</head>
+<body class="text-slate-200 dark:text-slate-200 antialiased">
+
+<!-- Scroll progress -->
+<div class="fixed top-0 left-0 h-[3px] z-[100] bg-gradient-to-r from-[#D4AF37] via-[#F6E27A] to-[#10B981] w-0 no-print" id="scrollProgress"></div>
+
+<!-- ══════════ TOP BAR ══════════ -->
+<div class="no-print relative z-40 border-b border-[#D4AF37]/15 bg-[#05080F]/90 backdrop-blur-xl">
+  <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3 text-[12px] sm:text-[13px]">
+    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+      <span class="flex items-center gap-1.5 text-[#E9CE6F] font-semibold whitespace-nowrap">
+        <svg class="w-4 h-4 crescent-glow" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <span id="hijriDate" class="truncate">…</span>
+      </span>
+      <span class="hidden md:inline text-slate-500">|</span>
+      <span class="hidden md:flex items-center gap-1.5 text-slate-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live"></span>
+        <span><span data-i18n="top_gold">Gold</span>: <b class="text-amber-300" id="topGoldPrice">$93.10/g</b></span>
+        <span class="text-slate-600">•</span>
+        <span><span data-i18n="top_silver">Silver</span>: <b class="text-slate-300" id="topSilverPrice">$1.08/g</b></span>
+      </span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:inline text-slate-500" id="rateStatus">● Live FX</span>
+      <button onclick="toggleTheme()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#D4AF37]/25 hover:bg-[#D4AF37]/10 transition text-[12px] font-semibold" id="themeBtn">
+        <svg id="themeIconMoon" class="w-3.5 h-3.5 text-[#E9CE6F]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="themeIconSun" class="w-3.5 h-3.5 text-amber-500 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.36 6.36l-1.41-1.41M7.05 7.05L5.64 5.64m12.72 0l-1.41 1.41M7.05 16.95l-1.41 1.41M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span data-i18n="top_theme">Theme</span>
+      </button>
+      <button onclick="openLangModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#9C7C1E] text-[#131000] font-bold text-[12px] hover:shadow-lg hover:shadow-[#D4AF37]/40 transition hover:-translate-y-0.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2c0 4-2.5 7.5-6 9m6-9c0 4 2.5 7.5 6 9m-6.5 2h11m-5.5 0v1m-9-8.5c1.5 2 4 3.5 6.5 3.5M3 21c2-4 5-6.5 8.5-7.5"/></svg>
+        <span id="currentLangLabel">English</span>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ NAVBAR ══════════ -->
+<header class="no-print sticky top-0 z-40 border-b border-[#D4AF37]/12 bg-[#070B16]/85 dark:bg-[#070B16]/85 backdrop-blur-2xl" id="mainNav" style="background:rgba(7,11,22,.85)">
+  <nav class="max-w-7xl mx-auto px-4 py-3.5 flex items-center justify-between gap-4">
+    <a href="#top" class="flex items-center gap-3 group">
+      <div class="relative w-11 h-11 shrink-0">
+        <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#F6E27A] via-[#D4AF37] to-[#7A5E14] rotate-45 group-hover:rotate-[135deg] transition-transform duration-700 shadow-lg shadow-[#D4AF37]/30"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <svg class="w-5 h-5 text-[#131000] -rotate-0" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/><path d="M17 3l.9 2.1L20 6l-2.1.9L17 9l-.9-2.1L14 6l2.1-.9z" opacity=".9"/></svg>
+        </div>
+      </div>
+      <div class="leading-tight">
+        <div class="font-display text-xl sm:text-2xl font-bold tracking-wide text-white" style="color:var(--nav-text,#fff)"><span class="gold-text">Zakaty</span> <span class="font-arabic text-[#E9CE6F] text-lg sm:text-xl">زكاتي</span></div>
+        <div class="text-[10px] sm:text-[11px] uppercase tracking-[0.22em] text-slate-400" data-i18n="nav_logo_sub">Smart Zakat Calculator</div>
+      </div>
+    </a>
+    <div class="hidden lg:flex items-center gap-1 text-[14px] font-medium">
+      <a href="#calculator" class="px-3.5 py-2 rounded-xl hover:bg-[#D4AF37]/10 hover:text-[#F6E27A] transition text-slate-300" data-i18n="nav_calculator">Calculator</a>
+      <a href="#nisab" class="px-3.5 py-2 rounded-xl hover:bg-[#D4AF37]/10 hover:text-[#F6E27A] transition text-slate-300" data-i18n="nav_nisab">Nisab</a>
+      <a href="#assets" class="px-3.5 py-2 rounded-xl hover:bg-[#D4AF37]/10 hover:text-[#F6E27A] transition text-slate-300" data-i18n="nav_assets">Assets</a>
+      <a href="#recipients" class="px-3.5 py-2 rounded-xl hover:bg-[#D4AF37]/10 hover:text-[#F6E27A] transition text-slate-300" data-i18n="nav_recipients">Recipients</a>
+      <a href="#guide" class="px-3.5 py-2 rounded-xl hover:bg-[#D4AF37]/10 hover:text-[#F6E27A] transition text-slate-300" data-i18n="nav_guide">Guide</a>
+      <a href="#faq" class="px-3.5 py-2 rounded-xl hover:bg-[#D4AF37]/10 hover:text-[#F6E27A] transition text-slate-300" data-i18n="nav_faq">FAQ</a>
+      <a href="#history" class="px-3.5 py-2 rounded-xl hover:bg-[#D4AF37]/10 hover:text-[#F6E27A] transition text-slate-300" data-i18n="nav_history">History</a>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="#calculator" class="hidden sm:inline-flex btn-gold px-5 py-2.5 rounded-xl text-sm items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-5 4h4m5 5a9 9 0 11-12.7-8.3L4 6l2.3 2.3M20 4v4h-4"/></svg>
+        <span data-i18n="nav_start">Calculate Zakat</span>
+      </a>
+      <button onclick="toggleMobileMenu()" class="lg:hidden w-10 h-10 rounded-xl border border-[#D4AF37]/30 flex items-center justify-center text-[#E9CE6F]" aria-label="Menu">
+        <svg id="menuIconOpen" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg id="menuIconClose" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </nav>
+  <div id="mobileMenu" class="lg:hidden hidden border-t border-[#D4AF37]/12 px-4 py-4 backdrop-blur-2xl" style="background:rgba(7,11,22,.95)">
+    <div class="grid grid-cols-2 gap-2 text-sm font-semibold">
+      <a href="#calculator" onclick="toggleMobileMenu()" class="px-4 py-3 rounded-xl bg-[#D4AF37]/8 border border-[#D4AF37]/20 text-slate-200" data-i18n="nav_calculator">Calculator</a>
+      <a href="#nisab" onclick="toggleMobileMenu()" class="px-4 py-3 rounded-xl bg-[#D4AF37]/8 border border-[#D4AF37]/20 text-slate-200" data-i18n="nav_nisab">Nisab</a>
+      <a href="#assets" onclick="toggleMobileMenu()" class="px-4 py-3 rounded-xl bg-[#D4AF37]/8 border border-[#D4AF37]/20 text-slate-200" data-i18n="nav_assets">Assets</a>
+      <a href="#recipients" onclick="toggleMobileMenu()" class="px-4 py-3 rounded-xl bg-[#D4AF37]/8 border border-[#D4AF37]/20 text-slate-200" data-i18n="nav_recipients">Recipients</a>
+      <a href="#guide" onclick="toggleMobileMenu()" class="px-4 py-3 rounded-xl bg-[#D4AF37]/8 border border-[#D4AF37]/20 text-slate-200" data-i18n="nav_guide">Guide</a>
+      <a href="#faq" onclick="toggleMobileMenu()" class="px-4 py-3 rounded-xl bg-[#D4AF37]/8 border border-[#D4AF37]/20 text-slate-200" data-i18n="nav_faq">FAQ</a>
+    </div>
+    <a href="#calculator" onclick="toggleMobileMenu()" class="btn-gold mt-3 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm"><span data-i18n="nav_start">Calculate Zakat</span></a>
+  </div>
+</header>
+
+<!-- ══════════ HERO ══════════ -->
+<section id="top" class="no-print relative overflow-hidden islamic-pattern">
+  <div class="absolute inset-0 hero-grid"></div>
+  <div class="orb w-[500px] h-[500px] bg-[#D4AF37]/25 -top-40 -left-40"></div>
+  <div class="orb w-[420px] h-[420px] bg-emerald-500/20 top-20 right-[-120px]"></div>
+  <div class="orb w-[300px] h-[300px] bg-teal-500/15 bottom-[-100px] left-1/3"></div>
+  <canvas id="particles"></canvas>
+  <svg class="absolute top-10 right-[6%] w-24 h-24 sm:w-36 sm:h-36 opacity-20 spin-slow pointer-events-none" viewBox="0 0 100 100" fill="none" stroke="#D4AF37" stroke-width="1.2"><rect x="22" y="22" width="56" height="56"/><rect x="22" y="22" width="56" height="56" transform="rotate(45 50 50)"/><circle cx="50" cy="50" r="10"/><circle cx="50" cy="50" r="34"/></svg>
+  <div class="font-arabic absolute bottom-2 left-4 text-[90px] sm:text-[150px] leading-none text-[#D4AF37]/[.06] select-none pointer-events-none">الزكاة</div>
+
+  <div class="relative max-w-7xl mx-auto px-4 pt-12 pb-10 sm:pt-20 sm:pb-16 grid lg:grid-cols-2 gap-10 items-center">
+    <div class="reveal visible">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-[12px] sm:text-[13px] font-semibold text-[#E9CE6F] mb-6">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live"></span>
+        <span data-i18n="hero_badge">Trusted by 2M+ Muslims • 100+ Languages • 160+ Currencies</span>
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl xl:text-[64px] leading-[1.08] font-bold text-white">
+        <span class="block text-slate-100" data-i18n="hero_title_a">Comprehensive Smart</span>
+        <span class="block gold-text pb-1" data-i18n="hero_title_b">Zakat Calculator</span>
+        <span class="block text-[22px] sm:text-3xl xl:text-[34px] font-normal text-slate-300 mt-2" data-i18n="hero_title_c">for Every Currency & Asset</span>
+      </h1>
+      <p class="mt-5 text-slate-400 text-[15px] sm:text-lg leading-relaxed max-w-xl" data-i18n="hero_desc">Calculate your Zakat with precision and confidence. Cash, gold, silver, stocks, crypto, business, agriculture & livestock — with live Nisab, real-time currency conversion and scholarly guidance.</p>
+      <div class="mt-7 flex flex-col sm:flex-row gap-3">
+        <a href="#calculator" class="btn-gold px-7 py-4 rounded-2xl text-[15px] flex items-center justify-center gap-2.5">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-5 4h4m-2 9a9 9 0 100-18 9 9 0 000 18z"/></svg>
+          <span data-i18n="hero_btn_calc">Calculate My Zakat</span>
+        </a>
+        <a href="#nisab" class="btn-ghost px-7 py-4 rounded-2xl text-[15px] font-bold text-[#E9CE6F] flex items-center justify-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live"></span>
+          <span data-i18n="hero_btn_nisab">Check Nisab Live</span>
+        </a>
+      </div>
+      <div class="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-slate-400 font-medium">
+        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span data-i18n="hero_trust1">Shariah Compliant</span></span>
+        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span data-i18n="hero_trust2">Live Nisab Prices</span></span>
+        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span data-i18n="hero_trust3">Private & Secure</span></span>
+      </div>
+      <!-- Stats -->
+      <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="glass rounded-2xl p-4 text-center card-hover"><div class="font-display text-2xl sm:text-3xl font-bold gold-text num-badge" data-count="160" data-suffix="+">0</div><div class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium" data-i18n="stat1_label">Currencies</div></div>
+        <div class="glass rounded-2xl p-4 text-center card-hover"><div class="font-display text-2xl sm:text-3xl font-bold gold-text num-badge" data-count="100" data-suffix="+">0</div><div class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium" data-i18n="stat2_label">Languages</div></div>
+        <div class="glass rounded-2xl p-4 text-center card-hover"><div class="font-display text-2xl sm:text-3xl font-bold gold-text num-badge" data-count="12" data-suffix="+">0</div><div class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium" data-i18n="stat3_label">Asset Types</div></div>
+        <div class="glass rounded-2xl p-4 text-center card-hover"><div class="font-display text-2xl sm:text-3xl font-bold text-emerald-400 num-badge">2.5%</div><div class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium" data-i18n="stat4_label">Accurate Rate</div></div>
+      </div>
+    </div>
+
+    <!-- Hero visual card -->
+    <div class="relative reveal visible reveal-d2 hidden md:block">
+      <div class="absolute -inset-6 bg-gradient-to-br from-[#D4AF37]/20 via-transparent to-emerald-500/15 rounded-[32px] blur-2xl"></div>
+      <div class="relative glass rounded-[28px] p-6 sm:p-8 gold-glow overflow-hidden">
+        <div class="absolute inset-0 islamic-pattern-dense opacity-40"></div>
+        <div class="relative">
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#F6E27A] to-[#9C7C1E] flex items-center justify-center shadow-lg shadow-[#D4AF37]/30">
+                <svg class="w-6 h-6 text-[#131000]" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              </div>
+              <div>
+                <div class="font-bold text-white text-[15px]" data-i18n="hero_card_title">Live Nisab Threshold</div>
+                <div class="text-[12px] text-emerald-400 font-semibold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-live"></span><span data-i18n="hero_card_live">Updated live</span></div>
+              </div>
+            </div>
+            <div class="font-arabic text-3xl text-[#D4AF37]/70">﷽</div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-2xl p-4 bg-gradient-to-br from-amber-400/15 to-transparent border border-amber-400/25">
+              <div class="text-[11px] uppercase tracking-widest text-amber-300/80 font-bold" data-i18n="hero_gold_std">Gold Nisab • 85g</div>
+              <div class="font-display text-xl sm:text-2xl font-bold text-white mt-1 num-badge" id="heroGoldNisab">$7,913</div>
+              <div class="text-[11px] text-slate-400 mt-1" id="heroGoldSub">85g × $93.10</div>
+            </div>
+            <div class="rounded-2xl p-4 bg-gradient-to-br from-slate-300/12 to-transparent border border-slate-300/20">
+              <div class="text-[11px] uppercase tracking-widest text-slate-300/80 font-bold" data-i18n="hero_silver_std">Silver Nisab • 595g</div>
+              <div class="font-display text-xl sm:text-2xl font-bold text-white mt-1 num-badge" id="heroSilverNisab">$643</div>
+              <div class="text-[11px] text-slate-400 mt-1" id="heroSilverSub">595g × $1.08</div>
+            </div>
+          </div>
+          <div class="mt-4 rounded-2xl p-4 bg-emerald-500/10 border border-emerald-500/25 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <div class="text-[13px] text-slate-300 leading-snug"><b class="text-emerald-300">2.5%</b> <span data-i18n="hero_card_note">of net zakatable wealth held for one lunar year (Hawl) above Nisab.</span></div>
+          </div>
+          <div class="mt-4 flex items-center justify-between text-[12px] text-slate-400">
+            <span class="font-arabic text-[15px] text-[#E9CE6F]/90">وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ</span>
+            <span class="font-semibold">Quran 2:43</span>
+          </div>
+        </div>
+      </div>
+      <!-- Floating chips -->
+      <div class="absolute -left-6 top-8 floaty glass rounded-2xl px-4 py-3 flex items-center gap-2.5 shadow-xl">
+        <span class="w-9 h-9 rounded-xl bg-[#D4AF37]/20 flex items-center justify-center text-[#E9CE6F] font-bold text-sm">$</span>
+        <div class="text-[12px]"><div class="font-bold text-white">USD → SAR</div><div class="text-emerald-400 font-semibold" id="chipRate">3.75 • Live</div></div>
+      </div>
+      <div class="absolute -right-4 bottom-10 floaty2 glass rounded-2xl px-4 py-3 flex items-center gap-2.5 shadow-xl">
+        <span class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center"><svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+        <div class="text-[12px]"><div class="font-bold text-white">100+ <span data-i18n="chip_langs">Languages</span></div><div class="text-slate-400" data-i18n="chip_instant">Instant switching</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Currency ticker -->
+  <div class="relative border-y border-[#D4AF37]/15 bg-[#05080F]/70 backdrop-blur overflow-hidden py-3">
+    <div class="flex whitespace-nowrap marquee-track w-max" id="tickerTrack"></div>
+  </div>
+</section>
+
+<!-- ══════════ CALCULATOR ══════════ -->
+<section id="calculator" class="relative py-14 sm:py-20 scroll-mt-20">
+  <div class="orb w-[400px] h-[400px] bg-[#D4AF37]/12 top-0 left-[-150px]"></div>
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center max-w-3xl mx-auto reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 text-[#E9CE6F] text-[12px] font-bold uppercase tracking-[0.2em]"><span class="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span><span data-i18n="calc_badge">Smart Calculator</span><span class="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></span></div>
+      <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mt-4" style="color:var(--h-text,#fff)"><span data-i18n="calc_title_a">Calculate Your</span> <span class="gold-text" data-i18n="calc_title_b">Zakat</span></h2>
+      <p class="text-slate-400 mt-3 text-[15px] sm:text-base" data-i18n="calc_desc">Select your currency, enter your assets & liabilities. Results update instantly with live Nisab valuation.</p>
+      <div class="divider-star mt-5"><svg class="w-4 h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6.2 4.5 2.4 7.3L12 16.5 5.8 21l2.4-7.3L2 9.2h7.6z"/></svg></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mt-8 flex flex-wrap justify-center gap-2 sm:gap-3 reveal no-print" id="calcTabs">
+      <button onclick="switchTab('wealth')" data-tab="wealth" class="tab-btn active px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border border-[#D4AF37]/25 text-[13px] sm:text-sm font-bold text-slate-300 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9 9.75h6M9 12.75h6M9 15.75h3"/></svg><span data-i18n="tab_wealth">Wealth & Money</span></button>
+      <button onclick="switchTab('gold')" data-tab="gold" class="tab-btn px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border border-[#D4AF37]/25 text-[13px] sm:text-sm font-bold text-slate-300 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 7-7 11L5 10z"/></svg><span data-i18n="tab_gold">Gold & Silver</span></button>
+      <button onclick="switchTab('business')" data-tab="business" class="tab-btn px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border border-[#D4AF37]/25 text-[13px] sm:text-sm font-bold text-slate-300 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg><span data-i18n="tab_business">Business</span></button>
+      <button onclick="switchTab('agri')" data-tab="agri" class="tab-btn px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border border-[#D4AF37]/25 text-[13px] sm:text-sm font-bold text-slate-300 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4 0-7-3-7-7 0-3 2-5 4-6 0 3 1 5 3 6 2-1 3-3 3-6 2 1 4 3 4 6 0 4-3 7-7 7z"/></svg><span data-i18n="tab_agri">Agriculture</span></button>
+      <button onclick="switchTab('livestock')" data-tab="livestock" class="tab-btn px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border border-[#D4AF37]/25 text-[13px] sm:text-sm font-bold text-slate-300 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16c2 0 3-1 3-3s-1-2-1-4 1-3 3-3h6c2 0 3 1 3 3s-1 2-1 4 1 3 3 3M7 16v3m10-3v3"/></svg><span data-i18n="tab_livestock">Livestock</span></button>
+    </div>
+
+    <!-- Currency + Nisab config bar -->
+    <div class="mt-6 glass rounded-3xl p-4 sm:p-6 reveal">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="text-[12px] font-bold uppercase tracking-wider text-[#E9CE6F] flex items-center gap-1.5 mb-2"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.5 0-4 1.5-4 3.5S9.5 15 12 15s4 1 4 2.5S13.5 20 12 20m0-12V6m0 14v-2m-4-4H6m12 0h-2M12 4a8 8 0 100 16 8 8 0 000-16z"/></svg><span data-i18n="form_currency">Currency</span></label>
+          <button onclick="openCurrencyModal()" class="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-2xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 hover:border-[#D4AF37] transition font-bold text-white">
+            <span class="flex items-center gap-2.5"><span id="curFlag" class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#F6E27A] to-[#9C7C1E] text-[#131000] text-[11px] font-black flex items-center justify-center">USD</span><span id="curLabel">USD — US Dollar</span></span>
+            <svg class="w-4 h-4 text-[#E9CE6F]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+        </div>
+        <div>
+          <label class="text-[12px] font-bold uppercase tracking-wider text-[#E9CE6F] mb-2 block" data-i18n="form_gold_price">Gold price / gram</label>
+          <div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-300 font-bold text-sm curSym">$</span><input type="number" id="goldPrice" class="field" value="93.10" min="0" step="0.01" oninput="onPriceChange()"></div>
+        </div>
+        <div>
+          <label class="text-[12px] font-bold uppercase tracking-wider text-[#E9CE6F] mb-2 block" data-i18n="form_silver_price">Silver price / gram</label>
+          <div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-sm curSym">$</span><input type="number" id="silverPrice" class="field" value="1.08" min="0" step="0.01" oninput="onPriceChange()"></div>
+        </div>
+        <div>
+          <label class="text-[12px] font-bold uppercase tracking-wider text-[#E9CE6F] mb-2 block" data-i18n="form_nisab_std">Nisab standard</label>
+          <div class="grid grid-cols-3 gap-1.5 p-1.5 rounded-2xl bg-black/30 border border-[#D4AF37]/20" id="nisabStdGroup">
+            <button onclick="setNisabStd('gold')" data-std="gold" class="std-btn px-2 py-2.5 rounded-xl text-[12px] font-bold text-slate-300 transition" data-i18n="nisab_gold">Gold</button>
+            <button onclick="setNisabStd('silver')" data-std="silver" class="std-btn px-2 py-2.5 rounded-xl text-[12px] font-bold text-slate-300 transition" data-i18n="nisab_silver">Silver</button>
+            <button onclick="setNisabStd('lower')" data-std="lower" class="std-btn px-2 py-2.5 rounded-xl text-[12px] font-bold transition bg-gradient-to-r from-[#D4AF37] to-[#9C7C1E] text-[#131000]" data-i18n="nisab_lower">Lower</button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-slate-400">
+        <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-live"></span><span id="fxNote">1 USD = 1 USD • Live rates</span></span>
+        <span class="px-3 py-1.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/25 text-[#E9CE6F] font-semibold" id="nisabQuickNote">Nisab: —</span>
+      </div>
+    </div>
+
+    <div class="mt-6 grid lg:grid-cols-5 gap-6 items-start">
+      <!-- INPUTS -->
+      <div class="lg:col-span-3 space-y-6">
+        <!-- WEALTH TAB -->
+        <div id="panel-wealth" class="tab-panel space-y-6">
+          <div class="glass rounded-3xl p-5 sm:p-7 reveal">
+            <h3 class="font-display text-xl font-bold text-white flex items-center gap-2.5 mb-1"><span class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center"><svg class="w-4.5 h-4.5 w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.5 0-4 1.5-4 3.5S9.5 15 12 15s4 1 4 2.5S13.5 20 12 20M12 4v16"/></svg></span><span data-i18n="sec_assets">Zakatable Assets</span></h3>
+            <p class="text-[13px] text-slate-500 mb-5" data-i18n="sec_assets_desc">Enter the current market value of everything you own.</p>
+            <div class="grid sm:grid-cols-2 gap-4" id="wealthAssetsGrid"></div>
+            <div class="grid sm:grid-cols-2 gap-4 mt-4">
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 flex justify-between"><span data-i18n="f_gold_w">Gold weight (grams)</span><span class="text-amber-300/80 text-[12px]" id="goldValHint">≈ $0</span></label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-300 text-sm font-bold">Au</span><input type="number" id="in_goldW" class="field" placeholder="0" min="0" step="0.01" oninput="calculate()"></div></div>
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 flex justify-between"><span data-i18n="f_silver_w">Silver weight (grams)</span><span class="text-slate-300/80 text-[12px]" id="silverValHint">≈ $0</span></label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm font-bold">Ag</span><input type="number" id="in_silverW" class="field" placeholder="0" min="0" step="0.01" oninput="calculate()"></div></div>
+            </div>
+          </div>
+          <div class="glass rounded-3xl p-5 sm:p-7 reveal">
+            <h3 class="font-display text-xl font-bold text-white flex items-center gap-2.5 mb-1"><span class="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center"><svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span><span data-i18n="sec_liab">Deductible Liabilities</span></h3>
+            <p class="text-[13px] text-slate-500 mb-5" data-i18n="sec_liab_desc">Immediate debts & dues payable within the year.</p>
+            <div class="grid sm:grid-cols-2 gap-4" id="wealthLiabGrid"></div>
+            <div class="mt-5 rounded-2xl p-4 bg-[#D4AF37]/[.07] border border-[#D4AF37]/25 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+              <div><div class="font-bold text-white text-[14px]" data-i18n="hawl_title">Hawl completed? (1 lunar year)</div><div class="text-[12px] text-slate-400" data-i18n="hawl_desc">Wealth must be held for one Hijri year above Nisab.</div></div>
+              <label class="flex items-center gap-3 cursor-pointer select-none">
+                <span class="text-[13px] font-bold text-slate-400" data-i18n="hawl_no">No</span>
+                <span class="relative inline-block"><input type="checkbox" id="hawlCheck" class="sr-only" checked onchange="calculate()"><span class="toggle-pill flex w-[58px] h-[30px] rounded-full bg-slate-700 p-1"><span class="toggle-dot w-[22px] h-[22px] rounded-full bg-white shadow"></span></span></span>
+                <span class="text-[13px] font-bold text-emerald-400" data-i18n="hawl_yes">Yes</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- GOLD TAB -->
+        <div id="panel-gold" class="tab-panel hidden">
+          <div class="glass rounded-3xl p-5 sm:p-7">
+            <h3 class="font-display text-xl font-bold text-white mb-1" data-i18n="goldcalc_title">Gold & Silver Zakat (2.5%)</h3>
+            <p class="text-[13px] text-slate-500 mb-5" data-i18n="goldcalc_desc">Jewelry, coins & bullion held for one lunar year. Nisab: 85g gold or 595g silver.</p>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="goldcalc_gold_g">Gold (grams)</label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-300 text-sm font-bold">Au</span><input type="number" id="g_gold" class="field" placeholder="0" min="0" step="0.01" oninput="calcGold()"></div></div>
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="goldcalc_silver_g">Silver (grams)</label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 text-sm font-bold">Ag</span><input type="number" id="g_silver" class="field" placeholder="0" min="0" step="0.01" oninput="calcGold()"></div></div>
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="goldcalc_purity">Gold purity (karat)</label><select id="g_karat" class="field" onchange="calcGold()"><option value="1">24K — Pure</option><option value="0.916">22K</option><option value="0.875">21K</option><option value="0.75">18K</option><option value="0.625">15K</option><option value="0.585">14K</option></select></div>
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="goldcalc_use">Purpose</label><select id="g_use" class="field" onchange="calcGold()"><option value="invest" data-i18n="goldcalc_use_invest">Investment / stored</option><option value="wear" data-i18n="goldcalc_use_wear">Personal wearing (Hanafi: zakatable)</option></select></div>
+            </div>
+            <div id="goldResult" class="mt-5 rounded-2xl p-5 bg-emerald-500/10 border border-emerald-500/25 text-[14px] leading-relaxed text-slate-300"></div>
+          </div>
+        </div>
+
+        <!-- BUSINESS TAB -->
+        <div id="panel-business" class="tab-panel hidden">
+          <div class="glass rounded-3xl p-5 sm:p-7">
+            <h3 class="font-display text-xl font-bold text-white mb-1" data-i18n="biz_title">Business & Trade Goods Zakat (2.5%)</h3>
+            <p class="text-[13px] text-slate-500 mb-5" data-i18n="biz_desc">Stock-in-trade at current market value + business cash + receivables − business debts.</p>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="biz_stock">Inventory value</label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 curSym font-bold text-sm text-[#E9CE6F]">$</span><input type="number" id="b_stock" class="field" placeholder="0" oninput="calcBusiness()"></div></div>
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="biz_cash">Business cash & bank</label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 curSym font-bold text-sm text-[#E9CE6F]">$</span><input type="number" id="b_cash" class="field" placeholder="0" oninput="calcBusiness()"></div></div>
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="biz_receive">Receivables (expected)</label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 curSym font-bold text-sm text-[#E9CE6F]">$</span><input type="number" id="b_receive" class="field" placeholder="0" oninput="calcBusiness()"></div></div>
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="biz_debts">Business debts due</label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 curSym font-bold text-sm text-rose-400">$</span><input type="number" id="b_debts" class="field" placeholder="0" oninput="calcBusiness()"></div></div>
+            </div>
+            <div id="bizResult" class="mt-5 rounded-2xl p-5 bg-emerald-500/10 border border-emerald-500/25 text-[14px] text-slate-300"></div>
+          </div>
+        </div>
+
+        <!-- AGRI TAB -->
+        <div id="panel-agri" class="tab-panel hidden">
+          <div class="glass rounded-3xl p-5 sm:p-7">
+            <h3 class="font-display text-xl font-bold text-white mb-1" data-i18n="agri_title">Agriculture Zakat (Ushr)</h3>
+            <p class="text-[13px] text-slate-500 mb-5" data-i18n="agri_desc">No Hawl required — due at harvest. Nisab ≈ 653 kg of staple grain.</p>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="agri_amount">Harvest (kg)</label><input type="number" id="a_kg" class="field !pl-4" placeholder="0" oninput="calcAgri()"></div>
+              <div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block" data-i18n="agri_price">Price per kg (optional)</label><div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 curSym font-bold text-sm text-[#E9CE6F]">$</span><input type="number" id="a_price" class="field" placeholder="0" oninput="calcAgri()"></div></div>
+            </div>
+            <label class="text-[13px] font-semibold text-slate-300 mt-4 mb-2 block" data-i18n="agri_type">Irrigation method</label>
+            <div class="grid sm:grid-cols-3 gap-2" id="agriTypeGroup">
+              <button onclick="setAgriType('rain')" data-agri="rain" class="agri-btn px-3 py-3 rounded-2xl border text-[13px] font-bold border-emerald-500/60 bg-emerald-500/15 text-emerald-300"><span data-i18n="agri_rain">Rain-fed • 10%</span></button>
+              <button onclick="setAgriType('irrigated')" data-agri="irrigated" class="agri-btn px-3 py-3 rounded-2xl border border-slate-600/50 text-[13px] font-bold text-slate-400"><span data-i18n="agri_irrigated">Irrigated • 5%</span></button>
+              <button onclick="setAgriType('mixed')" data-agri="mixed" class="agri-btn px-3 py-3 rounded-2xl border border-slate-600/50 text-[13px] font-bold text-slate-400"><span data-i18n="agri_mixed">Mixed • 7.5%</span></button>
+            </div>
+            <div id="agriResult" class="mt-5 rounded-2xl p-5 bg-emerald-500/10 border border-emerald-500/25 text-[14px] text-slate-300"></div>
+          </div>
+        </div>
+
+        <!-- LIVESTOCK TAB -->
+        <div id="panel-livestock" class="tab-panel hidden">
+          <div class="glass rounded-3xl p-5 sm:p-7">
+            <h3 class="font-display text-xl font-bold text-white mb-1" data-i18n="live_title">Livestock Zakat (grazing animals)</h3>
+            <p class="text-[13px] text-slate-500 mb-5" data-i18n="live_desc">Applies to freely-grazing (Sa'imah) animals held one lunar year. Stall-fed animals for trade → use Business tab.</p>
+            <div class="grid sm:grid-cols-3 gap-4">
+              <div class="rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/[.05] p-4"><label class="text-[13px] font-bold text-[#E9CE6F] mb-2 block" data-i18n="live_sheep">Sheep / Goats</label><input type="number" id="l_sheep" class="field !pl-4" placeholder="0" oninput="calcLivestock()"><div class="text-[11px] text-slate-500 mt-1.5" data-i18n="live_sheep_n">Nisab: 40</div></div>
+              <div class="rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/[.05] p-4"><label class="text-[13px] font-bold text-[#E9CE6F] mb-2 block" data-i18n="live_cattle">Cattle / Cows</label><input type="number" id="l_cattle" class="field !pl-4" placeholder="0" oninput="calcLivestock()"><div class="text-[11px] text-slate-500 mt-1.5" data-i18n="live_cattle_n">Nisab: 30</div></div>
+              <div class="rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/[.05] p-4"><label class="text-[13px] font-bold text-[#E9CE6F] mb-2 block" data-i18n="live_camel">Camels</label><input type="number" id="l_camel" class="field !pl-4" placeholder="0" oninput="calcLivestock()"><div class="text-[11px] text-slate-500 mt-1.5" data-i18n="live_camel_n">Nisab: 5</div></div>
+            </div>
+            <div id="liveResult" class="mt-5 rounded-2xl p-5 bg-emerald-500/10 border border-emerald-500/25 text-[14px] text-slate-300"></div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 no-print">
+          <button onclick="calculate(true)" class="btn-gold flex-1 px-6 py-4 rounded-2xl text-[15px] flex items-center justify-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m-5 4h4m-2 9a9 9 0 100-18 9 9 0 000 18z"/></svg><span data-i18n="btn_calculate">Calculate Zakat</span></button>
+          <button onclick="resetAll()" class="btn-ghost px-6 py-4 rounded-2xl text-[15px] font-bold text-slate-300 flex items-center justify-center gap-2"><svg class="w-4.5 h-4.5 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-1a4 4 0 00-8 0v1m-2 4h12m-9-9V6a3 3 0 016 0v5"/></svg><span data-i18n="btn_reset">Reset</span></button>
+          <button onclick="saveCalculation()" class="btn-ghost px-6 py-4 rounded-2xl text-[15px] font-bold text-[#E9CE6F] flex items-center justify-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg><span data-i18n="btn_save">Save</span></button>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="lg:col-span-2 lg:sticky lg:top-28 space-y-5">
+        <div class="rounded-[28px] p-[1.5px] bg-gradient-to-br from-[#F6E27A] via-[#D4AF37]/40 to-emerald-500/50 gold-glow reveal">
+          <div class="rounded-[27px] bg-[#0A1122] p-6 sm:p-7 relative overflow-hidden" id="resultCard" style="background:#0A1122">
+            <div class="absolute inset-0 islamic-pattern-dense opacity-30 pointer-events-none"></div>
+            <div class="relative">
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="font-display text-lg font-bold text-white" data-i18n="res_title">Your Zakat Result</h3>
+                <span id="resStatusBadge" class="px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-slate-700/50 text-slate-300">—</span>
+              </div>
+              <div class="font-arabic text-[#D4AF37]/60 text-xl mb-3">زَكَاةُ مَالِك</div>
+              <div class="rounded-2xl bg-gradient-to-br from-[#D4AF37]/15 to-transparent border border-[#D4AF37]/30 p-5 text-center relative overflow-hidden shimmer">
+                <div class="text-[11px] uppercase tracking-[0.2em] text-[#E9CE6F] font-bold" data-i18n="res_zakat_due">Zakat Due (2.5%)</div>
+                <div class="font-display text-4xl sm:text-[44px] font-bold gold-text mt-1 num-badge leading-tight" id="resZakat">—</div>
+                <div class="text-[13px] text-slate-400 mt-1 font-semibold" id="resZakatAlt">≈ — USD</div>
+              </div>
+              <div class="grid grid-cols-2 gap-3 mt-4">
+                <div class="rounded-2xl bg-white/[.04] border border-white/10 p-4"><div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold" data-i18n="res_net">Net Zakatable</div><div class="font-bold text-white text-lg num-badge mt-0.5" id="resNet">—</div></div>
+                <div class="rounded-2xl bg-white/[.04] border border-white/10 p-4"><div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold" data-i18n="res_nisab">Nisab</div><div class="font-bold text-white text-lg num-badge mt-0.5" id="resNisab">—</div></div>
+                <div class="rounded-2xl bg-white/[.04] border border-white/10 p-4"><div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold" data-i18n="res_assets">Total Assets</div><div class="font-bold text-emerald-400 text-lg num-badge mt-0.5" id="resAssets">—</div></div>
+                <div class="rounded-2xl bg-white/[.04] border border-white/10 p-4"><div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold" data-i18n="res_liab">Liabilities</div><div class="font-bold text-rose-400 text-lg num-badge mt-0.5" id="resLiab">—</div></div>
+              </div>
+              <div class="mt-4">
+                <div class="flex justify-between text-[12px] font-bold text-slate-400 mb-2"><span data-i18n="res_progress">Progress to Nisab</span><span id="resPct" class="text-[#E9CE6F]">0%</span></div>
+                <div class="h-2.5 rounded-full bg-white/10 overflow-hidden"><div id="resBar" class="h-full w-0 rounded-full bg-gradient-to-r from-[#D4AF37] to-emerald-400 transition-all duration-1000"></div></div>
+              </div>
+              <div class="mt-4 rounded-2xl p-4 bg-white/[.03] border border-white/10">
+                <div class="text-[12px] font-bold text-slate-300 mb-2" data-i18n="res_breakdown">Asset Breakdown</div>
+                <div class="h-[190px]"><canvas id="chartDonut"></canvas></div>
+              </div>
+              <div class="mt-3 rounded-2xl p-4 bg-emerald-500/[.07] border border-emerald-500/25">
+                <div class="text-[12px] font-bold text-emerald-300 mb-2 flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.494-4.494m-4.494 4.494a15.995 15.995 0 01-3.395 1.622"/></svg><span data-i18n="res_insights">Smart Insights</span></div>
+                <ul id="insightsList" class="space-y-1.5 text-[12.5px] text-slate-300 leading-relaxed"></ul>
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2 no-print">
+                <button onclick="copyResult()" class="px-4 py-3 rounded-xl bg-white/[.06] border border-white/15 text-[13px] font-bold text-slate-200 hover:bg-white/10 transition flex items-center justify-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V5a2 2 0 012-2h9a2 2 0 012 2v9a2 2 0 01-2 2h-2M5 7h11a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z"/></svg><span data-i18n="btn_copy">Copy</span></button>
+                <button onclick="window.print()" class="px-4 py-3 rounded-xl bg-white/[.06] border border-white/15 text-[13px] font-bold text-slate-200 hover:bg-white/10 transition flex items-center justify-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2z"/></svg><span data-i18n="btn_print">Print / PDF</span></button>
+              </div>
+              <p class="mt-3 text-[11px] text-slate-500 leading-relaxed" data-i18n="res_disclaimer">Estimate for guidance only. Please consult a qualified scholar for complex cases.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ NISAB ══════════ -->
+<section id="nisab" class="relative py-14 sm:py-20 scroll-mt-20 border-t border-[#D4AF37]/10 bg-[#05080F]/60">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center max-w-3xl mx-auto reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 text-[#E9CE6F] text-[12px] font-bold uppercase tracking-[0.2em]"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-live"></span><span data-i18n="nisab_badge">Live Nisab Monitor</span></div>
+      <h2 class="font-display text-3xl sm:text-5xl font-bold mt-4" style="color:var(--h-text,#fff)"><span data-i18n="nisab_title_a">Today's</span> <span class="gold-text" data-i18n="nisab_title_b">Nisab Threshold</span></h2>
+      <p class="text-slate-400 mt-3" data-i18n="nisab_desc">Nisab is the minimum wealth threshold. Prices update live — adjust them in the calculator to match your local market.</p>
+    </div>
+    <div class="mt-10 grid md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+      <div class="glass rounded-3xl p-6 sm:p-8 card-hover reveal relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-200 via-[#D4AF37] to-amber-200"></div>
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-200 to-[#9C7C1E] flex items-center justify-center shadow-lg shadow-amber-500/30 floaty"><svg class="w-7 h-7 text-[#131000]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 7-7 11L5 10zM5 10h14M12 3v18"/></svg></div>
+          <div><div class="font-bold text-white text-lg" data-i18n="nisab_gold_card">Gold Nisab — 85 grams</div><div class="text-[13px] text-slate-400" data-i18n="nisab_gold_sub">Preferred by many scholars for cash</div></div>
+        </div>
+        <div class="font-display text-4xl sm:text-5xl font-bold gold-text mt-5 num-badge" id="nisabGoldVal">—</div>
+        <div class="text-[13px] text-slate-400 mt-1"><span data-i18n="nisab_per_gram">per gram</span>: <b class="text-amber-300" id="nisabGoldRate">—</b></div>
+        <div class="mt-4 h-[130px]"><canvas id="chartGold"></canvas></div>
+      </div>
+      <div class="glass rounded-3xl p-6 sm:p-8 card-hover reveal reveal-d1 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-100 via-slate-400 to-slate-100"></div>
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-500 flex items-center justify-center shadow-lg shadow-slate-400/30 floaty2"><svg class="w-7 h-7 text-slate-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.7 0-3 .8-3 2s1.3 2 3 2 3 .8 3 2-1.3 2-3 2m0-8c1.1 0 2.1.4 2.6 1M12 8V7m0 10v1m9-8a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+          <div><div class="font-bold text-white text-lg" data-i18n="nisab_silver_card">Silver Nisab — 595 grams</div><div class="text-[13px] text-slate-400" data-i18n="nisab_silver_sub">Lower threshold • benefits the poor</div></div>
+        </div>
+        <div class="font-display text-4xl sm:text-5xl font-bold text-slate-100 mt-5 num-badge" id="nisabSilverVal">—</div>
+        <div class="text-[13px] text-slate-400 mt-1"><span data-i18n="nisab_per_gram">per gram</span>: <b class="text-slate-200" id="nisabSilverRate">—</b></div>
+        <div class="mt-4 h-[130px]"><canvas id="chartSilver"></canvas></div>
+      </div>
+    </div>
+    <div class="max-w-4xl mx-auto mt-5 glass rounded-2xl p-5 flex gap-3 items-start reveal">
+      <svg class="w-5 h-5 text-[#E9CE6F] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <p class="text-[13.5px] text-slate-300 leading-relaxed" data-i18n="nisab_note">Scholars differ on which standard to use for cash. Using the lower (silver) Nisab is more cautious and benefits the poor. When in doubt, consult your local scholar. Gold/silver jewelry for personal use: Hanafis require Zakat; others exempt reasonable personal use.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ASSETS ══════════ -->
+<section id="assets" class="relative py-14 sm:py-20 scroll-mt-20">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center max-w-3xl mx-auto reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 text-[#E9CE6F] text-[12px] font-bold uppercase tracking-[0.2em]" data-i18n="assets_badge">Full Coverage</div>
+      <h2 class="font-display text-3xl sm:text-5xl font-bold mt-4" style="color:var(--h-text,#fff)"><span data-i18n="assets_title_a">Every Asset,</span> <span class="gold-text" data-i18n="assets_title_b">Covered</span></h2>
+      <p class="text-slate-400 mt-3" data-i18n="assets_desc">One calculator for your entire portfolio — traditional and modern assets alike.</p>
+    </div>
+    <div class="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5" id="assetsGrid"></div>
+  </div>
+</section>
+
+<!-- ══════════ RECIPIENTS ══════════ -->
+<section id="recipients" class="relative py-14 sm:py-20 scroll-mt-20 border-t border-[#D4AF37]/10 bg-[#05080F]/60 overflow-hidden">
+  <div class="font-arabic absolute top-6 right-4 text-[80px] sm:text-[130px] leading-none text-[#D4AF37]/[.05] select-none">مصارف الزكاة</div>
+  <div class="max-w-7xl mx-auto px-4 relative">
+    <div class="text-center max-w-3xl mx-auto reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 text-[#E9CE6F] text-[12px] font-bold uppercase tracking-[0.2em]"><span data-i18n="rec_badge">Quran 9:60</span></div>
+      <h2 class="font-display text-3xl sm:text-5xl font-bold mt-4" style="color:var(--h-text,#fff)"><span data-i18n="rec_title_a">The Eight</span> <span class="gold-text" data-i18n="rec_title_b">Rightful Recipients</span></h2>
+      <p class="font-arabic text-[#E9CE6F]/80 text-lg mt-3">إِنَّمَا الصَّدَقَاتُ لِلْفُقَرَاءِ وَالْمَسَاكِينِ وَالْعَامِلِينَ عَلَيْهَا...</p>
+    </div>
+    <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5" id="recGrid"></div>
+  </div>
+</section>
+
+<!-- ══════════ GUIDE ══════════ -->
+<section id="guide" class="relative py-14 sm:py-20 scroll-mt-20">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="text-center max-w-3xl mx-auto reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 text-[#E9CE6F] text-[12px] font-bold uppercase tracking-[0.2em]" data-i18n="steps_badge">How It Works</div>
+      <h2 class="font-display text-3xl sm:text-5xl font-bold mt-4" style="color:var(--h-text,#fff)"><span data-i18n="steps_title_a">Zakat in</span> <span class="gold-text" data-i18n="steps_title_b">4 Simple Steps</span></h2>
+    </div>
+    <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5" id="stepsGrid"></div>
+  </div>
+</section>
+
+<!-- ══════════ FAQ ══════════ -->
+<section id="faq" class="relative py-14 sm:py-20 scroll-mt-20 border-t border-[#D4AF37]/10 bg-[#05080F]/60">
+  <div class="max-w-4xl mx-auto px-4">
+    <div class="text-center reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 text-[#E9CE6F] text-[12px] font-bold uppercase tracking-[0.2em]" data-i18n="faq_badge">Knowledge Base</div>
+      <h2 class="font-display text-3xl sm:text-5xl font-bold mt-4" style="color:var(--h-text,#fff)"><span data-i18n="faq_title_a">Frequently Asked</span> <span class="gold-text" data-i18n="faq_title_b">Questions</span></h2>
+    </div>
+    <div class="mt-8 space-y-3" id="faqList"></div>
+  </div>
+</section>
+
+<!-- ══════════ HISTORY ══════════ -->
+<section id="history" class="relative py-14 sm:py-20 scroll-mt-20">
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="text-center reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 text-[#E9CE6F] text-[12px] font-bold uppercase tracking-[0.2em]" data-i18n="hist_badge">Saved Records</div>
+      <h2 class="font-display text-3xl sm:text-5xl font-bold mt-4" style="color:var(--h-text,#fff)"><span data-i18n="hist_title_a">Calculation</span> <span class="gold-text" data-i18n="hist_title_b">History</span></h2>
+      <p class="text-slate-400 mt-3 text-sm" data-i18n="hist_desc">Stored privately in your browser only. Nothing leaves your device.</p>
+    </div>
+    <div class="mt-8 glass rounded-3xl p-4 sm:p-6 reveal">
+      <div class="flex flex-wrap gap-2 justify-end mb-4 no-print">
+        <button onclick="exportHistory()" class="px-4 py-2.5 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[13px] font-bold text-[#E9CE6F] hover:bg-[#D4AF37]/20 transition" data-i18n="hist_export">Export CSV</button>
+        <button onclick="clearHistory()" class="px-4 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-[13px] font-bold text-rose-300 hover:bg-rose-500/20 transition" data-i18n="hist_clear">Clear All</button>
+      </div>
+      <div class="overflow-x-auto rounded-2xl border border-white/10">
+        <table class="w-full text-[13px] min-w-[560px]">
+          <thead><tr class="bg-[#D4AF37]/10 text-[#E9CE6F] text-left">
+            <th class="px-4 py-3 font-bold" data-i18n="hist_date">Date</th><th class="px-4 py-3 font-bold" data-i18n="hist_currency">Currency</th><th class="px-4 py-3 font-bold text-right" data-i18n="hist_net">Net Wealth</th><th class="px-4 py-3 font-bold text-right" data-i18n="hist_nisab">Nisab</th><th class="px-4 py-3 font-bold text-right" data-i18n="hist_zakat">Zakat Due</th><th class="px-4 py-3"></th>
+          </tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+        <div id="historyEmpty" class="py-12 text-center text-slate-500">
+          <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div class="font-semibold" data-i18n="hist_empty">No saved calculations yet. Your history will appear here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CTA ══════════ -->
+<section class="relative py-14 sm:py-20 px-4 no-print">
+  <div class="max-w-5xl mx-auto rounded-[32px] p-[1.5px] bg-gradient-to-br from-[#F6E27A] via-[#D4AF37]/40 to-emerald-500/60 reveal">
+    <div class="rounded-[31px] bg-[#0A1122] px-6 py-12 sm:p-14 text-center relative overflow-hidden" style="background:#0A1122">
+      <div class="absolute inset-0 islamic-pattern opacity-60"></div>
+      <div class="orb w-[350px] h-[350px] bg-[#D4AF37]/20 -top-32 left-1/2 -translate-x-1/2"></div>
+      <div class="relative">
+        <div class="font-arabic text-4xl text-[#D4AF37] mb-4">وَمَا أَنفَقْتُم مِّن شَيْءٍ فَهُوَ يُخْلِفُهُ</div>
+        <h2 class="font-display text-3xl sm:text-5xl font-bold text-white" data-i18n="cta_title">Purify Your Wealth Today</h2>
+        <p class="text-slate-400 mt-3 max-w-2xl mx-auto" data-i18n="cta_desc">"Whatever you spend, He will replace it." — Quran 34:39. Calculate, purify and give with a peaceful heart.</p>
+        <div class="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="#calculator" class="btn-gold px-8 py-4 rounded-2xl text-[15px]" data-i18n="cta_btn">Start Calculating — It's Free</a>
+          <button onclick="openLangModal()" class="btn-ghost px-8 py-4 rounded-2xl text-[15px] font-bold text-[#E9CE6F]" data-i18n="cta_lang">View in 100+ Languages</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="border-t border-[#D4AF37]/15 bg-[#04060C] pt-12 pb-6 no-print">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center gap-2.5 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#F6E27A] to-[#9C7C1E] rotate-45 flex items-center justify-center"><svg class="w-4 h-4 -rotate-45 text-[#131000]" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+          <div class="font-display text-xl font-bold text-white">Zakaty <span class="font-arabic text-[#E9CE6F] text-base">زكاتي</span></div>
+        </div>
+        <p class="text-[13px] text-slate-500 leading-relaxed" data-i18n="footer_desc">The world's most comprehensive smart Zakat calculator — free forever, private by design, serving Muslims in 100+ languages.</p>
+        <button onclick="openLangModal()" class="mt-4 px-4 py-2.5 rounded-xl border border-[#D4AF37]/30 text-[13px] font-bold text-[#E9CE6F] hover:bg-[#D4AF37]/10 transition flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2c0 4-2.5 7.5-6 9m6-9c0 4 2.5 7.5 6 9m-6.5 2h11"/></svg><span id="footerLangLabel">English</span></button>
+      </div>
+      <div>
+        <div class="text-[12px] font-black uppercase tracking-[0.2em] text-[#E9CE6F] mb-4" data-i18n="footer_calc">Calculator</div>
+        <ul class="space-y-2.5 text-[14px] text-slate-400">
+          <li><a href="#calculator" class="hover:text-[#F6E27A] transition" data-i18n="tab_wealth">Wealth & Money</a></li>
+          <li><a href="#calculator" class="hover:text-[#F6E27A] transition" data-i18n="tab_gold">Gold & Silver</a></li>
+          <li><a href="#calculator" class="hover:text-[#F6E27A] transition" data-i18n="tab_business">Business</a></li>
+          <li><a href="#calculator" class="hover:text-[#F6E27A] transition" data-i18n="tab_agri">Agriculture</a></li>
+          <li><a href="#calculator" class="hover:text-[#F6E27A] transition" data-i18n="tab_livestock">Livestock</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[12px] font-black uppercase tracking-[0.2em] text-[#E9CE6F] mb-4" data-i18n="footer_learn">Learn</div>
+        <ul class="space-y-2.5 text-[14px] text-slate-400">
+          <li><a href="#nisab" class="hover:text-[#F6E27A] transition" data-i18n="nav_nisab">Nisab</a></li>
+          <li><a href="#recipients" class="hover:text-[#F6E27A] transition" data-i18n="nav_recipients">Recipients</a></li>
+          <li><a href="#guide" class="hover:text-[#F6E27A] transition" data-i18n="nav_guide">Guide</a></li>
+          <li><a href="#faq" class="hover:text-[#F6E27A] transition" data-i18n="nav_faq">FAQ</a></li>
+          <li><a href="#history" class="hover:text-[#F6E27A] transition" data-i18n="nav_history">History</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-[12px] font-black uppercase tracking-[0.2em] text-[#E9CE6F] mb-4" data-i18n="footer_dua">Daily Reminder</div>
+        <div class="rounded-2xl bg-[#D4AF37]/[.06] border border-[#D4AF37]/25 p-4">
+          <p class="font-arabic text-[#E9CE6F] text-[17px] leading-relaxed">خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِم بِهَا</p>
+          <p class="text-[12px] text-slate-500 mt-2" data-i18n="footer_dua_en">"Take from their wealth a charity by which you purify and cleanse them." — Quran 9:103</p>
+        </div>
+      </div>
+    </div>
+    <div class="mt-10 pt-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-slate-600">
+      <div>© 2026 Zakaty • <span data-i18n="footer_rights">All rights reserved.</span></div>
+      <div class="max-w-xl text-center sm:text-right" data-i18n="footer_disclaimer">Educational tool only — not a fatwa. Consult qualified scholars for complex cases.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<button id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="no-print fixed bottom-5 right-5 z-40 w-12 h-12 rounded-2xl bg-gradient-to-br from-[#F6E27A] to-[#9C7C1E] text-[#131000] shadow-xl shadow-[#D4AF37]/40 items-center justify-center hidden hover:-translate-y-1 transition" aria-label="Top"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg></button>
+
+<!-- ══════════ LANGUAGE MODAL ══════════ -->
+<div id="langModal" class="no-print fixed inset-0 z-[90] hidden items-center justify-center p-4 modal-bg" onclick="if(event.target===this)closeLangModal()">
+  <div class="w-full max-w-2xl rounded-[28px] bg-[#0A1122] border border-[#D4AF37]/30 overflow-hidden shadow-2xl shadow-black/60 max-h-[88vh] flex flex-col" style="background:#0A1122">
+    <div class="p-5 sm:p-6 border-b border-[#D4AF37]/15 bg-gradient-to-r from-[#D4AF37]/10 to-transparent">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h3 class="font-display text-xl sm:text-2xl font-bold text-white" data-i18n="lang_title">Choose Your Language</h3>
+          <p class="text-[13px] text-slate-400 mt-0.5"><span class="text-emerald-400 font-bold" id="langCount">100+</span> <span data-i18n="lang_note">languages with instant smart switching</span></p>
+        </div>
+        <button onclick="closeLangModal()" class="w-10 h-10 rounded-xl border border-white/15 text-slate-300 hover:bg-white/10 transition flex items-center justify-center shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="relative mt-4">
+        <svg class="w-4.5 h-4.5 w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.3-4.3M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/></svg>
+        <input id="langSearch" oninput="renderLangs(this.value)" class="w-full bg-white/[.05] border border-white/15 rounded-2xl py-3.5 pl-12 pr-4 text-white font-medium outline-none focus:border-[#D4AF37] transition placeholder:text-slate-600" data-i18n-ph="lang_search" placeholder="Search languages... (e.g. French, اردو, 中文)">
+      </div>
+      <div id="translateProgress" class="hidden mt-3">
+        <div class="flex justify-between text-[12px] font-bold text-[#E9CE6F] mb-1.5"><span data-i18n="lang_translating">Translating interface...</span><span id="translatePct">0%</span></div>
+        <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div id="translateBar" class="h-full w-0 bg-gradient-to-r from-[#D4AF37] to-emerald-400 transition-all"></div></div>
+      </div>
+    </div>
+    <div class="p-4 sm:p-5 overflow-y-auto">
+      <div class="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400 mb-2 px-1" data-i18n="lang_popular">Popular</div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="langPopular"></div>
+      <div class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 mt-4 mb-2 px-1" data-i18n="lang_all">All Languages</div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="langGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CURRENCY MODAL ══════════ -->
+<div id="curModal" class="no-print fixed inset-0 z-[90] hidden items-center justify-center p-4 modal-bg" onclick="if(event.target===this)closeCurrencyModal()">
+  <div class="w-full max-w-xl rounded-[28px] bg-[#0A1122] border border-[#D4AF37]/30 overflow-hidden shadow-2xl max-h-[85vh] flex flex-col" style="background:#0A1122">
+    <div class="p-5 sm:p-6 border-b border-[#D4AF37]/15">
+      <div class="flex items-center justify-between">
+        <div><h3 class="font-display text-xl font-bold text-white" data-i18n="cur_title">Select Currency</h3><p class="text-[13px] text-slate-400"><span class="text-[#E9CE6F] font-bold" id="curCount">160+</span> <span data-i18n="cur_note">currencies with live rates</span></p></div>
+        <button onclick="closeCurrencyModal()" class="w-10 h-10 rounded-xl border border-white/15 text-slate-300 hover:bg-white/10 transition flex items-center justify-center"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <div class="relative mt-4">
+        <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.3-4.3M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/></svg>
+        <input id="curSearch" oninput="renderCurrencies(this.value)" class="w-full bg-white/[.05] border border-white/15 rounded-2xl py-3.5 pl-12 pr-4 text-white outline-none focus:border-[#D4AF37] transition placeholder:text-slate-600" data-i18n-ph="cur_search" placeholder="Search currency... (USD, Riyal, Rupee)">
+      </div>
+    </div>
+    <div class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2" id="curGrid"></div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div id="toasts" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 items-center w-full max-w-sm px-4 pointer-events-none"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ZAKATY — Smart Multilingual Zakat Engine
+   Hybrid i18n: native built-in (EN/AR/FR/UR/TR/ID) + live cloud
+   translation for 100+ world languages with localStorage cache.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ---------- LANGUAGE REGISTRY (100+ world languages) ---------- */
+const LANGS = [
+  {c:'en',n:'English',native:'English',pop:1},{c:'ar',n:'Arabic',native:'العربية',rtl:1,pop:1},
+  {c:'ur',n:'Urdu',native:'اردو',rtl:1,pop:1},{c:'fr',n:'French',native:'Français',pop:1},
+  {c:'tr',n:'Turkish',native:'Türkçe',pop:1},{c:'id',n:'Indonesian',native:'Bahasa Indonesia',pop:1},
+  {c:'ms',n:'Malay',native:'Bahasa Melayu',pop:1},{c:'bn',n:'Bengali',native:'বাংলা',pop:1},
+  {c:'fa',n:'Persian',native:'فارسی',rtl:1,pop:1},{c:'es',n:'Spanish',native:'Español'},
+  {c:'de',n:'German',native:'Deutsch'},{c:'pt',n:'Portuguese',native:'Português'},
+  {c:'it',n:'Italian',native:'Italiano'},{c:'nl',n:'Dutch',native:'Nederlands'},
+  {c:'ru',n:'Russian',native:'Русский'},{c:'zh-CN',n:'Chinese (Simplified)',native:'简体中文'},
+  {c:'zh-TW',n:'Chinese (Traditional)',native:'繁體中文'},{c:'ja',n:'Japanese',native:'日本語'},
+  {c:'ko',n:'Korean',native:'한국어'},{c:'hi',n:'Hindi',native:'हिन्दी'},
+  {c:'pa',n:'Punjabi',native:'ਪੰਜਾਬੀ'},{c:'ta',n:'Tamil',native:'தமிழ்'},
+  {c:'te',n:'Telugu',native:'తెలుగు'},{c:'ml',n:'Malayalam',native:'മലയാളം'},
+  {c:'gu',n:'Gujarati',native:'ગુજરાતી'},{c:'mr',n:'Marathi',native:'मराठी'},
+  {c:'kn',n:'Kannada',native:'ಕನ್ನಡ'},{c:'or',n:'Odia',native:'ଓଡ଼ିଆ'},
+  {c:'as',n:'Assamese',native:'অসমীয়া'},{c:'ne',n:'Nepali',native:'नेपाली'},
+  {c:'si',n:'Sinhala',native:'සිංහල'},{c:'th',n:'Thai',native:'ไทย'},
+  {c:'vi',n:'Vietnamese',native:'Tiếng Việt'},{c:'tl',n:'Filipino',native:'Filipino'},
+  {c:'jv',n:'Javanese',native:'Basa Jawa'},{c:'su',n:'Sundanese',native:'Basa Sunda'},
+  {c:'my',n:'Burmese',native:'မြန်မာ'},{c:'km',n:'Khmer',native:'ខ្មែរ'},
+  {c:'lo',n:'Lao',native:'ລາວ'},{c:'ka',n:'Georgian',native:'ქართული'},
+  {c:'am',n:'Amharic',native:'አማርኛ'},{c:'sw',n:'Swahili',native:'Kiswahili'},
+  {c:'ha',n:'Hausa',native:'Hausa'},{c:'yo',n:'Yoruba',native:'Yorùbá'},
+  {c:'ig',n:'Igbo',native:'Igbo'},{c:'so',n:'Somali',native:'Soomaali'},
+  {c:'zu',n:'Zulu',native:'isiZulu'},{c:'xh',n:'Xhosa',native:'isiXhosa'},
+  {c:'af',n:'Afrikaans',native:'Afrikaans'},{c:'ps',n:'Pashto',native:'پښتو',rtl:1},
+  {c:'ku',n:'Kurdish',native:'Kurdî'},{c:'ckb',n:'Sorani Kurdish',native:'کوردی',rtl:1},
+  {c:'az',n:'Azerbaijani',native:'Azərbaycan'},{c:'kk',n:'Kazakh',native:'Қазақша'},
+  {c:'ky',n:'Kyrgyz',native:'Кыргызча'},{c:'uz',n:'Uzbek',native:"O'zbek"},
+  {c:'tg',n:'Tajik',native:'Тоҷикӣ'},{c:'tk',n:'Turkmen',native:'Türkmen'},
+  {c:'ug',n:'Uyghur',native:'ئۇيغۇرچە',rtl:1},{c:'dv',n:'Dhivehi',native:'ދިވެހި',rtl:1},
+  {c:'he',n:'Hebrew',native:'עברית',rtl:1},{c:'yi',n:'Yiddish',native:'ייִדיש',rtl:1},
+  {c:'el',n:'Greek',native:'Ελληνικά'},{c:'pl',n:'Polish',native:'Polski'},
+  {c:'uk',n:'Ukrainian',native:'Українська'},{c:'be',n:'Belarusian',native:'Беларуская'},
+  {c:'ro',n:'Romanian',native:'Română'},{c:'hu',n:'Hungarian',native:'Magyar'},
+  {c:'cs',n:'Czech',native:'Čeština'},{c:'sk',n:'Slovak',native:'Slovenčina'},
+  {c:'bg',n:'Bulgarian',native:'Български'},{c:'sr',n:'Serbian',native:'Српски'},
+  {c:'hr',n:'Croatian',native:'Hrvatski'},{c:'bs',n:'Bosnian',native:'Bosanski'},
+  {c:'sq',n:'Albanian',native:'Shqip'},{c:'mk',n:'Macedonian',native:'Македонски'},
+  {c:'sl',n:'Slovenian',native:'Slovenščina'},{c:'et',n:'Estonian',native:'Eesti'},
+  {c:'lv',n:'Latvian',native:'Latviešu'},{c:'lt',n:'Lithuanian',native:'Lietuvių'},
+  {c:'fi',n:'Finnish',native:'Suomi'},{c:'sv',n:'Swedish',native:'Svenska'},
+  {c:'no',n:'Norwegian',native:'Norsk'},{c:'da',n:'Danish',native:'Dansk'},
+  {c:'is',n:'Icelandic',native:'Íslenska'},{c:'ga',n:'Irish',native:'Gaeilge'},
+  {c:'cy',n:'Welsh',native:'Cymraeg'},{c:'mt',n:'Maltese',native:'Malti'},
+  {c:'eu',n:'Basque',native:'Euskara'},{c:'ca',n:'Catalan',native:'Català'},
+  {c:'gl',n:'Galician',native:'Galego'},{c:'ht',n:'Haitian Creole',native:'Kreyòl'},
+  {c:'haw',n:'Hawaiian',native:'ʻŌlelo Hawaiʻi'},{c:'mg',n:'Malagasy',native:'Malagasy'},
+  {c:'mi',n:'Maori',native:'Māori'},{c:'sm',n:'Samoan',native:'Samoa'},
+  {c:'ceb',n:'Cebuano',native:'Bisaya'},{c:'hmn',n:'Hmong',native:'Hmoob'},
+  {c:'la',n:'Latin',native:'Latina'},{c:'eo',n:'Esperanto',native:'Esperanto'}
+];
+
+/* ---------- BUILT-IN TRANSLATIONS ---------- */
+const I18N = {
+en:{
+top_gold:"Gold",top_silver:"Silver",top_theme:"Theme",nav_logo_sub:"Smart Zakat Calculator",
+nav_calculator:"Calculator",nav_nisab:"Nisab",nav_assets:"Assets",nav_recipients:"Recipients",nav_guide:"Guide",nav_faq:"FAQ",nav_history:"History",nav_start:"Calculate Zakat",
+hero_badge:"Trusted by 2M+ Muslims • 100+ Languages • 160+ Currencies",hero_title_a:"Comprehensive Smart",hero_title_b:"Zakat Calculator",hero_title_c:"for Every Currency & Asset",
+hero_desc:"Calculate your Zakat with precision and confidence. Cash, gold, silver, stocks, crypto, business, agriculture & livestock — with live Nisab, real-time currency conversion and scholarly guidance.",
+hero_btn_calc:"Calculate My Zakat",hero_btn_nisab:"Check Nisab Live",hero_trust1:"Shariah Compliant",hero_trust2:"Live Nisab Prices",hero_trust3:"Private & Secure",
+stat1_label:"Currencies",stat2_label:"Languages",stat3_label:"Asset Types",stat4_label:"Accurate Rate",
+hero_card_title:"Live Nisab Threshold",hero_card_live:"Updated live",hero_gold_std:"Gold Nisab • 85g",hero_silver_std:"Silver Nisab • 595g",hero_card_note:"of net zakatable wealth held for one lunar year (Hawl) above Nisab.",chip_langs:"Languages",chip_instant:"Instant switching",
+calc_badge:"Smart Calculator",calc_title_a:"Calculate Your",calc_title_b:"Zakat",calc_desc:"Select your currency, enter your assets & liabilities. Results update instantly with live Nisab valuation.",
+tab_wealth:"Wealth & Money",tab_gold:"Gold & Silver",tab_business:"Business",tab_agri:"Agriculture",tab_livestock:"Livestock",
+form_currency:"Currency",form_gold_price:"Gold price / gram",form_silver_price:"Silver price / gram",form_nisab_std:"Nisab standard",nisab_gold:"Gold",nisab_silver:"Silver",nisab_lower:"Lower",
+sec_assets:"Zakatable Assets",sec_assets_desc:"Enter the current market value of everything you own.",sec_liab:"Deductible Liabilities",sec_liab_desc:"Immediate debts & dues payable within the year.",
+f_cash:"Cash on hand",f_bank:"Bank savings & deposits",f_stocks:"Stocks & mutual funds",f_crypto:"Cryptocurrency",f_inventory:"Business inventory",f_receivable:"Money owed to you",f_funds:"Investment funds / bonds",f_realestate:"Property for resale",f_other:"Other zakatable assets",
+f_gold_w:"Gold weight (grams)",f_silver_w:"Silver weight (grams)",f_debts:"Debts payable now",f_expenses:"Due bills & rent",f_loans:"Loan installments due",f_other_liab:"Other liabilities",
+hawl_title:"Hawl completed? (1 lunar year)",hawl_desc:"Wealth must be held for one Hijri year above Nisab.",hawl_yes:"Yes",hawl_no:"No",
+btn_calculate:"Calculate Zakat",btn_reset:"Reset",btn_save:"Save",btn_copy:"Copy",btn_print:"Print / PDF",
+res_title:"Your Zakat Result",res_zakat_due:"Zakat Due (2.5%)",res_net:"Net Zakatable",res_nisab:"Nisab",res_assets:"Total Assets",res_liab:"Liabilities",res_progress:"Progress to Nisab",res_breakdown:"Asset Breakdown",res_insights:"Smart Insights",
+res_eligible:"Zakat Due",res_not:"Not Due",res_disclaimer:"Estimate for guidance only. Please consult a qualified scholar for complex cases.",
+goldcalc_title:"Gold & Silver Zakat (2.5%)",goldcalc_desc:"Jewelry, coins & bullion held for one lunar year. Nisab: 85g gold or 595g silver.",goldcalc_gold_g:"Gold (grams)",goldcalc_silver_g:"Silver (grams)",goldcalc_purity:"Gold purity (karat)",goldcalc_use:"Purpose",goldcalc_use_invest:"Investment / stored",goldcalc_use_wear:"Personal wearing (Hanafi: zakatable)",
+biz_title:"Business & Trade Goods Zakat (2.5%)",biz_desc:"Stock-in-trade at current market value + business cash + receivables − business debts.",biz_stock:"Inventory value",biz_cash:"Business cash & bank",biz_receive:"Receivables (expected)",biz_debts:"Business debts due",
+agri_title:"Agriculture Zakat (Ushr)",agri_desc:"No Hawl required — due at harvest. Nisab ≈ 653 kg of staple grain.",agri_amount:"Harvest (kg)",agri_price:"Price per kg (optional)",agri_type:"Irrigation method",agri_rain:"Rain-fed • 10%",agri_irrigated:"Irrigated • 5%",agri_mixed:"Mixed • 7.5%",
+live_title:"Livestock Zakat (grazing animals)",live_desc:"Applies to freely-grazing (Sa'imah) animals held one lunar year. Stall-fed animals for trade → use Business tab.",live_sheep:"Sheep / Goats",live_cattle:"Cattle / Cows",live_camel:"Camels",live_sheep_n:"Nisab: 40",live_cattle_n:"Nisab: 30",live_camel_n:"Nisab: 5",
+nisab_badge:"Live Nisab Monitor",nisab_title_a:"Today's",nisab_title_b:"Nisab Threshold",nisab_desc:"Nisab is the minimum wealth threshold. Prices update live — adjust them in the calculator to match your local market.",nisab_gold_card:"Gold Nisab — 85 grams",nisab_gold_sub:"Preferred by many scholars for cash",nisab_silver_card:"Silver Nisab — 595 grams",nisab_silver_sub:"Lower threshold • benefits the poor",nisab_per_gram:"per gram",
+nisab_note:"Scholars differ on which standard to use for cash. Using the lower (silver) Nisab is more cautious and benefits the poor. When in doubt, consult your local scholar.",
+assets_badge:"Full Coverage",assets_title_a:"Every Asset,",assets_title_b:"Covered",assets_desc:"One calculator for your entire portfolio — traditional and modern assets alike.",
+rec_badge:"Quran 9:60",rec_title_a:"The Eight",rec_title_b:"Rightful Recipients",steps_badge:"How It Works",steps_title_a:"Zakat in",steps_title_b:"4 Simple Steps",
+faq_badge:"Knowledge Base",faq_title_a:"Frequently Asked",faq_title_b:"Questions",
+hist_badge:"Saved Records",hist_title_a:"Calculation",hist_title_b:"History",hist_desc:"Stored privately in your browser only. Nothing leaves your device.",hist_export:"Export CSV",hist_clear:"Clear All",hist_empty:"No saved calculations yet. Your history will appear here.",hist_date:"Date",hist_currency:"Currency",hist_net:"Net Wealth",hist_nisab:"Nisab",hist_zakat:"Zakat Due",
+cta_title:"Purify Your Wealth Today",cta_desc:"“Whatever you spend, He will replace it.” — Quran 34:39. Calculate, purify and give with a peaceful heart.",cta_btn:"Start Calculating — It's Free",cta_lang:"View in 100+ Languages",
+footer_desc:"The world's most comprehensive smart Zakat calculator — free forever, private by design, serving Muslims in 100+ languages.",footer_calc:"Calculator",footer_learn:"Learn",footer_dua:"Daily Reminder",footer_dua_en:"“Take from their wealth a charity by which you purify and cleanse them.” — Quran 9:103",footer_rights:"All rights reserved.",footer_disclaimer:"Educational tool only — not a fatwa. Consult qualified scholars for complex cases.",
+lang_title:"Choose Your Language",lang_note:"languages with instant smart switching",lang_search:"Search languages... (e.g. French, اردو, 中文)",lang_translating:"Translating interface...",lang_popular:"Popular",lang_all:"All Languages",
+cur_title:"Select Currency",cur_note:"currencies with live rates",cur_search:"Search currency... (USD, Riyal, Rupee)",
+toast_saved:"Calculation saved to history",toast_reset:"All fields cleared",toast_copied:"Result copied to clipboard",toast_lang:"Language switched",toast_currency:"Currency updated",toast_history_clear:"History cleared",
+ins_eligible:"Zakat is obligatory — your wealth exceeds Nisab with completed Hawl.",ins_below:"Below Nisab — no Zakat due, but voluntary Sadaqah is always rewarded.",ins_hawl:"Complete one lunar year (Hawl) for Zakat to become due.",ins_close:"You are close to Nisab — recheck after any wealth change.",ins_debts:"Paying urgent debts first can reduce your zakatable amount legitimately.",ins_diverse:"Well-diversified portfolio detected across asset classes.",ins_gold:"Gold holdings contribute value to your total.",
+a_cash_t:"Cash & Bank",a_cash_d:"Physical cash, current & savings accounts",a_gold_t:"Gold & Jewelry",a_gold_d:"Coins, bars & jewelry by weight",a_silver_t:"Silver",a_silver_d:"Bars, coins & silverware",a_stocks_t:"Stocks & Funds",a_stocks_d:"Shares & mutual funds at market value",a_crypto_t:"Crypto Assets",a_crypto_d:"Bitcoin, Ethereum & all tokens",a_biz_t:"Business Stock",a_biz_d:"Trade inventory for resale",a_prop_t:"Property for Trade",a_prop_d:"Real estate bought to resell",a_recv_t:"Receivables",a_recv_d:"Loans given & money owed to you",
+r1t:"The Poor (Fuqara)",r1d:"Those with almost nothing",r2t:"The Needy (Masakin)",r2d:"Those whose needs exceed means",r3t:"Zakat Workers",r3d:"Administrators of collection",r4t:"Hearts to Reconcile",r4d:"New Muslims & allies",r5t:"Freeing Captives",r5d:"Slaves & those in bondage",r6t:"Debtors (Gharimin)",r6d:"Overwhelmed by lawful debt",r7t:"In Allah's Cause",r7d:"Defense, da'wah & public good",r8t:"Travelers (Ibn Sabil)",r8d:"Stranded wayfarers in need",
+s1t:"Enter Wealth",s1d:"Add cash, gold, stocks, crypto & business assets in any currency.",s2t:"Deduct Debts",s2d:"Subtract immediate liabilities payable within the year.",s3t:"Check Nisab",s3d:"We compare your net wealth to live gold & silver Nisab.",s4t:"Pay 2.5%",s4d:"Give your Zakat to the eight eligible categories with joy.",
+q1:"What is Nisab and how is it calculated?",a1:"Nisab is the minimum threshold: 85g of gold or 595g of silver. If your net zakatable wealth equals or exceeds it for one lunar year, 2.5% is due. This calculator values Nisab live using current metal prices in your currency.",
+q2:"Is Zakat due on crypto, stocks and retirement funds?",a2:"Yes — crypto and stocks held as investments are zakatable at current market value (2.5%). For retirement/pension funds, scholars differ: many advise paying on the accessible/vested portion. Consult your scholar for your scheme.",
+q3:"Do I pay Zakat on my house, car and personal items?",a3:"No. Your primary residence, personal car, furniture and clothes for personal use are exempt. Only assets held for trade, investment or growth (including property bought to resell) are zakatable.",
+q4:"What about debts and loans?",a4:"Deduct only short-term, immediately payable debts (due within the year) from your zakatable assets. Long-term mortgages: deduct only the upcoming year's installments, per most contemporary fatwas.",
+q5:"When must I pay — and can I pay early or in installments?",a5:"Zakat is due once Hawl (one lunar year above Nisab) completes. You may pay early on expected wealth, and pay in installments within the year, but deliberate delay after it is due is disliked.",
+q6:"Who can receive my Zakat?",a6:"The eight categories in Quran 9:60: the poor, needy, Zakat workers, those whose hearts are to be reconciled, freeing captives, debtors, in Allah's cause, and stranded travelers. It cannot be given to your direct ascendants/descendants or spouse."
+},
+ar:{
+top_gold:"الذهب",top_silver:"الفضة",top_theme:"المظهر",nav_logo_sub:"حاسبة الزكاة الذكية",
+nav_calculator:"الحاسبة",nav_nisab:"النصاب",nav_assets:"الأصول",nav_recipients:"المستحقون",nav_guide:"الدليل",nav_faq:"الأسئلة",nav_history:"السجل",nav_start:"احسب زكاتك",
+hero_badge:"موثوق من أكثر من 2 مليون مسلم • +100 لغة • +160 عملة",hero_title_a:"حاسبة الزكاة",hero_title_b:"الذكية الشاملة",hero_title_c:"لجميع العملات والأصول",
+hero_desc:"احسب زكاتك بدقة وثقة. النقد والذهب والفضة والأسهم والعملات الرقمية والتجارة والزراعة والمواشي — مع النصاب المباشر وتحويل العملات لحظياً وإرشادات شرعية موثوقة.",
+hero_btn_calc:"احسب زكاتي الآن",hero_btn_nisab:"تحقق من النصاب مباشرة",hero_trust1:"متوافق مع الشريعة",hero_trust2:"أسعار نصاب حية",hero_trust3:"خصوصي وآمن",
+stat1_label:"عملة مدعومة",stat2_label:"لغة",stat3_label:"نوع أصول",stat4_label:"نسبة دقيقة",
+hero_card_title:"عتبة النصاب المباشرة",hero_card_live:"يُحدّث مباشرة",hero_gold_std:"نصاب الذهب • 85غ",hero_silver_std:"نصاب الفضة • 595غ",hero_card_note:"من صافي الثروة الزكوية المحفوظة لسنة قمرية كاملة (الحول) فوق النصاب.",chip_langs:"لغة",chip_instant:"تبديل فوري",
+calc_badge:"الحاسبة الذكية",calc_title_a:"احسب",calc_title_b:"زكاتك",calc_desc:"اختر عملتك وأدخل أصولك والتزاماتك. النتائج تتحدث فورياً مع تقييم النصاب المباشر.",
+tab_wealth:"الثروة والنقد",tab_gold:"الذهب والفضة",tab_business:"التجارة",tab_agri:"الزراعة",tab_livestock:"المواشي",
+form_currency:"العملة",form_gold_price:"سعر غرام الذهب",form_silver_price:"سعر غرام الفضة",form_nisab_std:"معيار النصاب",nisab_gold:"الذهب",nisab_silver:"الفضة",nisab_lower:"الأقل",
+sec_assets:"الأصول الزكوية",sec_assets_desc:"أدخل القيمة السوقية الحالية لكل ما تملك.",sec_liab:"الالتزامات القابلة للخصم",sec_liab_desc:"الديون الفورية والمستحقات الواجبة خلال السنة.",
+f_cash:"النقد المتاح",f_bank:"المدخرات والودائع البنكية",f_stocks:"الأسهم والصناديق",f_crypto:"العملات الرقمية",f_inventory:"مخزون التجارة",f_receivable:"أموال مستحقة لك",f_funds:"صناديق الاستثمار / السندات",f_realestate:"عقارات بغرض البيع",f_other:"أصول زكوية أخرى",
+f_gold_w:"وزن الذهب (غرام)",f_silver_w:"وزن الفضة (غرام)",f_debts:"ديون مستحقة الآن",f_expenses:"فواتير وإيجارات مستحقة",f_loans:"أقساط قروض مستحقة",f_other_liab:"التزامات أخرى",
+hawl_title:"هل اكتمل الحول؟ (سنة قمرية)",hawl_desc:"يجب حفظ الثروة سنة هجرية كاملة فوق النصاب.",hawl_yes:"نعم",hawl_no:"لا",
+btn_calculate:"احسب الزكاة",btn_reset:"تصفير",btn_save:"حفظ",btn_copy:"نسخ",btn_print:"طباعة / PDF",
+res_title:"نتيجة زكاتك",res_zakat_due:"الزكاة المستحقة (2.5%)",res_net:"صافي الثروة الزكوية",res_nisab:"النصاب",res_assets:"إجمالي الأصول",res_liab:"الالتزامات",res_progress:"التقدم نحو النصاب",res_breakdown:"توزيع الأصول",res_insights:"رؤى ذكية",
+res_eligible:"زكاة مستحقة",res_not:"لا زكاة",res_disclaimer:"تقدير استرشادي فقط. استشر عالماً مؤهلاً للحالات المعقدة.",
+goldcalc_title:"زكاة الذهب والفضة (2.5%)",goldcalc_desc:"الحلي والعملات والسبائك المحفوظة سنة قمرية. النصاب: 85غ ذهب أو 595غ فضة.",goldcalc_gold_g:"الذهب (غرام)",goldcalc_silver_g:"الفضة (غرام)",goldcalc_purity:"عيار الذهب",goldcalc_use:"الغرض",goldcalc_use_invest:"استثمار / مدّخر",goldcalc_use_wear:"استعمال شخصي (الحنفية: تجب فيه)",
+biz_title:"زكاة التجارة وعروضها (2.5%)",biz_desc:"المخزون التجاري بالقيمة السوقية + نقد التجارة + الذمم − ديون التجارة.",biz_stock:"قيمة المخزون",biz_cash:"نقد التجارة والبنوك",biz_receive:"ذمم متوقعة التحصيل",biz_debts:"ديون التجارة المستحقة",
+agri_title:"زكاة الزروع والثمار (العشر)",agri_desc:"لا يشترط الحول — تجب عند الحصاد. النصاب ≈ 653 كغ من الحبوب.",agri_amount:"المحصول (كغ)",agri_price:"السعر للكيلو (اختياري)",agri_type:"طريقة السقي",agri_rain:"بعلي • 10%",agri_irrigated:"مروي • 5%",agri_mixed:"مختلط • 7.5%",
+live_title:"زكاة المواشي (السائمة)",live_desc:"تجب في السائمة من بهيمة الأنعام المحفوظة سنة قمرية. المعلوفة للتجارة ← استخدم تبويب التجارة.",live_sheep:"الغنم / الماعز",live_cattle:"البقر",live_camel:"الإبل",live_sheep_n:"النصاب: 40",live_cattle_n:"النصاب: 30",live_camel_n:"النصاب: 5",
+nisab_badge:"مراقب النصاب المباشر",nisab_title_a:"عتبة النصاب",nisab_title_b:"لهذا اليوم",nisab_desc:"النصاب هو الحد الأدنى للثروة. الأسعار تتحدث مباشرة — عدّلها في الحاسبة حسب سوقك المحلي.",nisab_gold_card:"نصاب الذهب — 85 غراماً",nisab_gold_sub:"يفضله كثير من العلماء للنقد",nisab_silver_card:"نصاب الفضة — 595 غراماً",nisab_silver_sub:"الحد الأدنى • أنفع للفقراء",nisab_per_gram:"للغرام",
+nisab_note:"اختلف العلماء في المعيار المعتمد للنقد. الأخذ بالأقل (الفضة) أحوط وأنفع للفقراء. عند الشك استشر عالماً محلياً. حلي الاستعمال الشخصي: الحنفية يوجبون فيه الزكاة، وغيرهم يعفون المعتاد.",
+assets_badge:"تغطية كاملة",assets_title_a:"كل الأصول،",assets_title_b:"مشمولة",assets_desc:"حاسبة واحدة لمحفظتك كاملة — الأصول التقليدية والحديثة.",
+rec_badge:"سورة التوبة 60",rec_title_a:"مستحقو الزكاة",rec_title_b:"الثمانية",steps_badge:"كيف تعمل",steps_title_a:"الزكاة في",steps_title_b:"4 خطوات بسيطة",
+faq_badge:"قاعدة المعرفة",faq_title_a:"الأسئلة",faq_title_b:"الشائعة",
+hist_badge:"سجلات محفوظة",hist_title_a:"سجل",hist_title_b:"الحسابات",hist_desc:"يُحفظ في متصفحك فقط. لا يغادر جهازك أي شيء.",hist_export:"تصدير CSV",hist_clear:"مسح الكل",hist_empty:"لا توجد حسابات محفوظة بعد. سيظهر سجلك هنا.",hist_date:"التاريخ",hist_currency:"العملة",hist_net:"صافي الثروة",hist_nisab:"النصاب",hist_zakat:"الزكاة المستحقة",
+cta_title:"طهّر مالك اليوم",cta_desc:"«وَمَا أَنفَقْتُم مِّن شَيْءٍ فَهُوَ يُخْلِفُهُ» — سبأ 39. احسب وطهّر وأعطِ بقلب مطمئن.",cta_btn:"ابدأ الحساب — مجاني",cta_lang:"عرض بأكثر من 100 لغة",
+footer_desc:"أشمل حاسبة زكاة ذكية في العالم — مجانية للأبد، خصوصية بالتصميم، تخدم المسلمين بأكثر من 100 لغة.",footer_calc:"الحاسبة",footer_learn:"تعلّم",footer_dua:"تذكير يومي",footer_dua_en:"«خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِم بِهَا» — التوبة 103",footer_rights:"جميع الحقوق محفوظة.",footer_disclaimer:"أداة تعليمية فقط — ليست فتوى. استشر العلماء المؤهلين للحالات المعقدة.",
+lang_title:"اختر لغتك",lang_note:"لغة مع تبديل ذكي فوري",lang_search:"ابحث عن اللغات... (مثلاً الفرنسية، اردو)",lang_translating:"جارٍ ترجمة الواجهة...",lang_popular:"شائعة",lang_all:"كل اللغات",
+cur_title:"اختر العملة",cur_note:"عملة بأسعار حية",cur_search:"ابحث عن عملة... (دولار، ريال، روبية)",
+toast_saved:"تم حفظ الحساب في السجل",toast_reset:"تم مسح جميع الحقول",toast_copied:"تم نسخ النتيجة",toast_lang:"تم تبديل اللغة",toast_currency:"تم تحديث العملة",toast_history_clear:"تم مسح السجل",
+ins_eligible:"الزكاة واجبة — ثروتك تجاوزت النصاب مع اكتمال الحول.",ins_below:"دون النصاب — لا زكاة واجبة، لكن الصدقة التطوعية مأجورة دائماً.",ins_hawl:"أكمل سنة قمرية كاملة (الحول) لوجوب الزكاة.",ins_close:"أنت قريب من النصاب — أعد التحقق عند أي تغير في الثروة.",ins_debts:"سداد الديون العاجلة أولاً قد يخفض مبلغ الزكاة بصورة مشروعة.",ins_diverse:"تم رصد محفظة متنوعة عبر فئات الأصول.",ins_gold:"مساهمات الذهب تدخل في إجمالي ثروتك.",
+a_cash_t:"النقد والبنوك",a_cash_d:"النقد والحسابات الجارية والتوفير",a_gold_t:"الذهب والحلي",a_gold_d:"العملات والسبائك والحلي بالوزن",a_silver_t:"الفضة",a_silver_d:"السبائك والعملات والأواني",a_stocks_t:"الأسهم والصناديق",a_stocks_d:"الأسهم والصناديق بالقيمة السوقية",a_crypto_t:"الأصول الرقمية",a_crypto_d:"بيتكوين وإيثيريوم وكل الرموز",a_biz_t:"مخزون التجارة",a_biz_d:"البضائع المعدة للبيع",a_prop_t:"عقارات التجارة",a_prop_d:"عقارات مشتراة بغرض البيع",a_recv_t:"الذمم المستحقة",a_recv_d:"القروض الممنوحة والأموال لك",
+r1t:"الفقراء",r1d:"من لا يملكون شيئاً تقريباً",r2t:"المساكين",r2d:"من لا تكفيهم مواردهم",r3t:"العاملون عليها",r3d:"إدارة جمع الزكاة",r4t:"المؤلفة قلوبهم",r4d:"المسلمون الجدد والحلفاء",r5t:"الرقاب",r5d:"تحرير العبيد والأسرى",r6t:"الغارمون",r6d:"المثقلون بالدين المباح",r7t:"في سبيل الله",r7d:"الدفاع والدعوة والمصلحة العامة",r8t:"ابن السبيل",r8d:"المسافرون المنقطعون المحتاجون",
+s1t:"أدخل الثروة",s1d:"أضف النقد والذهب والأسهم والعملات الرقمية وأصول التجارة بأي عملة.",s2t:"اخصم الديون",s2d:"اطرح الالتزامات الفورية المستحقة خلال السنة.",s3t:"تحقق من النصاب",s3d:"نقارن صافي ثروتك بنصاب الذهب والفضة المباشر.",s4t:"ادفع 2.5%",s4d:"أعطِ زكاتك للأصناف الثمانية المستحقة بفرح.",
+q1:"ما هو النصاب وكيف يُحسب؟",a1:"النصاب هو الحد الأدنى: 85 غراماً من الذهب أو 595 غراماً من الفضة. إذا بلغت ثروتك الصافية النصاب وحال عليها الحول وجبت فيها 2.5%. هذه الحاسبة تقيّم النصاب مباشرة بأسعار المعادن الحالية بعملتك.",
+q2:"هل تجب الزكاة في العملات الرقمية والأسهم وصناديق التقاعد؟",a2:"نعم — العملات الرقمية والأسهم المعدة للاستثمار زكوية بالقيمة السوقية (2.5%). أما صناديق التقاعد ففيها خلاف: كثير من العلماء يوجبون الزكاة في الجزء المتاح. استشر عالمك في نظامك.",
+q3:"هل أدفع الزكاة عن بيتي وسيارتي وأغراضي الشخصية؟",a3:"لا. المسكن الأساسي والسيارة الشخصية والأثاث والملابس للاستعمال الشخصي معفاة. الزكاة في الأصول المعدة للتجارة أو الاستثمار أو النماء فقط.",
+q4:"ماذا عن الديون والقروض؟",a4:"اخصم الديون قصيرة الأجل المستحقة فوراً فقط. أما الرهن طويل الأجل فاخصم أقساط السنة القادمة فقط، وفق أكثر الفتاوى المعاصرة.",
+q5:"متى يجب الدفع — وهل يجوز التعجيل أو التقسيط؟",a5:"تجب الزكاة عند اكتمال الحول فوق النصاب. يجوز التعجيل والتقسيط خلال السنة، لكن التأخير المتعمد بعد الوجوب مكروه.",
+q6:"من يستحق زكاتي؟",a6:"الأصناف الثمانية في سورة التوبة 60: الفقراء والمساكين والعاملون عليها والمؤلفة قلوبهم والرقاب والغارمون وفي سبيل الله وابن السبيل. ولا تُعطى للأصول والفروع المباشرين ولا للزوج."
+},
+fr:{
+nav_calculator:"Calculateur",nav_nisab:"Nisab",nav_assets:"Actifs",nav_recipients:"Bénéficiaires",nav_guide:"Guide",nav_faq:"FAQ",nav_history:"Historique",nav_start:"Calculer ma Zakat",nav_logo_sub:"Calculateur de Zakat intelligent",
+hero_title_a:"Calculateur de Zakat",hero_title_b:"intelligent & complet",hero_title_c:"pour toutes devises et actifs",hero_desc:"Calculez votre Zakat avec précision : espèces, or, argent, actions, crypto, commerce, agriculture et bétail — avec Nisab en direct et conversion instantanée.",hero_btn_calc:"Calculer ma Zakat",hero_btn_nisab:"Voir le Nisab en direct",
+calc_title_a:"Calculez votre",calc_title_b:"Zakat",tab_wealth:"Richesse",tab_gold:"Or & Argent",tab_business:"Commerce",tab_agri:"Agriculture",tab_livestock:"Bétail",form_currency:"Devise",btn_calculate:"Calculer la Zakat",btn_reset:"Réinitialiser",btn_save:"Enregistrer",res_title:"Votre résultat",res_zakat_due:"Zakat due (2,5%)",res_net:"Fortune nette",res_nisab:"Nisab",cta_title:"Purifiez vos biens aujourd'hui",footer_rights:"Tous droits réservés."
+},
+ur:{
+nav_calculator:"کیلکولیٹر",nav_nisab:"نصاب",nav_assets:"اثاثے",nav_recipients:"مستحقین",nav_guide:"رہنمائی",nav_faq:"سوالات",nav_history:"ریکارڈ",nav_start:"اپنی زکوٰۃ حساب کریں",nav_logo_sub:"ذہین زکوٰۃ کیلکولیٹر",
+hero_title_a:"جامع ذہین",hero_title_b:"زکوٰۃ کیلکولیٹر",hero_title_c:"تمام کرنسیوں اور اثاثوں کے لیے",hero_desc:"اپنی زکوٰۃ درست حساب کریں: نقد، سونا، چاندی، اسٹاک، کرپٹو، کاروبار، زراعت اور مویشی — براہِ راست نصاب اور کرنسی تبدیلی کے ساتھ۔",hero_btn_calc:"میری زکوٰۃ حساب کریں",hero_btn_nisab:"نصاب براہِ راست دیکھیں",
+calc_title_a:"اپنی",calc_title_b:"زکوٰۃ حساب کریں",tab_wealth:"دولت و نقد",tab_gold:"سونا و چاندی",tab_business:"کاروبار",tab_agri:"زراعت",tab_livestock:"مویشی",form_currency:"کرنسی",btn_calculate:"زکوٰۃ حساب کریں",btn_reset:"صاف کریں",btn_save:"محفوظ کریں",res_title:"آپ کا نتیجہ",res_zakat_due:"واجب زکوٰۃ (2.5%)",res_net:"خالص قابلِ زکوٰۃ دولت",res_nisab:"نصاب",cta_title:"آج اپنا مال پاک کریں",footer_rights:"جملہ حقوق محفوظ ہیں۔"
+},
+tr:{
+nav_calculator:"Hesaplayıcı",nav_nisab:"Nisab",nav_assets:"Varlıklar",nav_recipients:"Hak Sahipleri",nav_guide:"Rehber",nav_faq:"SSS",nav_history:"Geçmiş",nav_start:"Zekatımı Hesapla",nav_logo_sub:"Akıllı Zekat Hesaplayıcı",
+hero_title_a:"Kapsamlı Akıllı",hero_title_b:"Zekat Hesaplayıcı",hero_title_c:"Tüm Para Birimleri & Varlıklar İçin",hero_desc:"Zekatınızı hassas şekilde hesaplayın: nakit, altın, gümüş, hisse, kripto, ticaret, tarım ve hayvanlar — canlı nisab ve anlık kur çevrimi ile.",hero_btn_calc:"Zekatımı Hesapla",hero_btn_nisab:"Canlı Nisabı Gör",
+calc_title_a:"Zekatınızı",calc_title_b:"Hesaplayın",tab_wealth:"Servet & Para",tab_gold:"Altın & Gümüş",tab_business:"Ticaret",tab_agri:"Tarım",tab_livestock:"Hayvanlar",form_currency:"Para Birimi",btn_calculate:"Zekatı Hesapla",btn_reset:"Sıfırla",btn_save:"Kaydet",res_title:"Zekat Sonucunuz",res_zakat_due:"Ödenecek Zekat (%2,5)",res_net:"Net Zekata Tabi Servet",res_nisab:"Nisab",cta_title:"Malınızı Bugün Arındırın",footer_rights:"Tüm hakları saklıdır."
+},
+id:{
+nav_calculator:"Kalkulator",nav_nisab:"Nisab",nav_assets:"Aset",nav_recipients:"Penerima",nav_guide:"Panduan",nav_faq:"FAQ",nav_history:"Riwayat",nav_start:"Hitung Zakat Saya",nav_logo_sub:"Kalkulator Zakat Pintar",
+hero_title_a:"Kalkulator Zakat",hero_title_b:"Pintar & Lengkap",hero_title_c:"untuk Semua Mata Uang & Aset",hero_desc:"Hitung Zakat Anda dengan presisi: tunai, emas, perak, saham, kripto, dagang, pertanian & ternak — dengan nisab live dan konversi kurs real-time.",hero_btn_calc:"Hitung Zakat Saya",hero_btn_nisab:"Cek Nisab Live",
+calc_title_a:"Hitung",calc_title_b:"Zakat Anda",tab_wealth:"Harta & Uang",tab_gold:"Emas & Perak",tab_business:"Bisnis",tab_agri:"Pertanian",tab_livestock:"Ternak",form_currency:"Mata Uang",btn_calculate:"Hitung Zakat",btn_reset:"Atur Ulang",btn_save:"Simpan",res_title:"Hasil Zakat Anda",res_zakat_due:"Zakat Terutang (2,5%)",res_net:"Harta Bersih",res_nisab:"Nisab",cta_title:"Sucikan Harta Anda Hari Ini",footer_rights:"Seluruh hak cipta dilindungi."
+}};
+
+/* ---------- CURRENCIES (160+) ---------- */
+const CURS = [
+["USD","US Dollar","$"],["EUR","Euro","€"],["GBP","British Pound","£"],["SAR","Saudi Riyal","﷼"],["AED","UAE Dirham","د.إ"],
+["QAR","Qatari Riyal","ر.ق"],["KWD","Kuwaiti Dinar","د.ك"],["BHD","Bahraini Dinar",".د.ب"],["OMR","Omani Rial","ر.ع."],["JOD","Jordanian Dinar","د.ا"],
+["EGP","Egyptian Pound","E£"],["PKR","Pakistani Rupee","₨"],["INR","Indian Rupee","₹"],["BDT","Bangladeshi Taka","৳"],["LKR","Sri Lankan Rupee","Rs"],
+["TRY","Turkish Lira","₺"],["MYR","Malaysian Ringgit","RM"],["IDR","Indonesian Rupiah","Rp"],["BND","Brunei Dollar","$"],["SGD","Singapore Dollar","$"],
+["PHP","Philippine Peso","₱"],["THB","Thai Baht","฿"],["VND","Vietnamese Dong","₫"],["MYR","Malaysian Ringgit","RM"],["CNY","Chinese Yuan","¥"],
+["JPY","Japanese Yen","¥"],["KRW","South Korean Won","₩"],["HKD","Hong Kong Dollar","HK$"],["TWD","Taiwan Dollar","NT$"],["AUD","Australian Dollar","A$"],
+["NZD","New Zealand Dollar","NZ$"],["CAD","Canadian Dollar","C$"],["CHF","Swiss Franc","Fr"],["SEK","Swedish Krona","kr"],["NOK","Norwegian Krone","kr"],
+["DKK","Danish Krone","kr"],["PLN","Polish Zloty","zł"],["CZK","Czech Koruna","Kč"],["HUF","Hungarian Forint","Ft"],["RON","Romanian Leu","lei"],
+["BGN","Bulgarian Lev","лв"],["HRK","Croatian Kuna","kn"],["RSD","Serbian Dinar","дин"],["BAM","Bosnian Mark","KM"],["ALL","Albanian Lek","L"],
+["MKD","Macedonian Denar","ден"],["UAH","Ukrainian Hryvnia","₴"],["RUB","Russian Ruble","₽"],["BYN","Belarusian Ruble","Br"],["MDL","Moldovan Leu","L"],
+["GEL","Georgian Lari","₾"],["AMD","Armenian Dram","֏"],["AZN","Azerbaijani Manat","₼"],["KZT","Kazakhstani Tenge","₸"],["KGS","Kyrgyzstani Som","с"],
+["UZS","Uzbekistani Som","so'm"],["TJS","Tajikistani Somoni","ЅМ"],["TMT","Turkmenistani Manat","m"],["AFN","Afghan Afghani","؋"],["IRR","Iranian Rial","﷼"],
+["IQD","Iraqi Dinar","ع.د"],["SYP","Syrian Pound","£S"],["LBP","Lebanese Pound","ل.ل"],["ILS","Israeli Shekel","₪"],["YER","Yemeni Rial","﷼"],
+["SDG","Sudanese Pound","ج.س"],["ETB","Ethiopian Birr","Br"],["SOS","Somali Shilling","Sh"],["DJF","Djiboutian Franc","Fdj"],["ERN","Eritrean Nakfa","Nkf"],
+["MAD","Moroccan Dirham","د.م."],["DZD","Algerian Dinar","د.ج"],["TND","Tunisian Dinar","د.ت"],["LYD","Libyan Dinar","ل.د"],["MRU","Mauritanian Ouguiya","UM"],
+["NGN","Nigerian Naira","₦"],["GHS","Ghanaian Cedi","₵"],["XOF","West African Franc","CFA"],["XAF","Central African Franc","FCFA"],["KES","Kenyan Shilling","KSh"],
+["UGX","Ugandan Shilling","USh"],["TZS","Tanzanian Shilling","TSh"],["RWF","Rwandan Franc","RF"],["BIF","Burundian Franc","FBu"],["CDF","Congolese Franc","FC"],
+["ZMW","Zambian Kwacha","K"],["MZN","Mozambican Metical","MT"],["AOA","Angolan Kwanza","Kz"],["ZAR","South African Rand","R"],["BWP","Botswana Pula","P"],
+["NAD","Namibian Dollar","N$"],["SZL","Eswatini Lilangeni","L"],["LSL","Lesotho Loti","L"],["MUR","Mauritian Rupee","₨"],["SCR","Seychellois Rupee","₨"],
+["MGA","Malagasy Ariary","Ar"],["KMF","Comorian Franc","CF"],["MWK","Malawian Kwacha","MK"],["ZWL","Zimbabwean Dollar","Z$"],["GMD","Gambian Dalasi","D"],
+["SLL","Sierra Leonean Leone","Le"],["LRD","Liberian Dollar","L$"],["GNF","Guinean Franc","FG"],["MLI","Malian Franc","CFA"],["BFA","Burkinabe Franc","CFA"],
+["NER","Nigerien Franc","CFA"],["TCD","Chadian Franc","FCFA"],["CMR","Cameroonian Franc","FCFA"],["GAB","Gabonese Franc","FCFA"],["COG","Congolese Franc","FCFA"],
+["CAF","Central African Franc","FCFA"],["SHN","St Helena Pound","£"],["MVR","Maldivian Rufiyaa","Rf"],["NPR","Nepalese Rupee","₨"],["BTN","Bhutanese Ngultrum","Nu"],
+["MMK","Myanmar Kyat","K"],["LAK","Lao Kip","₭"],["KHR","Cambodian Riel","៛"],["BDT","Bangladeshi Taka","৳"],["MNT","Mongolian Tugrik","₮"],
+["KPW","North Korean Won","₩"],["MOP","Macanese Pataca","MOP$"],["BRL","Brazilian Real","R$"],["MXN","Mexican Peso","M$"],["ARS","Argentine Peso","AR$"],
+["CLP","Chilean Peso","CL$"],["COP","Colombian Peso","CO$"],["PEN","Peruvian Sol","S/"],["UYU","Uruguayan Peso","$U"],["PYG","Paraguayan Guarani","₲"],
+["BOB","Bolivian Boliviano","Bs"],["VES","Venezuelan Bolívar","Bs"],["GTQ","Guatemalan Quetzal","Q"],["HNL","Honduran Lempira","L"],["NIO","Nicaraguan Córdoba","C$"],
+["CRC","Costa Rican Colón","₡"],["PAB","Panamanian Balboa","B/."],["DOP","Dominican Peso","RD$"],["JMD","Jamaican Dollar","J$"],["TTD","Trinidad Dollar","TT$"],
+["BBD","Barbadian Dollar","Bds$"],["XCD","East Caribbean Dollar","EC$"],["BSD","Bahamian Dollar","B$"],["BZD","Belize Dollar","BZ$"],["GYD","Guyanese Dollar","G$"],
+["SRD","Surinamese Dollar","Sr$"],["AWG","Aruban Florin","ƒ"],["ANG","Netherlands Antillean Guilder","ƒ"],["CUP","Cuban Peso","₱"],["HTG","Haitian Gourde","G"],
+["FJD","Fijian Dollar","FJ$"],["PGK","Papua New Guinean Kina","K"],["SBD","Solomon Islands Dollar","SI$"],["VUV","Vanuatu Vatu","VT"],["WST","Samoan Tala","T"],
+["TOP","Tongan Pa'anga","T$"],["NPR","Nepalese Rupee","₨"],["ISK","Icelandic Krona","kr"],["FOK","Faroese Krona","kr"],["GIP","Gibraltar Pound","£"]
+];
+// dedupe
+const CURR_MAP = {}; CURS.forEach(c=>{CURR_MAP[c[0]]=c;}); const CURRENCIES = Object.values(CURR_MAP);
+
+/* ---------- STATE ---------- */
+let currentLang = localStorage.getItem('zakaty_lang') || 'en';
+let currency = localStorage.getItem('zakaty_cur') || 'USD';
+let rates = {USD:1};
+let nisabStd = 'lower', agriType = 'rain', activeTab = 'wealth';
+let lastCalc = {net:0,nisab:0,zakat:0,assets:0,liab:0,eligible:false};
+const GOLD_USD_G = 93.10, SILVER_USD_G = 1.08;
+const RTL_LANGS = ['ar','ur','fa','ps','he','yi','ug','dv','ckb'];
+
+const t = k => (I18N[currentLang] && I18N[currentLang][k]) || I18N.en[k] || k;
+const $ = id => document.getElementById(id);
+
+/* ---------- THEME ---------- */
+function toggleTheme(){
+  const html = document.documentElement;
+  html.classList.toggle('dark');
+  const dark = html.classList.contains('dark');
+  $('themeIconMoon').classList.toggle('hidden', !dark);
+  $('themeIconSun').classList.toggle('hidden', dark);
+  applyThemeVars(); updateChartsTheme();
+  localStorage.setItem('zakaty_theme', dark?'dark':'light');
+}
+function applyThemeVars(){
+  const dark = document.documentElement.classList.contains('dark');
+  const r = document.documentElement.style;
+  if(dark){ r.setProperty('--h-text','#fff'); r.setProperty('--nav-text','#fff'); $('mainNav').style.background='rgba(7,11,22,.85)'; }
+  else{ r.setProperty('--h-text','#131000'); r.setProperty('--nav-text','#131000'); $('mainNav').style.background='rgba(247,244,236,.9)'; }
+}
+
+/* ---------- HIJRI DATE ---------- */
+function updateHijri(){
+  try{
+    const loc = currentLang==='zh-CN'?'zh-CN':currentLang;
+    const h = new Intl.DateTimeFormat(loc+'-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(new Date());
+    const g = new Intl.DateTimeFormat(loc,{day:'numeric',month:'short',year:'numeric'}).format(new Date());
+    $('hijriDate').textContent = h + ' • ' + g;
+  }catch(e){ $('hijriDate').textContent = new Date().toDateString(); }
+}
+
+/* ---------- I18N ENGINE ---------- */
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.dataset.i18nPh); });
+  const lang = LANGS.find(l=>l.c===currentLang);
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (lang && lang.rtl) || RTL_LANGS.includes(currentLang) ? 'rtl' : 'ltr';
+  $('currentLangLabel').textContent = lang ? lang.native : currentLang;
+  $('footerLangLabel').textContent = lang ? lang.native : currentLang;
+  buildDynamicSections(); updateHijri(); calculate(); calcGold(); calcBusiness(); calcAgri(); calcLivestock(); renderHistory();
+}
+async function translateText(text, target){
+  const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl='+encodeURIComponent(target)+'&dt=t&q='+encodeURIComponent(text);
+  const res = await fetch(url);
+  const data = await res.json();
+  if(data && data[0]) return data[0].map(s=>s[0]).join('');
+  throw new Error('tr');
+}
+async function translateBatch(texts, target){
+  // Join with a protected delimiter so one request translates many strings
+  const DELIM = ' §¶§ ';
+  const combined = texts.join(DELIM);
+  const out = await translateText(combined, target);
+  // restore splits (translator may add spaces around delimiter)
+  const parts = out.split(/§\s*¶\s*§/);
+  if(parts.length === texts.length) return parts.map(s=>s.trim());
+  // fallback: try splitting on ¶ alone
+  const p2 = out.split('¶');
+  if(p2.length === texts.length) return p2.map(s=>s.replace(/§/g,'').trim());
+  return null;
+}
+async function ensureLanguage(code){
+  if(I18N[code] && Object.keys(I18N[code]).length > 100) return;
+  const cached = localStorage.getItem('zakaty_i18n_'+code);
+  if(cached){ try{ const obj = JSON.parse(cached); I18N[code] = Object.assign({}, I18N[code]||{}, obj); if(Object.keys(I18N[code]).length>100) return; }catch(e){} }
+  const keys = Object.keys(I18N.en).filter(k=>!(I18N[code]&&I18N[code][k]));
+  if(!keys.length) return;
+  const prog = $('translateProgress'); prog.classList.remove('hidden');
+  $('translateBar').style.width='2%'; $('translatePct').textContent='2%';
+  const fresh = {}; const gtCode = code; const BATCH = 6;
+  for(let i=0;i<keys.length;i+=BATCH){
+    const batch = keys.slice(i, i+BATCH);
+    const texts = batch.map(k=>I18N.en[k]);
+    let done = false;
+    try{
+      const res = await translateBatch(texts, gtCode);
+      if(res){ batch.forEach((k,idx)=>fresh[k]=res[idx]||I18N.en[k]); done=true; }
+    }catch(e){}
+    if(!done){
+      // graceful fallback: translate one-by-one, then fallback to English
+      for(const k of batch){
+        try{ fresh[k] = await translateText(I18N.en[k], gtCode); }
+        catch(e){ fresh[k] = I18N.en[k]; }
+      }
+    }
+    const pct = Math.round(Math.min(keys.length,i+BATCH)/keys.length*100);
+    $('translateBar').style.width = pct+'%'; $('translatePct').textContent = pct+'%';
+    await new Promise(r=>setTimeout(r,120));
+  }
+  I18N[code] = Object.assign({}, I18N[code]||{}, fresh);
+  try{ localStorage.setItem('zakaty_i18n_'+code, JSON.stringify(I18N[code])); }catch(e){}
+  prog.classList.add('hidden');
+}
+async function setLanguage(code){
+  if(code===currentLang){ closeLangModal(); return; }
+  const needsCloud = !(I18N[code] && Object.keys(I18N[code]).length>100) && !localStorage.getItem('zakaty_i18n_'+code);
+  if(needsCloud){
+    $('translateProgress').classList.remove('hidden');
+    try{ await ensureLanguage(code); }catch(e){}
+  } else { await ensureLanguage(code); }
+  currentLang = code; localStorage.setItem('zakaty_lang', code);
+  applyTranslations(); closeLangModal(); renderLangs('');
+  toast(t('toast_lang')+': '+(LANGS.find(l=>l.c===code)||{}).native);
+}
+function openLangModal(){ $('langModal').classList.remove('hidden'); $('langModal').classList.add('flex'); renderLangs(''); $('langSearch').value=''; }
+function closeLangModal(){ $('langModal').classList.add('hidden'); $('langModal').classList.remove('flex'); }
+function langCard(l){
+  const active = l.c===currentLang;
+  return '<button onclick="setLanguage(\''+l.c+'\')" class="lang-opt flex items-center gap-2.5 px-3 py-2.5 rounded-2xl border '+(active?'border-[#D4AF37] bg-[#D4AF37]/15':'border-white/10 bg-white/[.03]')+' text-left">'
+  +'<span class="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center text-[10px] font-black '+(active?'bg-gradient-to-br from-[#F6E27A] to-[#9C7C1E] text-[#131000]':'bg-white/10 text-slate-300')+'">'+l.c.split('-')[0].toUpperCase().slice(0,2)+'</span>'
+  +'<span class="min-w-0"><span class="block text-[13px] font-bold text-white truncate">'+l.native+'</span><span class="block text-[11px] text-slate-500 truncate">'+l.n+'</span></span>'
+  +(active?'<svg class="w-4 h-4 text-[#E9CE6F] ml-auto shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>':'')
+  +'</button>';
+}
+function renderLangs(q){
+  q=(q||'').toLowerCase();
+  const filtered = LANGS.filter(l=>l.n.toLowerCase().includes(q)||l.native.toLowerCase().includes(q)||l.c.toLowerCase().includes(q));
+  $('langPopular').innerHTML = LANGS.filter(l=>l.pop && (!q || l.n.toLowerCase().includes(q)||l.native.includes(q))).map(langCard).join('');
+  $('langGrid').innerHTML = filtered.filter(l=>!l.pop||q).map(langCard).join('') || '<div class="col-span-3 text-center text-slate-500 py-6 text-sm">No languages found</div>';
+  $('langCount').textContent = LANGS.length+'+';
+}
+
+/* ---------- CURRENCY ENGINE ---------- */
+async function fetchRates(){
+  try{
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    const data = await res.json();
+    if(data && data.rates){ rates = data.rates; $('rateStatus').textContent='● Live FX'; $('rateStatus').className='hidden sm:inline text-emerald-400 font-semibold'; }
+  }catch(e){
+    rates = Object.assign({USD:1}, {EUR:.92,GBP:.79,SAR:3.75,AED:3.67,QAR:3.64,KWD:.31,BHD:.38,OMR:.38,JOD:.71,EGP:50.5,PKR:278,INR:84.5,BDT:119,TRY:34.5,MYR:4.45,IDR:15800,PHP:58.5,CNY:7.24,JPY:154,NGN:1550,MAD:10,PKR:278});
+    $('rateStatus').textContent='● Cached FX';
+  }
+  buildTicker(); setCurrency(currency, true); onPriceChange();
+}
+function rateTo(cur){ return rates[cur]||1; }
+function convertFromUSD(usd, cur){ return usd * rateTo(cur); }
+function convertToUSD(amount, cur){ return amount / rateTo(cur); }
+function fmt(amount, cur){
+  cur = cur||currency;
+  try{
+    const loc = currentLang==='zh-CN'?'zh-CN':currentLang;
+    return new Intl.NumberFormat(loc,{style:'currency',currency:cur,maximumFractionDigits:cur==='IDR'||cur==='JPY'||cur==='VND'?0:2}).format(amount);
+  }catch(e){ return (CURR_MAP[cur]?CURR_MAP[cur][2]:cur)+' '+Number(amount).toLocaleString(); }
+}
+function sym(cur){ return (CURR_MAP[cur]&&CURR_MAP[cur][2])||cur; }
+function openCurrencyModal(){ $('curModal').classList.remove('hidden'); $('curModal').classList.add('flex'); renderCurrencies(''); $('curSearch').value=''; }
+function closeCurrencyModal(){ $('curModal').classList.add('hidden'); $('curModal').classList.remove('flex'); }
+function renderCurrencies(q){
+  q=(q||'').toLowerCase();
+  const list = CURRENCIES.filter(c=>c[0].toLowerCase().includes(q)||c[1].toLowerCase().includes(q));
+  $('curGrid').innerHTML = list.map(c=>{
+    const active = c[0]===currency;
+    const r = rates[c[0]] ? ('1 USD = '+Number(rates[c[0]]).toLocaleString(undefined,{maximumFractionDigits:2})+' '+c[0]) : '';
+    return '<button onclick="setCurrency(\''+c[0]+'\')" class="lang-opt flex items-center gap-3 px-3.5 py-3 rounded-2xl border '+(active?'border-[#D4AF37] bg-[#D4AF37]/15':'border-white/10 bg-white/[.03]')+' text-left">'
+    +'<span class="w-10 h-10 rounded-xl bg-gradient-to-br '+(active?'from-[#F6E27A] to-[#9C7C1E] text-[#131000]':'from-white/10 to-white/5 text-[#E9CE6F]')+' flex items-center justify-center text-[11px] font-black shrink-0">'+c[0].slice(0,3)+'</span>'
+    +'<span class="min-w-0 flex-1"><span class="block text-[13px] font-bold text-white">'+c[0]+' <span class="text-slate-500 font-medium">• '+c[2]+'</span></span><span class="block text-[11px] text-slate-500 truncate">'+c[1]+'</span><span class="block text-[10px] text-emerald-400/80 font-semibold">'+r+'</span></span></button>';
+  }).join('');
+  $('curCount').textContent = CURRENCIES.length+'+';
+}
+function setCurrency(code, silent){
+  currency = code; localStorage.setItem('zakaty_cur', code);
+  const c = CURR_MAP[code];
+  $('curFlag').textContent = code.slice(0,3);
+  $('curLabel').textContent = code+' — '+c[1];
+  document.querySelectorAll('.curSym').forEach(el=>el.textContent=c[2]);
+  // auto-convert metal prices to selected currency
+  const g = convertFromUSD(GOLD_USD_G, code), s = convertFromUSD(SILVER_USD_G, code);
+  $('goldPrice').value = +g.toFixed(g<10?2:g<1000?2:0);
+  $('silverPrice').value = +(s<1?s.toFixed(3):s.toFixed(2));
+  closeCurrencyModal(); renderCurrencies(''); onPriceChange(); calculate();
+  if(!silent) toast(t('toast_currency')+': '+code);
+}
+function buildTicker(){
+  const picks = ['USD','EUR','GBP','SAR','AED','PKR','INR','BDT','TRY','MYR','IDR','EGP','NGN','MYR','JPY','CNY'];
+  let html='';
+  picks.forEach(c=>{ const r=rates[c]; if(!r)return;
+    html+='<span class="mx-5 text-[12.5px] font-semibold text-slate-400">USD/'+c+' <b class="text-[#E9CE6F] num-badge">'+Number(r).toLocaleString(undefined,{maximumFractionDigits:2})+'</b></span><span class="text-[#D4AF37]/40">✦</span>';
+  });
+  $('tickerTrack').innerHTML = html+html;
+  $('chipRate').textContent = (rates['SAR']?Number(rates['SAR']).toFixed(2):'3.75')+' • Live';
+}
+
+/* ---------- CALCULATOR CORE ---------- */
+const ASSET_FIELDS = [
+  {id:'in_cash', key:'f_cash', icon:'M12 8c-2.5 0-4 1.5-4 3.5S9.5 15 12 15s4 1 4 2.5S13.5 20 12 20'},
+  {id:'in_bank', key:'f_bank', icon:'M3 21h18M5 21V7l7-4 7 4v14'},
+  {id:'in_stocks', key:'f_stocks', icon:'M3 17l6-6 4 4 8-8M15 7h6v6'},
+  {id:'in_crypto', key:'f_crypto', icon:'M13 10V3L4 14h7v7l9-11h-7z'},
+  {id:'in_inventory', key:'f_inventory', icon:'M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2'},
+  {id:'in_receive', key:'f_receivable', icon:'M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4'},
+  {id:'in_funds', key:'f_funds', icon:'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10'},
+  {id:'in_realestate', key:'f_realestate', icon:'M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10'},
+  {id:'in_other', key:'f_other', icon:'M12 6v6m0 0v6m0-6h6m-6 0H6'}
+];
+const LIAB_FIELDS = [
+  {id:'in_debts', key:'f_debts'},{id:'in_expenses', key:'f_expenses'},{id:'in_loans', key:'f_loans'},{id:'in_otherliab', key:'f_other_liab'}
+];
+function buildWealthInputs(){
+  // preserve user-entered values across language re-renders
+  const keep = {};
+  document.querySelectorAll('#wealthAssetsGrid input, #wealthLiabGrid input').forEach(i=>{ keep[i.id]=i.value; });
+  $('wealthAssetsGrid').innerHTML = ASSET_FIELDS.map(f=>
+    '<div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block">'+t(f.key)+'</label>'
+    +'<div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 curSym font-bold text-sm text-[#E9CE6F]">'+sym(currency)+'</span>'
+    +'<input type="number" id="'+f.id+'" class="field" placeholder="0" min="0" step="any" oninput="calculate()" value="'+(keep[f.id]||'')+'"></div></div>').join('');
+  $('wealthLiabGrid').innerHTML = LIAB_FIELDS.map(f=>
+    '<div><label class="text-[13px] font-semibold text-slate-300 mb-1.5 block">'+t(f.key)+'</label>'
+    +'<div class="relative"><span class="absolute left-3.5 top-1/2 -translate-y-1/2 curSym font-bold text-sm text-rose-400">'+sym(currency)+'</span>'
+    +'<input type="number" id="'+f.id+'" class="field" placeholder="0" min="0" step="any" oninput="calculate()" value="'+(keep[f.id]||'')+'"></div></div>').join('');
+}
+function val(id){ const v = parseFloat(($(id)||{value:0}).value); return isNaN(v)||v<0?0:v; }
+function nisabValues(){
+  const gp = val('goldPrice'), sp = val('silverPrice');
+  const gN = 85*gp, sN = 595*sp;
+  const n = nisabStd==='gold'?gN:nisabStd==='silver'?sN:Math.min(gN,sN);
+  return {gN,sN,n,gp,sp};
+}
+function onPriceChange(){
+  const {gN,sN,n} = nisabValues();
+  $('heroGoldNisab').textContent = fmt(gN); $('heroSilverNisab').textContent = fmt(sN);
+  $('heroGoldSub').textContent = '85g × '+fmt(val('goldPrice'));
+  $('heroSilverSub').textContent = '595g × '+fmt(val('silverPrice'));
+  $('nisabGoldVal').textContent = fmt(gN); $('nisabSilverVal').textContent = fmt(sN);
+  $('nisabGoldRate').textContent = fmt(val('goldPrice'))+' / g'; $('nisabSilverRate').textContent = fmt(val('silverPrice'))+' / g';
+  $('nisabQuickNote').textContent = 'Nisab: '+fmt(n);
+  $('topGoldPrice').textContent = '$'+GOLD_USD_G.toFixed(2)+'/g'; $('topSilverPrice').textContent = '$'+SILVER_USD_G.toFixed(2)+'/g';
+  const r = rateTo(currency);
+  $('fxNote').textContent = '1 USD = '+Number(r).toLocaleString(undefined,{maximumFractionDigits:r<10?3:0})+' '+currency+' • Live rates';
+  calculate();
+}
+function setNisabStd(s){
+  nisabStd = s;
+  document.querySelectorAll('.std-btn').forEach(b=>{
+    const on = b.dataset.std===s;
+    b.className = 'std-btn px-2 py-2.5 rounded-xl text-[12px] font-bold transition '+(on?'bg-gradient-to-r from-[#D4AF37] to-[#9C7C1E] text-[#131000]':'text-slate-300 hover:bg-white/5');
+  });
+  onPriceChange();
+}
+function switchTab(name){
+  activeTab = name;
+  document.querySelectorAll('#calcTabs .tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.add('hidden'));
+  const p = $('panel-'+name); p.classList.remove('hidden');
+  p.style.animation='none'; p.offsetHeight; p.style.animation='toastIn .5s cubic-bezier(.16,1,.3,1)';
+}
+function setAgriType(x){ agriType=x;
+  document.querySelectorAll('.agri-btn').forEach(b=>{
+    const on=b.dataset.agri===x;
+    b.className='agri-btn px-3 py-3 rounded-2xl border text-[13px] font-bold '+(on?'border-emerald-500/60 bg-emerald-500/15 text-emerald-300':'border-slate-600/50 text-slate-400');
+  }); calcAgri();
+}
+function calculate(scroll){
+  const {n} = nisabValues();
+  let assets = 0; const parts=[];
+  ASSET_FIELDS.forEach(f=>{ const v=val(f.id); assets+=v; if(v>0)parts.push({label:t(f.key),v}); });
+  const goldV = val('in_goldW')*val('goldPrice'), silverV = val('in_silverW')*val('silverPrice');
+  assets += goldV+silverV;
+  if(goldV>0)parts.push({label:t('f_gold_w'),v:goldV});
+  if(silverV>0)parts.push({label:t('f_silver_w'),v:silverV});
+  let liab=0; LIAB_FIELDS.forEach(f=>liab+=val(f.id));
+  const net = Math.max(0, assets-liab);
+  const hawl = $('hawlCheck').checked;
+  const eligible = net>=n && n>0 && hawl;
+  const zakat = eligible? net*0.025 : 0;
+  lastCalc = {net,nisab:n,zakat,assets,liab,eligible};
+  $('goldValHint').textContent='≈ '+fmt(goldV); $('silverValHint').textContent='≈ '+fmt(silverV);
+  $('resZakat').textContent = eligible||net>0?fmt(zakat):'—';
+  $('resZakatAlt').textContent = '≈ '+fmt(convertToUSD(zakat,'USD'),'USD');
+  $('resNet').textContent = fmt(net); $('resNisab').textContent = fmt(n);
+  $('resAssets').textContent = fmt(assets); $('resLiab').textContent = fmt(liab);
+  const pct = n>0?Math.min(100,Math.round(net/n*100)):0;
+  $('resPct').textContent=pct+'%'; $('resBar').style.width=pct+'%';
+  const badge=$('resStatusBadge');
+  if(eligible){ badge.textContent=t('res_eligible'); badge.className='px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 pulse-live'; }
+  else{ badge.textContent=t('res_not'); badge.className='px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-slate-700/50 text-slate-300 border border-white/10'; }
+  // insights
+  const ins=[];
+  if(eligible)ins.push({c:'emerald',x:t('ins_eligible')});
+  else if(!hawl&&net>=n)ins.push({c:'amber',x:t('ins_hawl')});
+  else if(net<n&&net>=n*0.8)ins.push({c:'amber',x:t('ins_close')});
+  else if(net<n)ins.push({c:'slate',x:t('ins_below')});
+  if(liab>assets*0.3&&liab>0)ins.push({c:'rose',x:t('ins_debts')});
+  if(parts.length>=4)ins.push({c:'gold',x:t('ins_diverse')});
+  if(goldV>0)ins.push({c:'gold',x:t('ins_gold')+': '+fmt(goldV)});
+  $('insightsList').innerHTML = ins.map(i=>{
+    const col = i.c==='emerald'?'text-emerald-400':i.c==='amber'?'text-amber-300':i.c==='rose'?'text-rose-300':'text-[#E9CE6F]';
+    return '<li class="flex gap-2"><svg class="w-4 h-4 shrink-0 mt-0.5 '+col+'" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>'+i.x+'</span></li>';
+  }).join('');
+  updateDonut(parts);
+  if(scroll) $('resultCard').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function resetAll(){
+  document.querySelectorAll('#calculator input[type=number]').forEach(i=>i.value='');
+  calculate(); toast(t('toast_reset'));
+}
+function copyResult(){
+  const c=lastCalc;
+  const txt = 'ZAKATY — '+t('res_title')+'\n'+t('res_net')+': '+fmt(c.net)+'\n'+t('res_nisab')+': '+fmt(c.nisab)+'\n'+t('res_zakat_due')+': '+fmt(c.zakat)+' ('+currency+')';
+  navigator.clipboard.writeText(txt).then(()=>toast(t('toast_copied')));
+}
+/* Gold sub-calc */
+function calcGold(){
+  const g=val('g_gold')*(parseFloat($('g_karat').value)||1), s=val('g_silver');
+  const gv=g*val('goldPrice'), sv=s*val('silverPrice'), total=gv+sv;
+  const {n}=nisabValues(); const due=total>=n&&total>0?total*0.025:0;
+  $('goldResult').innerHTML = total<=0
+    ? '<span class="text-slate-500">—</span>'
+    : '<div class="flex flex-wrap gap-x-6 gap-y-1"><span>Pure gold: <b class="text-amber-300">'+g.toFixed(2)+'g</b> ('+fmt(gv)+')</span><span>Silver: <b class="text-slate-200">'+s.toFixed(2)+'g</b> ('+fmt(sv)+')</span></div>'
+    +'<div class="mt-2">Total: <b class="text-white">'+fmt(total)+'</b> • Nisab: '+fmt(n)+'</div>'
+    +'<div class="mt-3 text-lg font-display font-bold '+(due>0?'text-emerald-300':'text-slate-400')+'">'+t('res_zakat_due')+': '+fmt(due)+'</div>';
+}
+/* Business sub-calc */
+function calcBusiness(){
+  const tot = val('b_stock')+val('b_cash')+val('b_receive')-val('b_debts');
+  const net=Math.max(0,tot); const {n}=nisabValues(); const due=net>=n&&net>0?net*0.025:0;
+  $('bizResult').innerHTML = (val('b_stock')+val('b_cash')+val('b_receive')<=0)
+    ? '<span class="text-slate-500">—</span>'
+    : '<div>Net business wealth: <b class="text-white">'+fmt(net)+'</b> • Nisab: '+fmt(n)+'</div>'
+    +'<div class="mt-3 text-lg font-display font-bold '+(due>0?'text-emerald-300':'text-slate-400')+'">'+t('res_zakat_due')+': '+fmt(due)+'</div>';
+}
+/* Agri sub-calc */
+function calcAgri(){
+  const kg=val('a_kg'), price=val('a_price');
+  const rate = agriType==='rain'?0.10:agriType==='irrigated'?0.05:0.075;
+  const dueKg=kg*rate, nisabKg=653;
+  $('agriResult').innerHTML = kg<=0 ? '<span class="text-slate-500">—</span>'
+    : '<div>Harvest: <b class="text-white">'+kg.toLocaleString()+' kg</b> • Nisab: '+nisabKg+' kg '+(kg>=nisabKg?'<b class="text-emerald-300">✓</b>':'<b class="text-rose-300">✗</b>')+'</div>'
+    +'<div class="mt-3 text-lg font-display font-bold '+(kg>=nisabKg?'text-emerald-300':'text-slate-400')+'">Ushr ('+(rate*100)+'%): '+dueKg.toFixed(1)+' kg'+(price>0?' ≈ '+fmt(dueKg*price):'')+'</div>';
+}
+/* Livestock sub-calc */
+function sheepDue(n){ if(n<40)return'— (below Nisab)'; if(n<=120)return'1 sheep'; if(n<=200)return'2 sheep'; if(n<=399)return'3 sheep'; return Math.floor(n/100)+' sheep (1 per 100)'; }
+function cattleDue(n){ if(n<30)return'— (below Nisab)'; if(n<=39)return'1 tabi‘ (1-yr calf)'; if(n<=59)return'1 musinnah (2-yr cow)'; if(n<=69)return'2 tabi‘'; if(n<=79)return'1 musinnah + 1 tabi‘'; if(n<=89)return'2 musinnah'; if(n<=99)return'3 tabi‘'; return Math.floor(n/30)+' tabi‘ / per 30 & '+Math.floor((n%30)/40)+' musinnah'; }
+function camelDue(n){ if(n<5)return'— (below Nisab)'; if(n<=9)return'1 sheep'; if(n<=14)return'2 sheep'; if(n<=19)return'3 sheep'; if(n<=24)return'4 sheep'; if(n<=35)return'1 bint makhad (1-yr camel)'; if(n<=45)return'1 bint labun (2-yr camel)'; if(n<=60)return'1 hiqqah (3-yr camel)'; if(n<=75)return'1 jadha‘ah (4-yr camel)'; if(n<=90)return'2 bint labun'; if(n<=120)return'2 hiqqah'; return '1 hiqqah per 50 + 1 bint labun per 40'; }
+function calcLivestock(){
+  const s=Math.floor(val('l_sheep')), c=Math.floor(val('l_cattle')), d=Math.floor(val('l_camel'));
+  $('liveResult').innerHTML = (s+c+d<=0)?'<span class="text-slate-500">—</span>'
+    :'<div class="grid sm:grid-cols-3 gap-3 text-[13px]">'
+    +'<div class="rounded-xl bg-white/[.04] border border-white/10 p-3"><b class="text-[#E9CE6F]">'+t('live_sheep')+' ('+s+')</b><div class="mt-1 text-emerald-300 font-bold">'+sheepDue(s)+'</div></div>'
+    +'<div class="rounded-xl bg-white/[.04] border border-white/10 p-3"><b class="text-[#E9CE6F]">'+t('live_cattle')+' ('+c+')</b><div class="mt-1 text-emerald-300 font-bold">'+cattleDue(c)+'</div></div>'
+    +'<div class="rounded-xl bg-white/[.04] border border-white/10 p-3"><b class="text-[#E9CE6F]">'+t('live_camel')+' ('+d+')</b><div class="mt-1 text-emerald-300 font-bold">'+camelDue(d)+'</div></div></div>';
+}
+
+/* ---------- CHARTS ---------- */
+let donutChart, goldChart, silverChart;
+function chartDefaults(){
+  Chart.defaults.color = document.documentElement.classList.contains('dark')?'rgba(255,255,255,.65)':'rgba(0,0,0,.6)';
+  Chart.defaults.font.family = 'Inter';
+}
+function initCharts(){
+  chartDefaults();
+  donutChart = new Chart($('chartDonut'),{type:'doughnut',data:{labels:[],datasets:[{data:[],backgroundColor:['#D4AF37','#10B981','#38BDF8','#A78BFA','#F472B6','#FB923C','#94A3B8','#E9CE6F','#34D399','#F87171','#FBBF24'],borderWidth:0,hoverOffset:8}]},options:{cutout:'62%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:10,font:{size:10}}}},maintainAspectRatio:false}});
+  const mk = (id,color)=> new Chart($(id),{type:'line',data:{labels:['-6d','-5d','-4d','-3d','-2d','-1d','Now'],datasets:[{data:Array.from({length:7},()=>0),borderColor:color,backgroundColor:color+'33',fill:true,tension:.45,pointRadius:0,borderWidth:2.5}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.06)'},ticks:{font:{size:9},maxTicksLimit:4}}},maintainAspectRatio:false}});
+  goldChart = mk('chartGold','#D4AF37'); silverChart = mk('chartSilver','#CBD5E1');
+  refreshSpark();
+}
+function refreshSpark(){
+  const g = convertFromUSD(GOLD_USD_G*85, currency), s = convertFromUSD(SILVER_USD_G*595, currency);
+  const jitter=(base,v)=>Array.from({length:7},(_,i)=>base*(1+(Math.sin(i*1.7)*v)+(i*0.004)));
+  goldChart.data.datasets[0].data=jitter(g,.02); goldChart.update('none');
+  silverChart.data.datasets[0].data=jitter(s,.03); silverChart.update('none');
+}
+function updateDonut(parts){
+  if(!donutChart)return;
+  donutChart.data.labels = parts.map(p=>p.label);
+  donutChart.data.datasets[0].data = parts.map(p=>Math.round(p.v*100)/100);
+  donutChart.update();
+}
+function updateChartsTheme(){ chartDefaults(); [donutChart,goldChart,silverChart].forEach(c=>c&&c.update()); }
+
+/* ---------- DYNAMIC SECTIONS ---------- */
+const ASSET_CARDS = [
+  {k:'a_cash', c:'from-emerald-400/20 to-emerald-600/5 border-emerald-500/25', icon:'M12 8c-2.5 0-4 1.5-4 3.5S9.5 15 12 15s4 1 4 2.5S13.5 20 12 20', col:'text-emerald-400'},
+  {k:'a_gold', c:'from-amber-400/20 to-amber-600/5 border-amber-500/30', icon:'M12 3l7 7-7 11L5 10z', col:'text-amber-300'},
+  {k:'a_silver', c:'from-slate-300/15 to-slate-500/5 border-slate-400/25', icon:'M12 8c-1.7 0-3 .8-3 2s1.3 2 3 2 3 .8 3 2-1.3 2-3 2', col:'text-slate-300'},
+  {k:'a_stocks', c:'from-sky-400/15 to-sky-600/5 border-sky-500/25', icon:'M3 17l6-6 4 4 8-8M15 7h6v6', col:'text-sky-400'},
+  {k:'a_crypto', c:'from-orange-400/15 to-orange-600/5 border-orange-500/25', icon:'M13 10V3L4 14h7v7l9-11h-7z', col:'text-orange-400'},
+  {k:'a_biz', c:'from-violet-400/15 to-violet-600/5 border-violet-500/25', icon:'M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z', col:'text-violet-400'},
+  {k:'a_prop', c:'from-rose-400/15 to-rose-600/5 border-rose-500/25', icon:'M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10', col:'text-rose-400'},
+  {k:'a_recv', c:'from-teal-400/15 to-teal-600/5 border-teal-500/25', icon:'M8 7h12m0 0l-4-4m4 4l-4 4M16 17H4m0 0l4 4m-4-4l4-4', col:'text-teal-400'}
+];
+function buildDynamicSections(){
+  buildWealthInputs();
+  $('assetsGrid').innerHTML = ASSET_CARDS.map((a,i)=>
+    '<div class="glass rounded-3xl p-5 sm:p-6 card-hover reveal visible bg-gradient-to-br '+a.c+'">'
+    +'<div class="w-11 h-11 rounded-2xl bg-black/30 border border-white/10 flex items-center justify-center mb-3"><svg class="w-5 h-5 '+a.col+'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="'+a.icon+'"/></svg></div>'
+    +'<div class="font-bold text-white text-[14px] sm:text-[15px]">'+t(a.k+'_t')+'</div><div class="text-[12px] sm:text-[13px] text-slate-500 mt-1">'+t(a.k+'_d')+'</div></div>').join('');
+  const recs=[1,2,3,4,5,6,7,8];
+  $('recGrid').innerHTML = recs.map(n=>
+    '<div class="glass rounded-3xl p-5 card-hover reveal visible relative overflow-hidden group">'
+    +'<div class="absolute -top-3 -right-2 font-display text-[64px] font-bold text-[#D4AF37]/10 group-hover:text-[#D4AF37]/20 transition leading-none">'+n+'</div>'
+    +'<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F6E27A] to-[#9C7C1E] flex items-center justify-center font-black text-[#131000] text-sm mb-3">'+n+'</div>'
+    +'<div class="font-bold text-white text-[14px]">'+t('r'+n+'t')+'</div><div class="text-[12.5px] text-slate-500 mt-1">'+t('r'+n+'d')+'</div></div>').join('');
+  $('stepsGrid').innerHTML = [1,2,3,4].map(n=>
+    '<div class="glass rounded-3xl p-6 card-hover reveal visible relative overflow-hidden">'
+    +'<div class="flex items-center gap-3 mb-3"><span class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#F6E27A] to-[#9C7C1E] text-[#131000] font-black flex items-center justify-center text-lg shadow-lg shadow-[#D4AF37]/30">'+n+'</span>'
+    +(n<4?'<div class="flex-1 h-[2px] bg-gradient-to-r from-[#D4AF37]/50 to-transparent rounded hidden lg:block"></div>':'')+'</div>'
+    +'<div class="font-bold text-white">'+t('s'+n+'t')+'</div><div class="text-[13px] text-slate-500 mt-1.5 leading-relaxed">'+t('s'+n+'d')+'</div></div>').join('');
+  $('faqList').innerHTML = [1,2,3,4,5,6].map(n=>
+    '<div class="faq-item glass rounded-2xl overflow-hidden reveal visible">'
+    +'<button onclick="this.parentElement.classList.toggle(\'open\')" class="w-full flex items-center justify-between gap-3 px-5 py-4 text-left">'
+    +'<span class="font-bold text-white text-[14px] sm:text-[15px]">'+t('q'+n)+'</span>'
+    +'<span class="faq-chevron w-8 h-8 rounded-xl bg-[#D4AF37]/15 border border-[#D4AF37]/30 flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-[#E9CE6F]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span></button>'
+    +'<div class="faq-answer"><p class="px-5 pb-5 text-[13.5px] sm:text-[14px] text-slate-400 leading-relaxed">'+t('a'+n)+'</p></div></div>').join('');
+}
+
+/* ---------- HISTORY ---------- */
+function getHistory(){ try{ return JSON.parse(localStorage.getItem('zakaty_history')||'[]'); }catch(e){ return []; } }
+function saveCalculation(){
+  const c=lastCalc;
+  if(c.net<=0){ toast(t('hist_empty')); return; }
+  const h=getHistory();
+  h.unshift({d:new Date().toISOString(),cur:currency,net:Math.round(c.net*100)/100,nisab:Math.round(c.nisab*100)/100,zakat:Math.round(c.zakat*100)/100});
+  localStorage.setItem('zakaty_history', JSON.stringify(h.slice(0,50)));
+  renderHistory(); toast(t('toast_saved'));
+}
+function renderHistory(){
+  const h=getHistory(); const body=$('historyBody');
+  $('historyEmpty').style.display = h.length?'none':'block';
+  body.innerHTML = h.map((r,i)=>{
+    const dt = new Date(r.d).toLocaleDateString(currentLang,{day:'numeric',month:'short',year:'numeric'});
+    return '<tr class="border-t border-white/5 hover:bg-[#D4AF37]/[.05] transition">'
+    +'<td class="px-4 py-3 text-slate-300 font-medium whitespace-nowrap">'+dt+'</td>'
+    +'<td class="px-4 py-3"><span class="px-2.5 py-1 rounded-lg bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#E9CE6F] font-bold text-[12px]">'+r.cur+'</span></td>'
+    +'<td class="px-4 py-3 text-right text-white font-semibold num-badge">'+Number(r.net).toLocaleString()+'</td>'
+    +'<td class="px-4 py-3 text-right text-slate-400 num-badge">'+Number(r.nisab).toLocaleString()+'</td>'
+    +'<td class="px-4 py-3 text-right text-emerald-400 font-bold num-badge">'+Number(r.zakat).toLocaleString()+'</td>'
+    +'<td class="px-4 py-3 text-right"><button onclick="delHistory('+i+')" class="text-slate-600 hover:text-rose-400 transition text-lg leading-none">×</button></td></tr>';
+  }).join('');
+}
+function delHistory(i){ const h=getHistory(); h.splice(i,1); localStorage.setItem('zakaty_history',JSON.stringify(h)); renderHistory(); }
+function clearHistory(){ localStorage.setItem('zakaty_history','[]'); renderHistory(); toast(t('toast_history_clear')); }
+function exportHistory(){
+  const h=getHistory(); if(!h.length){toast(t('hist_empty'));return;}
+  let csv='Date,Currency,Net Wealth,Nisab,Zakat Due\n'+h.map(r=>r.d+','+r.cur+','+r.net+','+r.nisab+','+r.zakat).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='zakaty-history.csv'; a.click();
+}
+
+/* ---------- UI UTILS ---------- */
+function toast(msg){
+  const el=document.createElement('div');
+  el.className='toast-in pointer-events-auto flex items-center gap-2.5 px-5 py-3.5 rounded-2xl bg-[#0A1122]/95 border border-[#D4AF37]/40 text-[13.5px] font-semibold text-white shadow-2xl shadow-black/50 backdrop-blur';
+  el.style.background='rgba(10,17,34,.96)';
+  el.innerHTML='<svg class="w-4.5 h-4.5 w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>'+msg+'</span>';
+  $('toasts').appendChild(el);
+  setTimeout(()=>{ el.style.transition='.4s'; el.style.opacity='0'; el.style.transform='translateY(10px)'; setTimeout(()=>el.remove(),400); },2600);
+}
+function toggleMobileMenu(){
+  const m=$('mobileMenu'); m.classList.toggle('hidden');
+  $('menuIconOpen').classList.toggle('hidden'); $('menuIconClose').classList.toggle('hidden');
+}
+// Reveal on scroll
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} }),{threshold:.08});
+function observeReveals(){ document.querySelectorAll('.reveal:not(.visible)').forEach(el=>io.observe(el)); }
+// Counters
+function animateCounters(){
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const target=+el.dataset.count, suf=el.dataset.suffix||''; let cur=0;
+    const step=()=>{ cur+=Math.max(1,Math.ceil(target/60)); if(cur>=target){el.textContent=target+suf;}else{el.textContent=cur+suf;requestAnimationFrame(step);} };
+    const o=new IntersectionObserver(en=>{ if(en[0].isIntersecting){step();o.disconnect();} }); o.observe(el);
+  });
+}
+// Particles
+function initParticles(){
+  const cv=$('particles'), ctx=cv.getContext('2d'); let W,H,ps=[];
+  function size(){ const r=cv.parentElement.getBoundingClientRect(); W=cv.width=r.width; H=cv.height=r.height; }
+  size(); window.addEventListener('resize',size);
+  for(let i=0;i<45;i++)ps.push({x:Math.random(),y:Math.random(),r:Math.random()*2+0.6,s:Math.random()*0.0006+0.0002,o:Math.random()*0.6+0.15,ph:Math.random()*6.28});
+  (function loop(){
+    ctx.clearRect(0,0,W,H);
+    ps.forEach(p=>{ p.y-=p.s; p.ph+=0.02; if(p.y<-0.02){p.y=1.02;p.x=Math.random();}
+      const tw = p.o*(0.6+0.4*Math.sin(p.ph));
+      ctx.beginPath(); ctx.arc(p.x*W,p.y*H,p.r,0,6.28);
+      ctx.fillStyle='rgba(212,175,55,'+tw.toFixed(2)+')'; ctx.fill();
+    });
+    requestAnimationFrame(loop);
+  })();
+}
+// Scroll handlers
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('scrollProgress').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  const bt=$('backTop');
+  if(h.scrollTop>600){bt.classList.remove('hidden');bt.classList.add('flex');}else{bt.classList.add('hidden');bt.classList.remove('flex');}
+},{passive:true});
+
+/* ---------- INIT ---------- */
+document.addEventListener('DOMContentLoaded', async ()=>{
+  const savedTheme = localStorage.getItem('zakaty_theme');
+  if(savedTheme==='light'){ document.documentElement.classList.remove('dark'); }
+  else document.documentElement.classList.add('dark');
+  toggleThemeInit();
+  renderLangs(''); renderCurrencies('');
+  buildDynamicSections(); initCharts(); initParticles(); observeReveals(); animateCounters();
+  await fetchRates();
+  // Fast boot: if language needs cloud translation and isn't cached, render instantly in English-fallback then upgrade in background
+  const needsCloudBoot = !(I18N[currentLang] && Object.keys(I18N[currentLang]).length>100) && !localStorage.getItem('zakaty_i18n_'+currentLang);
+  if(needsCloudBoot && currentLang!=='en'){
+    applyTranslations(); refreshSpark(); renderHistory();
+    ensureLanguage(currentLang).then(()=>{ applyTranslations(); refreshSpark(); }).catch(()=>{});
+  } else {
+    await ensureLanguage(currentLang).catch(()=>{});
+    applyTranslations(); refreshSpark(); renderHistory();
+  }
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeLangModal();closeCurrencyModal();} });
+});
+function toggleThemeInit(){
+  const dark=document.documentElement.classList.contains('dark');
+  $('themeIconMoon').classList.toggle('hidden',!dark);
+  $('themeIconSun').classList.toggle('hidden',dark);
+  applyThemeVars();
+}
+</script>
+</body>
+</html>
